@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L'Agence GTM — Portail Client</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Layout */
+    #sidebar { width: 256px; background: #0f172a; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; display: flex; flex-direction: column; }
+    #main { margin-left: 256px; min-height: 100vh; background: #f8fafc; }
+
+    /* Nav items */
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 10px; cursor: pointer;
+      color: #94a3b8; font-size: 13.5px; font-weight: 500;
+      transition: all 0.15s; margin: 1px 8px;
+    }
+    .nav-item:hover { background: #1e293b; color: #e2e8f0; }
+    .nav-item.active { background: linear-gradient(135deg, #064e3b, #065f46); color: #ffffff; }
+    .nav-item.active svg { stroke: #6ee7b7; }
+    .nav-section-label { padding: 18px 20px 6px; font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; }
+
+    /* Cards */
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 24px; transition: all 0.2s; }
+    .card:hover { border-color: #cbd5e1; box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
+    .kpi-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; transition: all 0.2s; }
+    .kpi-card:hover { border-color: #10b981; box-shadow: 0 2px 12px rgba(16,185,129,0.08); }
+
+    /* Buttons */
+    .btn-primary { background: linear-gradient(135deg, #064e3b 0%, #0d9488 100%); color: white; transition: all 0.2s; cursor: pointer; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(6,95,70,0.3); }
+    .btn-secondary { background: white; border: 1px solid #e2e8f0; color: #374151; transition: all 0.2s; cursor: pointer; }
+    .btn-secondary:hover { border-color: #10b981; background: #f0fdf4; color: #065f46; }
+
+    /* Badges */
+    .badge-plan { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; }
+    .badge-active { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-paused { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-draft { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+    /* Progress */
+    .progress-bar { background: #e2e8f0; border-radius: 999px; height: 5px; overflow: hidden; }
+    .progress-fill { border-radius: 999px; height: 5px; background: linear-gradient(90deg, #059669, #0d9488); }
+    .progress-warn { border-radius: 999px; height: 5px; background: #f59e0b; }
+
+    /* Sections */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed #cbd5e1; border-radius: 16px; padding: 48px 32px;
+      text-align: center; transition: all 0.2s; cursor: pointer;
+    }
+    .upload-zone:hover { border-color: #10b981; background: #f0fdf4; }
+
+    /* Animations */
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .section.active { animation: fadeIn 0.2s ease; }
+
+    /* Gradient text */
+    .gradient-text-green { background: linear-gradient(135deg,#059669,#0d9488); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* Table */
+    table { border-collapse: collapse; }
+    th { font-weight: 600; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* Notification dot */
+    .notif-dot { width:7px; height:7px; background:#ef4444; border-radius:50%; position:absolute; top:-1px; right:-1px; border:1.5px solid white; }
+
+    /* Trend */
+    .trend-up { color: #059669; }
+    .trend-down { color: #ef4444; }
+
+    /* Form inputs */
+    input[type="text"], input[type="url"], input[type="date"], textarea, select {
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus, input[type="url"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+      outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+    }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-slate-50">
+
+<!-- ════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════ -->
+<aside id="sidebar">
+
+  <!-- Logo -->
+  <div class="px-5 py-5 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#064e3b,#0d9488)">
+        <span class="text-white font-black text-sm tracking-tight">AG</span>
+      </div>
+      <div>
+        <div class="text-white font-bold text-sm leading-tight">L'Agence</div>
+        <div class="text-emerald-400 text-[10px] mono tracking-widest uppercase">Go To Market</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User card -->
+  <div class="px-4 py-4 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">JM</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-white text-sm font-semibold truncate">Jean Martin</div>
+        <div class="text-slate-400 text-xs truncate">Stackwise SaaS</div>
+      </div>
+      <span class="badge-plan text-[10px] px-2 py-0.5 rounded-full font-bold flex-shrink-0">Growth</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 py-3 overflow-y-auto">
+    <div class="nav-section-label">Vue d'ensemble</div>
+    <div class="nav-item active" data-section="overview" onclick="showSection('overview',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </div>
+
+    <div class="nav-section-label">Campagnes</div>
+    <div class="nav-item" data-section="campaigns" onclick="showSection('campaigns',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      Mes campagnes
+      <span class="ml-auto bg-slate-700 text-slate-300 text-[10px] px-1.5 py-0.5 rounded-full mono">2</span>
+    </div>
+    <div class="nav-item" data-section="request" onclick="showSection('request',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      Nouvelle campagne
+    </div>
+
+    <div class="nav-section-label">Leads & données</div>
+    <div class="nav-item" data-section="leads" onclick="showSection('leads',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Base de leads
+    </div>
+    <div class="nav-item" data-section="upload" onclick="showSection('upload',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      Importer CSV
+    </div>
+
+    <div class="nav-section-label">Paramètres</div>
+    <div class="nav-item" data-section="config" onclick="showSection('config',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Configuration ICP
+    </div>
+    <div class="nav-item" data-section="subscription" onclick="showSection('subscription',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+      Abonnement
+    </div>
+  </nav>
+
+  <!-- Bottom logout -->
+  <div class="px-4 py-4 border-t border-slate-800">
+    <div class="nav-item" style="margin:0;color:#64748b">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Déconnexion
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════
+     MAIN AREA
+════════════════════════════════════════ -->
+<div id="main">
+
+  <!-- Top header -->
+  <header class="bg-white border-b border-slate-100 sticky top-0 z-40 px-8 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div id="page-title" class="font-semibold text-slate-800 text-sm">Dashboard</div>
+      <div id="page-subtitle" class="text-slate-400 text-xs hidden md:block">· Mis à jour il y a 12 min</div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
+        <span class="pulse-dot w-1.5 h-1.5 rounded-full bg-emerald-500 block"></span>
+        <span class="mono">2 campagnes actives</span>
+      </div>
+      <button class="relative w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#64748b" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs cursor-pointer">JM</div>
+    </div>
+  </header>
+
+  <!-- ──────────────────────────────────────
+       OVERVIEW / DASHBOARD
+  ────────────────────────────────────── -->
+  <section id="section-overview" class="section active p-8">
+
+    <!-- Welcome -->
+    <div class="flex items-start justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 mb-1">Bonjour, Jean 👋</h1>
+        <p class="text-slate-500 text-sm">Voici l'état de vos campagnes GTM — données en temps réel via GTM-OS.</p>
+      </div>
+      <button onclick="showSection('request',getNavEl('request'))" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14m-7-7h14"/></svg>
+        Nouvelle campagne
+      </button>
+    </div>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+      <div class="kpi-card">
+        <div class="text-[11px] text-slate-400 mb-2 mono uppercase tracking-wide">Connexions</div>
+        <div class="text-2xl font-black text-slate-900">847</div>
+        <div class="trend-up text-xs mt-1.5 flex items-center gap-1">
+          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>+124 ce mois
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="text-[11px] text-slate-400 mb-2 mono uppercase tracking-wide">Acceptation</div>
+        <div class="text-2xl font-black text-slate-900">38<span class="text-base text-slate-400">%</span></div>
+        <div class="trend-up text-xs mt-1.5 flex items-center gap-1">
+          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>+3 pts
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="text-[11px] text-slate-400 mb-2 mono uppercase tracking-wide">Réponses</div>
+        <div class="text-2xl font-black text-slate-900">94</div>
+        <div class="text-xs text-slate-400 mt-1.5">Taux 11.1%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="text-[11px] text-slate-400 mb-2 mono uppercase tracking-wide">RDV bookés</div>
+        <div class="text-2xl font-black gradient-text-green">17</div>
+        <div class="trend-up text-xs mt-1.5 flex items-center gap-1">
+          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>+5 cette semaine
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="text-[11px] text-slate-400 mb-2 mono uppercase tracking-wide">Leads qualifiés</div>
+        <div class="text-2xl font-black text-slate-900">312</div>
+        <div class="text-xs text-slate-400 mt-1.5">/ 2 400 analysés</div>
+      </div>
+      <div class="kpi-card">
+        <div class="text-[11px] text-slate-400 mb-2 mono uppercase tracking-wide">Emails ouverts</div>
+        <div class="text-2xl font-black text-slate-900">61<span class="text-base text-slate-400">%</span></div>
+        <div class="trend-down text-xs mt-1.5 flex items-center gap-1">
+          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17 7l-9.2 9.2M7 7v10h10"/></svg>-2 pts
+        </div>
+      </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="grid lg:grid-cols-3 gap-6">
+
+      <!-- Campaigns panel -->
+      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="font-bold text-slate-900 text-sm">Campagnes actives</h2>
+          <button onclick="showSection('campaigns',getNavEl('campaigns'))" class="text-xs text-emerald-600 hover:text-emerald-700 font-semibold">Voir tout →</button>
+        </div>
+        <div class="px-6 divide-y divide-slate-50">
+
+          <!-- C1 -->
+          <div class="py-4">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="font-semibold text-slate-800 text-sm">SaaS Decision Makers — LinkedIn</span>
+                  <span class="badge-active text-[10px] px-2 py-0.5 rounded-full font-semibold">Actif</span>
+                </div>
+                <div class="text-xs text-slate-400 mono">Lancée le 12 avr · ICP: CTO / VP Eng · Series A–B</div>
+              </div>
+              <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-sm font-bold text-slate-800">8 RDV</div>
+                <div class="text-xs text-slate-400">ce mois</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-3 text-xs mb-3">
+              <div><div class="text-slate-400 mb-0.5">Envoyées</div><div class="font-semibold text-slate-700">487</div></div>
+              <div><div class="text-slate-400 mb-0.5">Acceptées</div><div class="font-semibold text-slate-700">185 <span class="text-emerald-600">(38%)</span></div></div>
+              <div><div class="text-slate-400 mb-0.5">Réponses</div><div class="font-semibold text-slate-700">54</div></div>
+              <div><div class="text-slate-400 mb-0.5">Étape</div><div class="font-semibold text-slate-700 mono">DM-2</div></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span>62% progressé</span><span>487 / 800 prospects</span></div>
+          </div>
+
+          <!-- C2 -->
+          <div class="py-4">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="font-semibold text-slate-800 text-sm">Post-Demo Follow-up — Email</span>
+                  <span class="badge-active text-[10px] px-2 py-0.5 rounded-full font-semibold">Actif</span>
+                </div>
+                <div class="text-xs text-slate-400 mono">Lancée le 5 avr · Séquence 3 étapes · Instantly</div>
+              </div>
+              <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-sm font-bold text-slate-800">61%</div>
+                <div class="text-xs text-slate-400">ouverture</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-3 text-xs mb-3">
+              <div><div class="text-slate-400 mb-0.5">Envoyés</div><div class="font-semibold text-slate-700">360</div></div>
+              <div><div class="text-slate-400 mb-0.5">Ouverts</div><div class="font-semibold text-slate-700">219 <span class="text-emerald-600">(61%)</span></div></div>
+              <div><div class="text-slate-400 mb-0.5">Réponses</div><div class="font-semibold text-slate-700">40</div></div>
+              <div><div class="text-slate-400 mb-0.5">Bounces</div><div class="font-semibold text-red-500">6</div></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span>45% progressé</span><span>360 / 800 emails</span></div>
+          </div>
+
+          <!-- C3 pending -->
+          <div class="py-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="font-semibold text-slate-800 text-sm">Expansion DACH — LinkedIn</span>
+                  <span class="badge-pending text-[10px] px-2 py-0.5 rounded-full font-semibold">En validation</span>
+                </div>
+                <div class="text-xs text-slate-400 mono">Demandée le 25 avr · En attente de validation agence</div>
+              </div>
+              <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-xs text-amber-600 font-medium">~2–3 jours</div>
+                <div class="text-xs text-slate-400">avant lancement</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="space-y-5">
+
+        <!-- Plan usage -->
+        <div class="bg-white rounded-2xl border border-slate-100 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-900 text-sm">Mon abonnement</h3>
+            <span class="badge-plan text-[10px] px-2.5 py-1 rounded-full font-bold">Growth</span>
+          </div>
+          <div class="space-y-3.5">
+            <div>
+              <div class="flex justify-between text-xs mb-1.5"><span class="text-slate-500">Campagnes actives</span><span class="font-semibold text-slate-700">2 / 3</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5"><span class="text-slate-500">Leads traités ce mois</span><span class="font-semibold text-slate-700">2 400 / 5 000</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:48%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5"><span class="text-slate-500">Connexions LinkedIn</span><span class="font-semibold text-amber-600">847 / 900</span></div>
+              <div class="progress-bar"><div class="progress-warn" style="width:94%"></div></div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs text-slate-400">Renouvellement le 1 mai</span>
+            <button onclick="showSection('subscription',getNavEl('subscription'))" class="text-xs text-emerald-600 font-semibold hover:text-emerald-700">Upgrader →</button>
+          </div>
+        </div>
+
+        <!-- Activity feed -->
+        <div class="bg-white rounded-2xl border border-slate-100 p-5">
+          <h3 class="font-bold text-slate-900 text-sm mb-4">Activité récente</h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div><div class="text-xs font-medium text-slate-700">RDV — Sarah Chen @ Vercel</div><div class="text-[10px] text-slate-400">Il y a 2h · LinkedIn</div></div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              </div>
+              <div><div class="text-xs font-medium text-slate-700">Réponse — Thomas B. @ Algolia</div><div class="text-[10px] text-slate-400">Il y a 4h · Intéressé</div></div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="2.5"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              </div>
+              <div><div class="text-xs font-medium text-slate-700">30 connexions LinkedIn envoyées</div><div class="text-[10px] text-slate-400">Hier · Limite journalière</div></div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="#d97706" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              </div>
+              <div><div class="text-xs font-medium text-slate-700">Campagne DACH en validation</div><div class="text-[10px] text-slate-400">Hier · Agence en cours de review</div></div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+              </div>
+              <div><div class="text-xs font-medium text-slate-700">CSV importé — 450 leads qualifiés</div><div class="text-[10px] text-slate-400">Il y a 3 jours · 1 200 lignes</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────
+       CAMPAIGNS
+  ────────────────────────────────────── -->
+  <section id="section-campaigns" class="section p-8">
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 mb-1">Mes campagnes</h1>
+        <p class="text-slate-500 text-sm">3 campagnes · 2 actives · 1 en validation</p>
+      </div>
+      <button onclick="showSection('request',getNavEl('request'))" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14m-7-7h14"/></svg>
+        Demander une campagne
+      </button>
+    </div>
+
+    <div class="space-y-5">
+
+      <!-- Campaign 1 -->
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <div class="flex items-center gap-2.5 mb-1">
+              <span class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-base">🔗</span>
+              <h3 class="font-bold text-slate-900">SaaS Decision Makers — LinkedIn</h3>
+              <span class="badge-active text-[10px] px-2.5 py-1 rounded-full font-semibold">Actif</span>
+            </div>
+            <div class="text-xs text-slate-400 mono ml-10">Lancée le 12 avril 2026 · ICP: CTO / VP Engineering · Series A–B · France + Benelux</div>
+          </div>
+          <button class="btn-secondary text-xs px-4 py-2 rounded-xl font-medium flex-shrink-0 ml-4">Détails</button>
+        </div>
+
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-5">
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800">487</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Connexions</div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800">185</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Acceptées (38%)</div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800">54</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Réponses</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-emerald-700">8</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">RDV bookés</div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800 mono">DM-2</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Étape</div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800">62%</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Progression</div>
+          </div>
+        </div>
+
+        <div class="progress-bar mb-1.5"><div class="progress-fill" style="width:62%"></div></div>
+        <div class="flex justify-between text-[10px] text-slate-400 mb-5"><span>487 prospects traités</span><span>800 cibles</span></div>
+
+        <!-- A/B -->
+        <div class="border-t border-slate-100 pt-4">
+          <div class="text-xs font-semibold text-slate-600 mb-3">Tests A/B</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold text-indigo-700">Variant A · "Funding angle"</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Gagnant</span>
+              </div>
+              <div class="text-sm font-black text-indigo-800">13.2% <span class="text-xs font-normal text-indigo-400">réponse</span></div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+              <div class="text-xs font-semibold text-slate-600 mb-1">Variant B · "Tech stack"</div>
+              <div class="text-sm font-black text-slate-700">8.9% <span class="text-xs font-normal text-slate-400">réponse</span></div>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-2 mono">p = 0.031 · Significatif à p&lt;0.05 · Variant A sélectionné automatiquement</div>
+        </div>
+      </div>
+
+      <!-- Campaign 2 -->
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <div class="flex items-center gap-2.5 mb-1">
+              <span class="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-base">📧</span>
+              <h3 class="font-bold text-slate-900">Post-Demo Follow-up — Email</h3>
+              <span class="badge-active text-[10px] px-2.5 py-1 rounded-full font-semibold">Actif</span>
+            </div>
+            <div class="text-xs text-slate-400 mono ml-10">Lancée le 5 avril 2026 · Séquence 3 étapes · via Instantly</div>
+          </div>
+          <button class="btn-secondary text-xs px-4 py-2 rounded-xl font-medium flex-shrink-0 ml-4">Détails</button>
+        </div>
+        <div class="grid grid-cols-4 gap-3">
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800">360</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Envoyés</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-emerald-700">61%</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">Ouverture</div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-slate-800">40</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Réponses (11%)</div>
+          </div>
+          <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+            <div class="text-lg font-black text-red-600">6</div>
+            <div class="text-[10px] text-red-500 mt-0.5">Bounces</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campaign 3 pending -->
+      <div class="bg-white rounded-2xl border border-amber-200 p-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-2.5 mb-1">
+              <span class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-base">🌍</span>
+              <h3 class="font-bold text-slate-900">Expansion DACH — LinkedIn</h3>
+              <span class="badge-pending text-[10px] px-2.5 py-1 rounded-full font-semibold">En validation</span>
+            </div>
+            <div class="text-xs text-slate-400 mono ml-10 mb-3">Demandée le 25 avril 2026 · ICP: VP Sales · Allemagne / Suisse / Autriche</div>
+            <div class="ml-10 bg-amber-50 border border-amber-100 rounded-xl p-3 max-w-md">
+              <div class="text-xs font-semibold text-amber-800 mb-1">⏳ En attente de validation agence</div>
+              <div class="text-xs text-amber-700">Notre équipe analyse votre brief et configure les séquences. Lancement prévu dans 2–3 jours ouvrés.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────
+       LEADS
+  ────────────────────────────────────── -->
+  <section id="section-leads" class="section p-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-black text-slate-900 mb-1">Base de leads</h1>
+      <p class="text-slate-500 text-sm">2 400 leads analysés · 312 qualifiés (7-gate pipeline) · 94 en séquence active</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-card text-center"><div class="text-2xl font-black text-slate-900">2 400</div><div class="text-xs text-slate-400 mt-1">Total analysés</div></div>
+      <div class="kpi-card text-center"><div class="text-2xl font-black text-emerald-600">312</div><div class="text-xs text-slate-400 mt-1">Qualifiés</div></div>
+      <div class="kpi-card text-center"><div class="text-2xl font-black text-indigo-600">94</div><div class="text-xs text-slate-400 mt-1">En séquence</div></div>
+      <div class="kpi-card text-center"><div class="text-2xl font-black gradient-text-green">17</div><div class="text-xs text-slate-400 mt-1">RDV bookés</div></div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="font-bold text-slate-900 text-sm">Leads qualifiés</h2>
+        <div class="flex items-center gap-2">
+          <select class="text-xs border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 bg-white focus:outline-none focus:border-emerald-400">
+            <option>Tous les statuts</option>
+            <option>Qualifiés</option>
+            <option>En séquence</option>
+            <option>RDV booké</option>
+            <option>Disqualifié</option>
+          </select>
+          <button onclick="showSection('upload',getNavEl('upload'))" class="btn-primary text-xs px-4 py-2 rounded-lg font-medium">+ Importer CSV</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100 text-left">
+              <th class="px-6 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Nom</th>
+              <th class="px-4 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Entreprise</th>
+              <th class="px-4 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Titre</th>
+              <th class="px-4 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Score IA</th>
+              <th class="px-4 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Statut</th>
+              <th class="px-4 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Campagne</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr>
+              <td class="px-6 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">SC</div><span class="font-medium text-slate-800 text-sm">Sarah Chen</span></div></td>
+              <td class="px-4 py-3.5 text-slate-600 text-sm">Vercel</td>
+              <td class="px-4 py-3.5 text-slate-400 text-xs">VP Engineering</td>
+              <td class="px-4 py-3.5"><span class="mono text-xs font-bold text-emerald-600">9.2 / 10</span></td>
+              <td class="px-4 py-3.5"><span class="badge-active text-[10px] px-2 py-0.5 rounded-full font-semibold">RDV booké</span></td>
+              <td class="px-4 py-3.5 text-xs text-slate-400 mono">SaaS DM</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">TB</div><span class="font-medium text-slate-800 text-sm">Thomas Barraud</span></div></td>
+              <td class="px-4 py-3.5 text-slate-600 text-sm">Algolia</td>
+              <td class="px-4 py-3.5 text-slate-400 text-xs">CTO</td>
+              <td class="px-4 py-3.5"><span class="mono text-xs font-bold text-emerald-600">8.8 / 10</span></td>
+              <td class="px-4 py-3.5"><span class="text-[10px] bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-full font-semibold">Répondu</span></td>
+              <td class="px-4 py-3.5 text-xs text-slate-400 mono">SaaS DM</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">ML</div><span class="font-medium text-slate-800 text-sm">Marie Lefebvre</span></div></td>
+              <td class="px-4 py-3.5 text-slate-600 text-sm">Pennylane</td>
+              <td class="px-4 py-3.5 text-slate-400 text-xs">Head of Growth</td>
+              <td class="px-4 py-3.5"><span class="mono text-xs font-bold text-amber-600">7.1 / 10</span></td>
+              <td class="px-4 py-3.5"><span class="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded-full font-semibold">En séquence</span></td>
+              <td class="px-4 py-3.5 text-xs text-slate-400 mono">Email FU</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">AR</div><span class="font-medium text-slate-800 text-sm">Antoine Renard</span></div></td>
+              <td class="px-4 py-3.5 text-slate-600 text-sm">Qonto</td>
+              <td class="px-4 py-3.5 text-slate-400 text-xs">VP Sales</td>
+              <td class="px-4 py-3.5"><span class="mono text-xs font-bold text-emerald-600">9.0 / 10</span></td>
+              <td class="px-4 py-3.5"><span class="text-[10px] bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full font-semibold">Connexion envoyée</span></td>
+              <td class="px-4 py-3.5 text-xs text-slate-400 mono">SaaS DM</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">JD</div><span class="font-medium text-slate-800 text-sm">Julie Dupont</span></div></td>
+              <td class="px-4 py-3.5 text-slate-600 text-sm">Spendesk</td>
+              <td class="px-4 py-3.5 text-slate-400 text-xs">Engineering Manager</td>
+              <td class="px-4 py-3.5"><span class="mono text-xs font-bold text-slate-400">6.2 / 10</span></td>
+              <td class="px-4 py-3.5"><span class="text-[10px] bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-full font-semibold">Disqualifié</span></td>
+              <td class="px-4 py-3.5 text-xs text-slate-400 mono">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+        <span>Affichage de 5 / 312 leads qualifiés</span>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500">←</button>
+          <span class="mono">1 / 63</span>
+          <button class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500">→</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────
+       UPLOAD CSV
+  ────────────────────────────────────── -->
+  <section id="section-upload" class="section p-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-black text-slate-900 mb-1">Importer des leads</h1>
+      <p class="text-slate-500 text-sm">Uploadez un fichier CSV · L'agence qualifie et intègre les leads à votre pipeline sous 24h</p>
+    </div>
+
+    <div class="max-w-xl space-y-5">
+
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('csv-input').click()">
+        <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="handleFileUpload(this)" />
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <div class="font-semibold text-slate-700 mb-1">Glissez votre fichier CSV ici</div>
+        <div class="text-sm text-slate-400">ou <span class="text-emerald-600 font-semibold">cliquez pour sélectionner</span></div>
+        <div class="text-xs text-slate-300 mt-2">CSV uniquement · Max 50 000 lignes · UTF-8</div>
+      </div>
+
+      <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+        <h3 class="font-bold text-slate-800 text-sm mb-3">Format attendu</h3>
+        <div class="mono text-xs bg-white rounded-xl p-3 border border-slate-200 text-slate-500 overflow-x-auto whitespace-nowrap">
+          first_name, last_name, email, linkedin_url, company, title, location
+        </div>
+        <div class="mt-3 space-y-1.5 text-xs text-slate-500">
+          <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> <strong>first_name</strong> et <strong>last_name</strong> — requis</div>
+          <div class="flex items-center gap-2"><span class="text-emerald-500">✓</span> <strong>email</strong> ou <strong>linkedin_url</strong> — au moins un requis</div>
+          <div class="flex items-center gap-2"><span class="text-slate-300">○</span> company, title, location — optionnels (améliorent la qualification IA)</div>
+        </div>
+        <button class="mt-3 inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold hover:text-emerald-700">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Télécharger le template CSV
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Imports précédents</h3>
+        </div>
+        <div class="divide-y divide-slate-50">
+          <div class="px-5 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-shrink-0">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-slate-700">leads_SaaS_avril2026.csv</div>
+                <div class="text-xs text-slate-400 mono">1 200 lignes · 450 qualifiés · il y a 3 jours</div>
+              </div>
+            </div>
+            <span class="badge-active text-[10px] px-2.5 py-1 rounded-full font-semibold">Intégré</span>
+          </div>
+          <div class="px-5 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-slate-700">prospects_linkedin_mars.csv</div>
+                <div class="text-xs text-slate-400 mono">850 lignes · 312 qualifiés · il y a 28 jours</div>
+              </div>
+            </div>
+            <span class="badge-active text-[10px] px-2.5 py-1 rounded-full font-semibold">Intégré</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────
+       REQUEST CAMPAIGN
+  ────────────────────────────────────── -->
+  <section id="section-request" class="section p-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-black text-slate-900 mb-1">Demander une nouvelle campagne</h1>
+      <p class="text-slate-500 text-sm">Remplissez le brief · L'agence valide et lance sous 2–3 jours ouvrés · Aucune action de votre part ensuite</p>
+    </div>
+
+    <form class="max-w-2xl space-y-5" onsubmit="submitCampaign(event)">
+
+      <!-- Type -->
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 mb-4 text-sm">Type de campagne</h3>
+        <div class="grid grid-cols-3 gap-3">
+          <label class="cursor-pointer">
+            <input type="radio" name="type" value="linkedin" class="hidden peer" checked />
+            <div class="peer-checked:border-emerald-400 peer-checked:bg-emerald-50 border-2 border-slate-200 rounded-xl p-4 text-center transition-all hover:border-slate-300">
+              <div class="text-xl mb-1.5">🔗</div>
+              <div class="text-xs font-semibold text-slate-700">LinkedIn</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Connexion + DM</div>
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="type" value="email" class="hidden peer" />
+            <div class="peer-checked:border-emerald-400 peer-checked:bg-emerald-50 border-2 border-slate-200 rounded-xl p-4 text-center transition-all hover:border-slate-300">
+              <div class="text-xl mb-1.5">📧</div>
+              <div class="text-xs font-semibold text-slate-700">Email</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Cold email séquence</div>
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="type" value="multi" class="hidden peer" />
+            <div class="peer-checked:border-emerald-400 peer-checked:bg-emerald-50 border-2 border-slate-200 rounded-xl p-4 text-center transition-all hover:border-slate-300">
+              <div class="text-xl mb-1.5">⚡</div>
+              <div class="text-xs font-semibold text-slate-700">Multi-canal</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">LinkedIn + Email</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- ICP -->
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 mb-4 text-sm">Cible & ICP</h3>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Titres ciblés</label>
+            <input type="text" placeholder="CTO, VP Engineering, Head of Tech..." class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Secteur d'activité</label>
+            <input type="text" placeholder="SaaS B2B, Fintech, DevTools..." class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Taille d'entreprise</label>
+            <select class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5 bg-white">
+              <option>10–50 employés</option>
+              <option>50–200 employés</option>
+              <option selected>200–1 000 employés</option>
+              <option>1 000+ employés</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Zone géographique</label>
+            <input type="text" placeholder="France, DACH, Benelux..." class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600 block mb-2">Signaux d'intention (optionnel)</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="cursor-pointer"><input type="checkbox" class="hidden peer"/><span class="peer-checked:bg-emerald-50 peer-checked:border-emerald-400 peer-checked:text-emerald-700 text-xs border border-slate-200 text-slate-500 px-3 py-1.5 rounded-full select-none transition-all cursor-pointer">💰 Levée récente</span></label>
+            <label class="cursor-pointer"><input type="checkbox" class="hidden peer"/><span class="peer-checked:bg-emerald-50 peer-checked:border-emerald-400 peer-checked:text-emerald-700 text-xs border border-slate-200 text-slate-500 px-3 py-1.5 rounded-full select-none transition-all cursor-pointer">📈 Croissance effectifs +20%</span></label>
+            <label class="cursor-pointer"><input type="checkbox" class="hidden peer"/><span class="peer-checked:bg-emerald-50 peer-checked:border-emerald-400 peer-checked:text-emerald-700 text-xs border border-slate-200 text-slate-500 px-3 py-1.5 rounded-full select-none transition-all cursor-pointer">📋 Offres d'emploi actives</span></label>
+            <label class="cursor-pointer"><input type="checkbox" class="hidden peer"/><span class="peer-checked:bg-emerald-50 peer-checked:border-emerald-400 peer-checked:text-emerald-700 text-xs border border-slate-200 text-slate-500 px-3 py-1.5 rounded-full select-none transition-all cursor-pointer">🌍 Expansion géo</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 mb-4 text-sm">Message & objectif</h3>
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-slate-600 block mb-1.5">Proposition de valeur principale</label>
+          <textarea rows="3" placeholder="Ex: On aide les startups Series A à déployer plus vite sans recruter 3 DevOps..." class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600 block mb-2">Objectif</label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="cursor-pointer text-center"><input type="radio" name="goal" value="rdv" class="hidden peer" checked/><div class="peer-checked:border-emerald-400 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-500 transition-all">📅 Prise de RDV</div></label>
+            <label class="cursor-pointer text-center"><input type="radio" name="goal" value="awareness" class="hidden peer"/><div class="peer-checked:border-emerald-400 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-500 transition-all">📣 Notoriété</div></label>
+            <label class="cursor-pointer text-center"><input type="radio" name="goal" value="nurture" class="hidden peer"/><div class="peer-checked:border-emerald-400 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-500 transition-all">🔄 Nurturing</div></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Volume & timing -->
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 mb-4 text-sm">Volume & calendrier</h3>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Nombre de prospects cibles</label>
+            <select class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5 bg-white">
+              <option>100–300 prospects</option>
+              <option selected>300–600 prospects</option>
+              <option>600–1 000 prospects</option>
+              <option>1 000+ prospects</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Lancement souhaité</label>
+            <input type="date" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600 block mb-1.5">Notes pour l'agence</label>
+          <textarea rows="2" placeholder="Contexte, contraintes, exemples de messages qui ont fonctionné..." class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5 resize-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex items-center justify-between bg-white rounded-2xl border border-slate-100 p-5">
+        <div class="text-xs text-slate-500">
+          <div class="font-semibold text-slate-700 mb-0.5">Prochaine étape</div>
+          L'agence valide votre brief sous 24h et vous confirme le lancement.
+        </div>
+        <button type="submit" id="submit-btn" class="btn-primary px-7 py-3 rounded-xl font-semibold text-sm flex items-center gap-2">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Envoyer à l'agence →
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ──────────────────────────────────────
+       CONFIG ICP
+  ────────────────────────────────────── -->
+  <section id="section-config" class="section p-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-black text-slate-900 mb-1">Configuration ICP</h1>
+      <p class="text-slate-500 text-sm">Ces paramètres alimentent la qualification IA et la personnalisation automatique des messages</p>
+    </div>
+
+    <div class="max-w-xl space-y-5">
+
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 text-sm mb-4">Contexte entreprise</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Nom de l'entreprise</label>
+            <input type="text" value="Stackwise SaaS" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Proposition de valeur (1 phrase)</label>
+            <input type="text" value="On aide les équipes dev à déployer 3× plus vite via une CI/CD unifiée." class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Site web</label>
+            <input type="url" value="https://stackwise.io" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-slate-900 text-sm">Profil client idéal (ICP)</h3>
+          <span class="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-2.5 py-1 rounded-full font-semibold">Dérivé par Claude ✓</span>
+        </div>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-slate-600 block mb-1.5">Titres décideurs</label>
+              <input type="text" value="CTO, VP Engineering, Head of DevOps" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-600 block mb-1.5">Secteurs prioritaires</label>
+              <input type="text" value="SaaS B2B, Fintech, DevTools" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-600 block mb-1.5">Stade de financement</label>
+              <input type="text" value="Series A, Series B, Series C" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-600 block mb-1.5">Taille d'équipe</label>
+              <input type="text" value="20 – 500 employés" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Points de douleur principaux</label>
+            <textarea rows="2" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5 resize-none">Déploiements trop lents, CI/CD fragmenté, manque de visibilité sur les pipelines</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 text-sm mb-4">Exclusions</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Concurrents à exclure</label>
+            <input type="text" value="GitLab, CircleCI, GitHub Actions, Buildkite" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600 block mb-1.5">Domaines emails exclus</label>
+            <input type="text" placeholder="exemple.com, concurrent.io" class="w-full text-sm border border-slate-200 rounded-xl px-4 py-2.5" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button class="btn-primary px-8 py-3 rounded-xl font-semibold text-sm">Sauvegarder</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────
+       SUBSCRIPTION
+  ────────────────────────────────────── -->
+  <section id="section-subscription" class="section p-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-black text-slate-900 mb-1">Mon abonnement</h1>
+      <p class="text-slate-500 text-sm">Gérez votre plan et suivez votre consommation mensuelle</p>
+    </div>
+
+    <div class="max-w-3xl space-y-6">
+
+      <!-- Current plan -->
+      <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-6">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <h3 class="text-xl font-black text-slate-900">Plan Growth</h3>
+              <span class="badge-active text-[10px] px-2.5 py-1 rounded-full font-semibold">Actif</span>
+            </div>
+            <div class="text-slate-500 text-sm">Renouvellement automatique le <strong>1 mai 2026</strong></div>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-black text-slate-900">€490<span class="text-sm font-normal text-slate-400">/mois</span></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 pt-4 border-t border-indigo-100">
+          <div>
+            <div class="text-xs text-slate-400 mb-1.5">Campagnes actives</div>
+            <div class="font-bold text-slate-800 text-sm mb-1.5">2 / 3</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400 mb-1.5">Leads traités</div>
+            <div class="font-bold text-slate-800 text-sm mb-1.5">2 400 / 5 000</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:48%"></div></div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400 mb-1.5">Connexions LinkedIn</div>
+            <div class="font-bold text-amber-600 text-sm mb-1.5">847 / 900 ⚠️</div>
+            <div class="progress-bar"><div class="progress-warn" style="width:94%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plans comparison -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 opacity-60">
+          <div class="text-xs font-semibold text-slate-400 mb-3">Starter</div>
+          <div class="text-2xl font-black text-slate-800 mb-1">€0<span class="text-sm font-normal text-slate-400">/mo</span></div>
+          <div class="text-xs text-slate-400 mb-4">Open source, auto-hébergé</div>
+          <ul class="space-y-2 text-xs text-slate-500">
+            <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 1 campagne</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 1 000 leads/mois</li>
+            <li class="flex items-center gap-2"><span class="text-slate-300">–</span> Support communauté</li>
+          </ul>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-2xl p-5 relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Plan actuel</div>
+          <div class="text-xs font-semibold text-indigo-600 mb-3">Growth</div>
+          <div class="text-2xl font-black text-slate-800 mb-1">€490<span class="text-sm font-normal text-slate-400">/mo</span></div>
+          <div class="text-xs text-slate-500 mb-4">Géré par l'agence</div>
+          <ul class="space-y-2 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> 3 campagnes</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> 5 000 leads/mois</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Support Slack</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Rapports hebdo</li>
+          </ul>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <div class="text-xs font-semibold text-slate-400 mb-3">Scale</div>
+          <div class="text-2xl font-black text-slate-800 mb-1">Sur mesure</div>
+          <div class="text-xs text-slate-400 mb-4">Multi-marchés, multi-motions</div>
+          <ul class="space-y-2 text-xs text-slate-500 mb-5">
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Campagnes illimitées</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Leads illimités</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Ingénieur GTM dédié</li>
+            <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> White-label option</li>
+          </ul>
+          <button class="btn-primary w-full py-2.5 rounded-xl text-xs font-semibold">Contacter l'agence →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end #main -->
+
+<script>
+  const PAGE_TITLES = {
+    overview: 'Dashboard',
+    campaigns: 'Mes campagnes',
+    leads: 'Base de leads',
+    upload: 'Importer CSV',
+    request: 'Nouvelle campagne',
+    config: 'Configuration ICP',
+    subscription: 'Mon abonnement'
+  };
+
+  function getNavEl(section) {
+    return document.querySelector(`.nav-item[data-section="${section}"]`);
+  }
+
+  function showSection(name, navEl) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('section-' + name);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
+    document.getElementById('page-title').textContent = PAGE_TITLES[name] || name;
+    window.scrollTo(0, 0);
+  }
+
+  function submitCampaign(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg> Demande envoyée !';
+    btn.style.opacity = '0.75';
+    btn.disabled = true;
+    setTimeout(() => showSection('campaigns', getNavEl('campaigns')), 1600);
+  }
+
+  function handleFileUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const zone = document.getElementById('upload-zone');
+    zone.innerHTML = `
+      <div class="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <div class="font-semibold text-emerald-700 mb-1">${file.name}</div>
+      <div class="text-sm text-slate-400 mb-4">${(file.size/1024).toFixed(0)} KB · Prêt à importer</div>
+      <button onclick="alert('Import simulé — connecté à l\\'API GTM-OS en production')" class="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold">Lancer l'import → </button>
+    `;
+    zone.style.cursor = 'default';
+  }
+</script>
+</body>
+</html>
