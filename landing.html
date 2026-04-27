@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTM-OS — AI-Native Go-To-Market Automation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Backgrounds */
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(99,102,241,0.12) 0%, transparent 65%),
+                  radial-gradient(ellipse 50% 40% at 85% 40%, rgba(168,85,247,0.07) 0%, transparent 55%),
+                  #ffffff;
+    }
+    .section-alt { background: #f8fafc; }
+    .section-white { background: #ffffff; }
+
+    /* Gradient text — deep for light bg */
+    .gradient-text {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a21caf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Cards */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(99,102,241,0.4);
+      box-shadow: 0 4px 24px rgba(99,102,241,0.08);
+      transform: translateY(-2px);
+    }
+    .card-featured {
+      background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+      border: 1px solid #c7d2fe;
+    }
+    .card-alt {
+      background: #f8fafc;
+      border: 1px solid #e4e4e7;
+      transition: all 0.3s ease;
+    }
+    .card-alt:hover {
+      border-color: rgba(99,102,241,0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Pipeline nodes */
+    .pipeline-node {
+      background: #f0f4ff;
+      border: 1px solid #c7d2fe;
+      transition: all 0.3s ease;
+    }
+    .pipeline-node:hover {
+      background: #e0e7ff;
+      border-color: #818cf8;
+    }
+    .pipeline-connector {
+      background: linear-gradient(90deg, #818cf8, #a78bfa);
+      height: 1px;
+    }
+
+    /* Stat badge */
+    .stat-badge {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+    }
+
+    /* Nav */
+    .nav-blur {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid #e4e4e7;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(79,70,229,0.3);
+    }
+    .btn-ghost {
+      border: 1px solid #d4d4d8;
+      background: #ffffff;
+      transition: all 0.3s ease;
+    }
+    .btn-ghost:hover {
+      border-color: #818cf8;
+      background: #eef2ff;
+    }
+
+    /* Ticker */
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track { animation: ticker 28s linear infinite; }
+
+    /* Pulse dot */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    /* Grid pattern */
+    .grid-pattern {
+      background-image: linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Terminal — always dark */
+    .terminal {
+      background: #18181b;
+      border: 1px solid #3f3f46;
+    }
+
+    /* Number accent */
+    .number-accent {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Code tag */
+    .code-tag {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 overflow-x-hidden">
+
+<!-- ── NAV ──────────────────────────────────────────────── -->
+<nav class="nav-blur fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/>
+          <circle cx="7" cy="7" r="2" fill="white" opacity="0.6"/>
+        </svg>
+      </div>
+      <span class="font-bold text-zinc-900 tracking-tight">GTM-OS</span>
+      <span class="mono text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 ml-1">v0.5</span>
+    </div>
+    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-500">
+      <a href="#how" class="hover:text-zinc-900 transition-colors">How it works</a>
+      <a href="#features" class="hover:text-zinc-900 transition-colors">Features</a>
+      <a href="#stack" class="hover:text-zinc-900 transition-colors">Stack</a>
+      <a href="#pricing" class="hover:text-zinc-900 transition-colors">Pricing</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#pricing" class="btn-ghost text-sm px-4 py-2 rounded-lg text-zinc-600 hidden md:block">See plans</a>
+      <a href="#contact" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white">Book a call →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TICKER ────────────────────────────────────────────── -->
+<div class="fixed top-16 w-full z-40 overflow-hidden border-b border-zinc-100" style="background:rgba(248,250,252,0.95)">
+  <div class="flex ticker-track py-2 gap-12 whitespace-nowrap">
+    <span class="text-xs text-zinc-400 mono flex gap-12">
+      <span>🟢 LinkedIn Automation</span><span>⚡ AI Lead Qualification</span><span>📧 Cold Email Sequences</span>
+      <span>🔍 700M+ Profiles</span><span>🤖 Claude-Powered Scoring</span><span>📊 A/B Variant Testing</span>
+      <span>🔗 CRM Sync</span><span>🎯 ICP Targeting</span><span>🚀 GTM Automation</span>
+      <span>🟢 LinkedIn Automation</span><span>⚡ AI Lead Qualification</span><span>📧 Cold Email Sequences</span>
+      <span>🔍 700M+ Profiles</span><span>🤖 Claude-Powered Scoring</span><span>📊 A/B Variant Testing</span>
+      <span>🔗 CRM Sync</span><span>🎯 ICP Targeting</span><span>🚀 GTM Automation</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero-gradient grid-pattern min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 relative">
+  <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(99,102,241,0.07), transparent 70%)"></div>
+  <div class="absolute top-1/2 right-1/4 w-64 h-64 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(168,85,247,0.06), transparent 70%)"></div>
+
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 stat-badge px-4 py-2 rounded-full mb-8">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+      <span class="text-xs text-indigo-700 mono">AI-native GTM infrastructure · Open Source</span>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-6">
+      <span class="text-zinc-900">Your unfair advantage</span><br/>
+      <span class="gradient-text">in B2B outbound.</span>
+    </h1>
+
+    <!-- Sub -->
+    <p class="text-lg md:text-xl text-zinc-500 max-w-2xl mx-auto leading-relaxed mb-10">
+      GTM-OS automates your entire go-to-market engine — from lead discovery to qualified pipeline —
+      using AI, LinkedIn automation, and cold email. Built for companies that want to grow without growing the team.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+      <a href="#contact" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base w-full sm:w-auto">
+        Book a demo call →
+      </a>
+      <a href="#how" class="btn-ghost px-8 py-4 rounded-xl text-zinc-600 text-base w-full sm:w-auto">
+        See how it works
+      </a>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">700M+</div>
+        <div class="text-xs text-zinc-400 mt-1">Searchable profiles</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">7</div>
+        <div class="text-xs text-zinc-400 mt-1">Qualification gates</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">30</div>
+        <div class="text-xs text-zinc-400 mt-1">LinkedIn connects/day</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">∞</div>
+        <div class="text-xs text-zinc-400 mt-1">Scalable workflows</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLEM ────────────────────────────────────────────── -->
+<section class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">The problem</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Manual GTM is <span class="gradient-text">killing your pipeline</span>
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">🧱</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Fragmented tools</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Your team juggles LinkedIn Sales Navigator, Apollo, Lemlist, Notion, and HubSpot — but nothing talks to each other. Data rots, leads fall through cracks.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">⏳</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">SDR time wasted</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Your best people spend 70% of their day on research, data entry, and manual follow-ups instead of having conversations that close deals.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">🎯</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">No ICP precision</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Generic outreach blasts spray-and-pray messages to unqualified contacts. Your reply rate tanks, your domain reputation suffers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+<section id="how" class="section-white py-24 px-6 relative">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">The system</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        One operating system.<br/><span class="gradient-text">End-to-end GTM.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">From company discovery to a signed contract — GTM-OS handles the entire funnel autonomously.</p>
+    </div>
+
+    <div class="relative">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-4">
+        <div class="pipeline-node rounded-xl p-4 text-center">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center mx-auto mb-2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#4f46e5" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div class="text-xs font-semibold text-zinc-800">Discover</div>
+          <div class="text-[10px] text-zinc-400 mt-1">700M profiles</div>
+        </div>
+        <div class="hidden lg:flex items-center justify-center">
+          <div class="pipeline-connector w-full"></div>
+        </div>
+        <div class="pipeline-node rounded-xl p-4 text-center">
+          <div class="w-8 h-8 rounded-lg bg-violet-100 border border-violet-200 flex items-center justify-center mx-auto mb-2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="text-xs font-semibold text-zinc-800">Enrich</div>
+          <div class="text-[10px] text-zinc-400 mt-1">Email + signals</div>
+        </div>
+        <div class="hidden lg:flex items-center justify-center">
+          <div class="pipeline-connector w-full"></div>
+        </div>
+        <div class="pipeline-node rounded-xl p-4 text-center">
+          <div class="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200 flex items-center justify-center mx-auto mb-2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9333ea" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-xs font-semibold text-zinc-800">Qualify</div>
+          <div class="text-[10px] text-zinc-400 mt-1">7-gate AI filter</div>
+        </div>
+        <div class="hidden lg:flex items-center justify-center">
+          <div class="pipeline-connector w-full"></div>
+        </div>
+        <div class="pipeline-node rounded-xl p-4 text-center">
+          <div class="w-8 h-8 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center mx-auto mb-2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#a21caf" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="text-xs font-semibold text-zinc-800">Outreach</div>
+          <div class="text-[10px] text-zinc-400 mt-1">LinkedIn + Email</div>
+        </div>
+        <div class="hidden lg:flex items-center justify-center">
+          <div class="pipeline-connector w-full"></div>
+        </div>
+        <div class="pipeline-node rounded-xl p-4 text-center">
+          <div class="w-8 h-8 rounded-lg bg-pink-100 border border-pink-200 flex items-center justify-center mx-auto mb-2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#db2777" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <div class="text-xs font-semibold text-zinc-800">Optimize</div>
+          <div class="text-[10px] text-zinc-400 mt-1">A/B + signals</div>
+        </div>
+        <div class="hidden lg:flex items-center justify-center">
+          <div class="pipeline-connector w-full"></div>
+        </div>
+        <div class="pipeline-node rounded-xl p-4 text-center">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="text-xs font-semibold text-zinc-800">Pipeline</div>
+          <div class="text-[10px] text-zinc-400 mt-1">Meetings booked</div>
+        </div>
+      </div>
+
+      <!-- Terminal mockup — stays dark -->
+      <div class="terminal rounded-2xl overflow-hidden mt-10 max-w-3xl mx-auto">
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-zinc-700">
+          <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-500/70"></div>
+          <span class="mono text-xs text-zinc-500 ml-2">gtm-os · campaign:track</span>
+        </div>
+        <div class="p-5 mono text-xs space-y-1.5 text-zinc-400">
+          <div><span class="text-indigo-400">›</span> <span class="text-zinc-200">npx gtm-os campaign:track --tenant acme</span></div>
+          <div class="text-zinc-600">──────────────────────────────────────</div>
+          <div><span class="text-emerald-400">✓</span> Loaded 247 qualified leads from pipeline</div>
+          <div><span class="text-emerald-400">✓</span> Gate 1 (Dedup): 247 → 231 leads</div>
+          <div><span class="text-emerald-400">✓</span> Gate 4 (Company): 231 → 189 leads</div>
+          <div><span class="text-emerald-400">✓</span> Gate 6 (AI Score): 189 → 94 leads <span class="text-indigo-400">↑ avg score 8.2/10</span></div>
+          <div><span class="text-indigo-400">→</span> Sending 30 LinkedIn connects (daily limit)…</div>
+          <div><span class="text-emerald-400">✓</span> 30 invitations sent · 0 errors</div>
+          <div><span class="text-emerald-400">✓</span> 3 new accepts found · advancing sequences</div>
+          <div><span class="text-yellow-400">⚡</span> DM sent to <span class="text-zinc-200">Sarah Chen @ Vercel</span> (step 2/3)</div>
+          <div class="text-zinc-600">──────────────────────────────────────</div>
+          <div class="text-zinc-300">Session: 4 replies · <span class="text-emerald-400">2 meetings booked</span> · 1 unsubscribed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ───────────────────────────────────────────── -->
+<section id="features" class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Capabilities</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Every tool your GTM team<br/><span class="gradient-text">needs, automated.</span>
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#4f46e5" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-900 mb-2">Lead Discovery</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Search 700M+ profiles and 200M+ companies with precision ICP filters. Seniority, industry, funding stage, tech stack — you name it.</p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">find-people</span>
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">find-companies</span>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center mb-4">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-900 mb-2">7-Gate AI Qualification</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Every lead passes dedup, headline, exclusion, company, enrichment, Claude AI scoring, and threshold gates before entering your pipeline.</p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">leads:qualify</span>
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">AI scoring</span>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#2563eb" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-900 mb-2">LinkedIn Automation</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Automated connect → DM sequences with smart rate limiting. 30 connects/day, 2-day wait, personalized by AI. Never looks like spam.</p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">campaign:create</span>
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">campaign:track</span>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-4">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#9333ea" stroke-width="1.5"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-900 mb-2">Cold Email Sequences</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Multi-step email drips via Instantly. AI-generated copy tuned to your ICP voice. Track opens, replies, and bounces. Full analytics dashboard.</p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">email:send</span>
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">multi-channel</span>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-fuchsia-50 border border-fuchsia-100 flex items-center justify-center mb-4">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#c026d3" stroke-width="1.5"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-900 mb-2">A/B Variant Testing</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Test message angles with chi-squared statistical significance (p&lt;0.05). GTM-OS auto-detects winning variants and routes future sends accordingly.</p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">significance.ts</span>
+          <span class="mono text-[10px] code-tag px-2 py-1 rounded">auto-optimize</span>
+        </div>
+      </div>
+
+      <div class="card-featured rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-white border border-indigo-200 flex items-center justify-center mb-4">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#4f46e5" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-900 mb-2">GTM Framework Derivation</h3>
+        <p class="text-zinc-600 text-sm leading-relaxed">Feed your website, LinkedIn, and docs. Claude derives your ICP, positioning, messaging pillars, and objection-handling playbook. Fully tenant-scoped.</p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="mono text-[10px] bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-1 rounded">onboard</span>
+          <span class="mono text-[10px] bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-1 rounded">framework:derive</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── QUALIFICATION PIPELINE DETAIL ─────────────────────── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Lead qualification</p>
+        <h2 class="text-4xl font-black tracking-tight mb-5 text-zinc-900">
+          Only the <span class="gradient-text">best leads</span><br/>reach your inbox.
+        </h2>
+        <p class="text-zinc-500 leading-relaxed mb-8">The 7-gate pipeline filters out noise at every layer — from deduplication to AI scoring. Each gate has a reason code, so you always know why a lead was dropped.</p>
+        <a href="#contact" class="btn-primary inline-block px-6 py-3 rounded-xl font-semibold text-sm text-white">
+          See a live demo →
+        </a>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center gap-3 card rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+            <span class="text-indigo-600 mono text-[10px] font-bold">1</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-800">Dedup</span>
+            <span class="text-zinc-400 text-xs ml-2">Remove existing leads from DB</span>
+          </div>
+          <span class="text-emerald-600 text-xs mono font-medium">free</span>
+        </div>
+        <div class="flex items-center gap-3 card rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+            <span class="text-indigo-600 mono text-[10px] font-bold">2</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-800">Headline</span>
+            <span class="text-zinc-400 text-xs ml-2">Title / role matching</span>
+          </div>
+          <span class="text-emerald-600 text-xs mono font-medium">free</span>
+        </div>
+        <div class="flex items-center gap-3 card rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+            <span class="text-indigo-600 mono text-[10px] font-bold">3</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-800">Exclusion</span>
+            <span class="text-zinc-400 text-xs ml-2">Blocklist, competitors, spam</span>
+          </div>
+          <span class="text-emerald-600 text-xs mono font-medium">free</span>
+        </div>
+        <div class="flex items-center gap-3 card rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0">
+            <span class="text-violet-600 mono text-[10px] font-bold">4</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-800">Company</span>
+            <span class="text-zinc-400 text-xs ml-2">Size, funding, industry signals</span>
+          </div>
+          <span class="text-blue-600 text-xs mono font-medium">Crustdata</span>
+        </div>
+        <div class="flex items-center gap-3 card rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0">
+            <span class="text-violet-600 mono text-[10px] font-bold">5</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-800">Enrichment</span>
+            <span class="text-zinc-400 text-xs ml-2">Fill missing data via providers</span>
+          </div>
+          <span class="text-blue-600 text-xs mono font-medium">FullEnrich</span>
+        </div>
+        <div class="flex items-center gap-3 card-featured rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-indigo-100 border border-indigo-300 flex items-center justify-center flex-shrink-0">
+            <span class="text-indigo-700 mono text-[10px] font-bold">6</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-900">AI Score</span>
+            <span class="text-zinc-500 text-xs ml-2">Claude Opus · ICP + intent signals</span>
+          </div>
+          <span class="text-purple-700 text-xs mono font-medium">Claude</span>
+        </div>
+        <div class="flex items-center gap-3 card rounded-xl px-4 py-3">
+          <div class="w-6 h-6 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+            <span class="text-emerald-600 mono text-[10px] font-bold">7</span>
+          </div>
+          <div class="flex-1">
+            <span class="text-sm font-semibold text-zinc-800">Threshold</span>
+            <span class="text-zinc-400 text-xs ml-2">Configurable score cutoff</span>
+          </div>
+          <span class="text-emerald-600 text-xs mono font-medium">→ pipeline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TECH STACK ─────────────────────────────────────────── -->
+<section id="stack" class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Integration stack</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Best-in-class providers,<br/><span class="gradient-text">unified by one OS.</span>
+      </h2>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">🤖</div><div class="font-semibold text-sm text-zinc-800">Anthropic</div><div class="text-xs text-zinc-400 mt-1">AI reasoning & scoring</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">🔗</div><div class="font-semibold text-sm text-zinc-800">Unipile</div><div class="text-xs text-zinc-400 mt-1">LinkedIn automation</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">🔍</div><div class="font-semibold text-sm text-zinc-800">Crustdata</div><div class="text-xs text-zinc-400 mt-1">700M+ profiles</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">🌐</div><div class="font-semibold text-sm text-zinc-800">Firecrawl</div><div class="text-xs text-zinc-400 mt-1">Web intelligence</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">📊</div><div class="font-semibold text-sm text-zinc-800">Notion</div><div class="text-xs text-zinc-400 mt-1">CRM & reporting</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">✉️</div><div class="font-semibold text-sm text-zinc-800">Instantly</div><div class="text-xs text-zinc-400 mt-1">Cold email</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">📧</div><div class="font-semibold text-sm text-zinc-800">FullEnrich</div><div class="text-xs text-zinc-400 mt-1">Email + phone data</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-2xl mb-2">⚡</div><div class="font-semibold text-sm text-zinc-800">Orthogonal</div><div class="text-xs text-zinc-400 mt-1">100+ API gateway</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ────────────────────────────────────────────── -->
+<section id="pricing" class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Pricing</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Simple pricing.<br/><span class="gradient-text">No surprises.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4">All plans include the GTM-OS core. You bring your own API keys.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-7">
+        <div class="text-sm font-semibold text-zinc-400 mb-4">Starter</div>
+        <div class="flex items-baseline gap-1 mb-1"><span class="text-4xl font-black text-zinc-900">$0</span><span class="text-zinc-400 text-sm">/mo</span></div>
+        <p class="text-zinc-400 text-sm mb-6">Open source. Self-hosted. Full code access.</p>
+        <ul class="space-y-3 text-sm text-zinc-500 mb-8">
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Full GTM-OS codebase</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> All 7 qualification gates</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> LinkedIn + email campaigns</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Bring your own API keys</li>
+          <li class="flex items-center gap-2"><span class="text-zinc-300">–</span> No managed infra</li>
+          <li class="flex items-center gap-2"><span class="text-zinc-300">–</span> Community support only</li>
+        </ul>
+        <a href="#" class="btn-ghost block text-center py-3 rounded-xl text-sm font-semibold text-zinc-700">Get started free</a>
+      </div>
+
+      <div class="card-featured rounded-2xl p-7 relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold px-4 py-1 rounded-full">Most popular</div>
+        <div class="text-sm font-semibold text-indigo-700 mb-4">Growth</div>
+        <div class="flex items-baseline gap-1 mb-1"><span class="text-4xl font-black text-zinc-900">$490</span><span class="text-zinc-500 text-sm">/mo</span></div>
+        <p class="text-zinc-500 text-sm mb-6">Fully managed. We run it for you.</p>
+        <ul class="space-y-3 text-sm text-zinc-700 mb-8">
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Everything in Starter</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Managed cloud deployment</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Weekly campaign reports</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> ICP + framework setup</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Up to 3 active campaigns</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Slack support</li>
+        </ul>
+        <a href="#contact" class="btn-primary block text-center py-3 rounded-xl text-sm font-semibold text-white">Book a call →</a>
+      </div>
+
+      <div class="card rounded-2xl p-7">
+        <div class="text-sm font-semibold text-zinc-400 mb-4">Scale</div>
+        <div class="flex items-baseline gap-1 mb-1"><span class="text-4xl font-black text-zinc-900">Custom</span></div>
+        <p class="text-zinc-400 text-sm mb-6">For teams running multiple GTM motions.</p>
+        <ul class="space-y-3 text-sm text-zinc-500 mb-8">
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Everything in Growth</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Multi-tenant (unlimited)</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Custom integrations</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Dedicated GTM engineer</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> SLA + priority support</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> White-label option</li>
+        </ul>
+        <a href="#contact" class="btn-ghost block text-center py-3 rounded-xl text-sm font-semibold text-zinc-700">Contact us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── USE CASES ─────────────────────────────────────────── -->
+<section id="usecases" class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Use cases</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Real motions.<br/><span class="gradient-text">Real outcomes.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">GTM-OS adapts to your go-to-market motion — whether you're hunting net-new logos, expanding accounts, or entering a new market.</p>
+    </div>
+
+    <div class="space-y-6">
+      <!-- UC 1 -->
+      <div class="card rounded-2xl overflow-hidden">
+        <div class="grid md:grid-cols-2">
+          <div class="p-8 border-r border-zinc-100">
+            <div class="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-full mb-5">
+              <span class="text-indigo-600 text-xs font-semibold mono">01</span>
+              <span class="text-indigo-600 text-xs">Outbound prospecting</span>
+            </div>
+            <h3 class="text-xl font-bold text-zinc-900 mb-3">Cold outreach to net-new ICP accounts</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-5">A SaaS company targeting CTOs at Series A–B startups uses GTM-OS to run a continuous pipeline: discover companies that raised in the last 90 days, enrich with tech stack signals, qualify with Claude, and auto-launch LinkedIn sequences.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">find-companies (Crustdata)</span>
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">leads:qualify</span>
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">campaign:create</span>
+            </div>
+          </div>
+          <div class="p-8 flex flex-col justify-center bg-indigo-50/40">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Companies discovered</span><span class="font-bold text-zinc-800">3,200 / month</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width:80%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Passed qualification (7 gates)</span><span class="font-bold text-zinc-800">312 leads</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width:30%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">LinkedIn connect rate</span><span class="font-bold text-emerald-600">38%</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full" style="width:38%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Meetings booked</span><span class="font-bold text-emerald-600">24 / month</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full" style="width:24%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UC 2 -->
+      <div class="card rounded-2xl overflow-hidden">
+        <div class="grid md:grid-cols-2">
+          <div class="p-8 border-r border-zinc-100">
+            <div class="inline-flex items-center gap-2 bg-purple-50 border border-purple-100 px-3 py-1.5 rounded-full mb-5">
+              <span class="text-purple-600 text-xs font-semibold mono">02</span>
+              <span class="text-purple-600 text-xs">Post engagement scraping</span>
+            </div>
+            <h3 class="text-xl font-bold text-zinc-900 mb-3">Turn LinkedIn post engagers into pipeline</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-5">A B2B agency identifies relevant LinkedIn posts (competitor launches, industry news) and scrapes every liker and commenter. GTM-OS qualifies the warm audience and routes them into a personalized DM sequence — 3× better reply rates than cold lists.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">leads:scrape-post (Unipile)</span>
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">enrich-leads</span>
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">campaign:track</span>
+            </div>
+          </div>
+          <div class="p-8 flex flex-col justify-center bg-purple-50/40">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Post engagers scraped</span><span class="font-bold text-zinc-800">850 profiles</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-full" style="width:85%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Qualified by AI</span><span class="font-bold text-zinc-800">190 leads</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-full" style="width:22%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">DM reply rate</span><span class="font-bold text-emerald-600">27%</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full" style="width:27%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Pipeline generated</span><span class="font-bold text-emerald-600">$140k ARR</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full" style="width:60%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UC 3 -->
+      <div class="card rounded-2xl overflow-hidden">
+        <div class="grid md:grid-cols-2">
+          <div class="p-8 border-r border-zinc-100">
+            <div class="inline-flex items-center gap-2 bg-fuchsia-50 border border-fuchsia-100 px-3 py-1.5 rounded-full mb-5">
+              <span class="text-fuchsia-600 text-xs font-semibold mono">03</span>
+              <span class="text-fuchsia-600 text-xs">Multi-channel outreach</span>
+            </div>
+            <h3 class="text-xl font-bold text-zinc-900 mb-3">LinkedIn + cold email in one coordinated campaign</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-5">A consulting firm runs synchronized LinkedIn + email sequences. After a connect is accepted, GTM-OS sends a warm DM, then 3 days later triggers a personalized cold email via Instantly — same ICP angle, different channel, higher conversion.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">multi-channel-campaign</span>
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">email:create-sequence</span>
+              <span class="mono text-[10px] code-tag px-2 py-1 rounded">A/B testing</span>
+            </div>
+          </div>
+          <div class="p-8 flex flex-col justify-center bg-fuchsia-50/40">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">LinkedIn accepts</span><span class="font-bold text-zinc-800">42%</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-full" style="width:42%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Email open rate</span><span class="font-bold text-zinc-800">61%</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-full" style="width:61%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Multi-touch reply rate</span><span class="font-bold text-emerald-600">19%</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full" style="width:19%"></div></div>
+              <div class="flex items-center justify-between text-sm"><span class="text-zinc-500">Meetings / 100 prospects</span><span class="font-bold text-emerald-600">8.4</span></div>
+              <div class="w-full h-1.5 bg-zinc-200 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full" style="width:42%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ───────────────────────────────────────── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Testimonials</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        What our clients<br/><span class="gradient-text">actually say.</span>
+      </h2>
+    </div>
+
+    <!-- Featured testimonial -->
+    <div class="card-featured rounded-2xl p-8 md:p-10 mb-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-20 pointer-events-none" style="background:radial-gradient(circle, rgba(99,102,241,0.4), transparent 70%); transform:translate(30%,-30%)"></div>
+      <div class="relative z-10">
+        <div class="flex gap-1 mb-5">
+          <span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span>
+        </div>
+        <blockquote class="text-xl md:text-2xl font-semibold text-zinc-900 leading-relaxed mb-6 max-w-3xl">
+          "We replaced a 3-person SDR team with GTM-OS. Within 6 weeks we had 40 qualified meetings on the calendar — more than we'd booked in the previous quarter combined. The AI qualification alone is worth the price."
+        </blockquote>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">M</div>
+          <div>
+            <div class="font-semibold text-zinc-900">Marc Dubois</div>
+            <div class="text-sm text-zinc-500">CEO, Stackwise · B2B SaaS · Paris</div>
+          </div>
+          <div class="ml-auto hidden md:block bg-white border border-indigo-200 px-4 py-2 rounded-xl">
+            <div class="text-xs text-zinc-400">Pipeline in 6 weeks</div>
+            <div class="text-lg font-black number-accent">$380k</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 testimonial cards -->
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"The 7-gate qualification pipeline is exceptional. We stopped wasting time on leads that were never going to convert. Our reps close faster because every prospect in the CRM is genuinely qualified."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">S</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Sarah Kimani</div><div class="text-xs text-zinc-400">VP Sales, Flowdesk · Berlin</div></div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"As an agency running outbound for 8 clients, the multi-tenant setup is a game-changer. Each client has their own ICP, their own campaigns, their own Notion CRM. Completely isolated. Completely automated."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-fuchsia-500 to-pink-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">A</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Alex Moreau</div><div class="text-xs text-zinc-400">Founder, Leadcraft Agency · Lyon</div></div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-zinc-300 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"The A/B testing with statistical significance sold me. We tested 4 angles in one campaign — GTM-OS detected the winner at p&lt;0.05 and auto-routed the rest of the sends. No manual analysis needed."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">J</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Julia Schneider</div><div class="text-xs text-zinc-400">Growth Lead, Monite · Amsterdam</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logos -->
+    <div class="mt-12 text-center">
+      <p class="text-xs text-zinc-400 uppercase tracking-widest mb-6">Trusted by teams at</p>
+      <div class="flex flex-wrap justify-center gap-8 items-center opacity-50">
+        <span class="text-zinc-600 font-bold text-lg tracking-tight">Stackwise</span>
+        <span class="text-zinc-600 font-bold text-lg tracking-tight">Flowdesk</span>
+        <span class="text-zinc-600 font-bold text-lg tracking-tight">Monite</span>
+        <span class="text-zinc-600 font-bold text-lg tracking-tight">Leadcraft</span>
+        <span class="text-zinc-600 font-bold text-lg tracking-tight">Earleads</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHO IS IT FOR ──────────────────────────────────────── -->
+<section class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-indigo-600 mono text-sm mb-3 tracking-widest uppercase">Who it's for</p>
+      <h2 class="text-4xl font-black tracking-tight text-zinc-900">
+        Built for <span class="gradient-text">B2B teams</span> that move fast
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6"><div class="text-2xl mb-3">🚀</div><h3 class="font-bold text-zinc-900 mb-2">Early-stage startups</h3><p class="text-zinc-500 text-sm">No SDR team yet? GTM-OS is your full outbound function. Discover, qualify, and reach leads automatically while founders stay focused on product.</p></div>
+      <div class="card rounded-2xl p-6"><div class="text-2xl mb-3">📈</div><h3 class="font-bold text-zinc-900 mb-2">Growth-stage companies</h3><p class="text-zinc-500 text-sm">Supercharge your existing team. Let reps focus on conversations and closing while GTM-OS handles prospecting, enrichment, and sequence execution.</p></div>
+      <div class="card rounded-2xl p-6"><div class="text-2xl mb-3">🏢</div><h3 class="font-bold text-zinc-900 mb-2">GTM agencies</h3><p class="text-zinc-500 text-sm">Run outbound for multiple clients from one platform. Multi-tenant architecture means each client gets their own isolated pipeline, ICP, and framework.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA FINAL ─────────────────────────────────────────── -->
+<section id="contact" class="section-white py-24 px-6">
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="card-featured rounded-3xl p-12">
+      <div class="inline-flex items-center gap-2 bg-white border border-indigo-200 px-4 py-2 rounded-full mb-6">
+        <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+        <span class="text-xs text-indigo-700 mono">Accepting new clients</span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-zinc-900">
+        Ready to automate<br/><span class="gradient-text">your GTM?</span>
+      </h2>
+      <p class="text-zinc-500 leading-relaxed mb-8">Book a 30-minute call. We'll audit your current GTM motion and show you exactly how GTM-OS can be plugged in — no fluff, just pipeline.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Demo Request" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base">
+          Book a call →
+        </a>
+        <a href="https://github.com" class="btn-ghost px-8 py-4 rounded-xl text-zinc-700 text-base">
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────── -->
+<footer class="border-t border-zinc-100 py-10 px-6 bg-white">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-md btn-primary flex items-center justify-center">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/></svg>
+      </div>
+      <span class="font-bold text-sm text-zinc-800">GTM-OS</span>
+    </div>
+    <div class="flex gap-6 text-sm text-zinc-400">
+      <a href="#how" class="hover:text-zinc-700 transition-colors">How it works</a>
+      <a href="#features" class="hover:text-zinc-700 transition-colors">Features</a>
+      <a href="#pricing" class="hover:text-zinc-700 transition-colors">Pricing</a>
+      <a href="mailto:abdellah.ramli@gmail.com" class="hover:text-zinc-700 transition-colors">Contact</a>
+    </div>
+    <div class="mono text-xs text-zinc-400">Open Source · MIT License · 2026</div>
+  </div>
+</footer>
+
+</body>
+</html>
