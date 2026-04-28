@@ -45,6 +45,15 @@ export interface SlackConfig {
   notify_on: string[] // ['reply', 'demo_booked', 'deal_created', 'winner_declared', 'campaign_completed']
 }
 
+export interface RecruitmentConfig {
+  /** Min fit score (0–100) to shortlist a candidate. Default: 65 */
+  shortlist_threshold: number
+  /** Notion database ID for candidates view */
+  candidates_ds?: string
+  /** Notion database ID for job briefs view */
+  job_briefs_ds?: string
+}
+
 export interface GTMOSConfig {
   notion: NotionConfig
   unipile: UnipileConfig
@@ -56,4 +65,6 @@ export interface GTMOSConfig {
   email?: EmailConfig
   /** Outbound LinkedIn channel selection (registry provider id). */
   linkedin?: LinkedInConfig
+  /** Track 2 — Candidate sourcing configuration */
+  recruitment?: RecruitmentConfig
 }

@@ -606,3 +606,110 @@ export const providerPreferencesRelations = relations(providerPreferences, () =>
 export const signalWatchesRelations = relations(signalWatches, () => ({}))
 export const dataQualityLogRelations = relations(dataQualityLog, () => ({}))
 export const leadBlocklistRelations = relations(leadBlocklist, () => ({}))
+
+// ─── Track 2: Recruitment ─────────────────────────────────────────────────────
+
+// Job Briefs — one per open role, equivalent to an ICP segment for recruitment
+export const jobBriefs = sqliteTable('job_briefs', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  tenantId: text('tenant_id').notNull().default('default'),
+  title: text('title').notNull(),                         // "Senior Backend Engineer"
+  seniority: text('seniority').notNull(),                 // junior|mid|senior|staff|principal|director|vp|c-level
+  skills: text('skills', { mode: 'json' }).notNull(),     // string[] required skills
+  niceToHaveSkills: text('nice_to_have_skills', { mode: 'json' }), // string[]
+  location: text('location').notNull(),                   // "Remote EU" | "Paris, France"
+  remotePolicy: text('remote_policy').notNull().default('hybrid'), // remote|hybrid|onsite
+  salaryMin: integer('salary_min'),
+  salaryMax: integer('salary_max'),
+  salaryCurrency: text('salary_currency').notNull().default('EUR'),
+  openSignals: text('open_signals', { mode: 'json' }),    // string[] — LinkedIn phrases indicating openness
+  disqualifySignals: text('disqualify_signals', { mode: 'json' }), // string[] — hard-stop phrases
+  clientName: text('client_name'),                        // agency's end-client label
+  // draft | active | paused | filled | cancelled
+  status: text('status').notNull().default('draft'),
+  notionPageId: text('notion_page_id'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+})
+
+// Candidates — one per sourced passive candidate, scoped to a job brief
+export const candidates = sqliteTable('candidates', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  tenantId: text('tenant_id').notNull().default('default'),
+  jobBriefId: text('job_brief_id').notNull().references(() => jobBriefs.id, { onDelete: 'cascade' }),
+  // Identity — mirrors campaignLeads shape so dedup engine can reuse
+  providerId: text('provider_id').notNull(),
+  linkedinUrl: text('linkedin_url'),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  headline: text('headline'),
+  currentCompany: text('current_company'),
+  currentTitle: text('current_title'),
+  location: text('location'),
+  email: text('email'),
+  // Fit scoring (set by score-candidate skill)
+  fitScore: integer('fit_score'),                         // 0–100
+  fitReason: text('fit_reason'),                          // prose from Claude Opus
+  fitBreakdown: text('fit_breakdown', { mode: 'json' }), // { skills, seniority, location, openness } each 0–25
+  // Pipeline lifecycle
+  // Sourced | Contacted | Replied | Interested | Shortlisted | Interviewing | Placed
+  pipelineStatus: text('pipeline_status').notNull().default('Sourced'),
+  shortlisted: integer('shortlisted', { mode: 'boolean' }).default(false),
+  shortlistRank: integer('shortlist_rank'),
+  // Outreach timestamps (LinkedIn)
+  connectSentAt: text('connect_sent_at'),
+  connectedAt: text('connected_at'),
+  dm1SentAt: text('dm1_sent_at'),
+  dm2SentAt: text('dm2_sent_at'),
+  repliedAt: text('replied_at'),
+  // Outreach timestamps (Email)
+  email1SentAt: text('email1_sent_at'),
+  emailRepliedAt: text('email_replied_at'),
+  // Source metadata
+  source: text('source').notNull().default('crustdata'), // crustdata|unipile_search|csv|manual
+  rawData: text('raw_data', { mode: 'json' }),           // full API response snapshot
+  notionPageId: text('notion_page_id'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+})
+
+// Candidate Outreach — generated messages per candidate, separate from campaignContent
+export const candidateOutreach = sqliteTable('candidate_outreach', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  tenantId: text('tenant_id').notNull().default('default'),
+  candidateId: text('candidate_id').notNull().references(() => candidates.id, { onDelete: 'cascade' }),
+  jobBriefId: text('job_brief_id').notNull().references(() => jobBriefs.id, { onDelete: 'cascade' }),
+  channel: text('channel').notNull(),       // linkedin_dm | email
+  messageType: text('message_type').notNull(), // connect_note | dm1 | dm2 | email1 | email2
+  content: text('content').notNull(),
+  // draft | approved | sent | replied | failed
+  status: text('status').notNull().default('draft'),
+  sentAt: text('sent_at'),
+  repliedAt: text('replied_at'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+})
+
+// Relations
+export const jobBriefsRelations = relations(jobBriefs, ({ many }) => ({
+  candidates: many(candidates),
+  outreach: many(candidateOutreach),
+}))
+
+export const candidatesRelations = relations(candidates, ({ one, many }) => ({
+  jobBrief: one(jobBriefs, {
+    fields: [candidates.jobBriefId],
+    references: [jobBriefs.id],
+  }),
+  outreach: many(candidateOutreach),
+}))
+
+export const candidateOutreachRelations = relations(candidateOutreach, ({ one }) => ({
+  candidate: one(candidates, {
+    fields: [candidateOutreach.candidateId],
+    references: [candidates.id],
+  }),
+  jobBrief: one(jobBriefs, {
+    fields: [candidateOutreach.jobBriefId],
+    references: [jobBriefs.id],
+  }),
+}))

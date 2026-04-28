@@ -2720,4 +2720,239 @@ program
     }
   }))
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Track 2 — Candidate Sourcing Commands
+// ─────────────────────────────────────────────────────────────────────────────
+
+const recruitmentContext = {
+  framework: null as any,
+  intelligence: [],
+  providers: null as any,
+  userId: 'default',
+}
+
+// candidates:brief — create a job brief
+program
+  .command('candidates:brief')
+  .description('Create a new job brief for candidate sourcing')
+  .requiredOption('--title <text>', 'Job title (e.g. "Senior Backend Engineer")')
+  .requiredOption('--seniority <level>', 'junior|mid|senior|staff|principal|director|vp|c-level')
+  .requiredOption('--skills <list>', 'Comma-separated required skills (e.g. "TypeScript,Node.js,Postgres")')
+  .requiredOption('--location <text>', 'Target location (e.g. "Remote EU" or "Paris, France")')
+  .option('--nice-to-have <list>', 'Comma-separated nice-to-have skills')
+  .option('--remote-policy <policy>', 'remote|hybrid|onsite (default: hybrid)', 'hybrid')
+  .option('--salary-min <n>', 'Minimum salary', parseInt)
+  .option('--salary-max <n>', 'Maximum salary', parseInt)
+  .option('--currency <code>', 'Salary currency (default: EUR)', 'EUR')
+  .option('--client <name>', 'End-client name for labeling')
+  .option('--open-signals <list>', 'Comma-separated LinkedIn phrases indicating openness')
+  .option('--disqualify-signals <list>', 'Comma-separated phrases that disqualify a candidate')
+  .action(withDiagnostics(async (opts: any) => {
+    const { db: dbConn } = await import('../lib/db')
+    const { jobBriefs: jobBriefsTable } = await import('../lib/db/schema')
+
+    const brief = await dbConn.insert(jobBriefsTable).values({
+      title: opts.title,
+      seniority: opts.seniority,
+      skills: opts.skills.split(',').map((s: string) => s.trim()),
+      niceToHaveSkills: opts.niceToHave ? opts.niceToHave.split(',').map((s: string) => s.trim()) : [],
+      location: opts.location,
+      remotePolicy: opts.remotePolicy,
+      salaryMin: opts.salaryMin ?? null,
+      salaryMax: opts.salaryMax ?? null,
+      salaryCurrency: opts.currency,
+      clientName: opts.client ?? null,
+      openSignals: opts.openSignals ? opts.openSignals.split(',').map((s: string) => s.trim()) : ['open to work', 'exploring opportunities', 'looking for'],
+      disqualifySignals: opts.disqualifySignals ? opts.disqualifySignals.split(',').map((s: string) => s.trim()) : ['not open to opportunities', 'happy in current role'],
+      status: 'active',
+    }).returning()
+
+    const created = brief[0]
+    console.log('\n── Job Brief Created ──')
+    console.log(`  ID:         ${created.id}`)
+    console.log(`  Title:      ${created.title}`)
+    console.log(`  Seniority:  ${created.seniority}`)
+    console.log(`  Location:   ${created.location} (${created.remotePolicy})`)
+    console.log(`  Skills:     ${(created.skills as string[]).join(', ')}`)
+    if (created.clientName) console.log(`  Client:     ${created.clientName}`)
+    console.log(`\n  Next: npx tsx src/cli/index.ts candidates:source --brief-id ${created.id}`)
+  }))
+
+// candidates:source — source candidates from Crustdata
+program
+  .command('candidates:source')
+  .description('Source passive candidates from Crustdata matching a job brief')
+  .requiredOption('--brief-id <id>', 'Job brief ID')
+  .option('--limit <n>', 'Max candidates to retrieve (default: 100)', parseInt, 100)
+  .option('--supplement', 'Also search via Unipile LinkedIn (no extra Crustdata credits)')
+  .action(withDiagnostics(async (opts: any) => {
+    const { sourceCandidatesSkill } = await import('../lib/skills/builtin/source-candidates')
+
+    console.log(`\nSourcing candidates for brief ${opts.briefId}...\n`)
+
+    for await (const event of sourceCandidatesSkill.execute({
+      jobBriefId: opts.briefId,
+      limit: opts.limit,
+      supplementWithLinkedIn: !!opts.supplement,
+    }, recruitmentContext)) {
+      if (event.type === 'progress') {
+        process.stdout.write(`  [${event.percent}%] ${event.message}\n`)
+      } else if (event.type === 'approval_needed') {
+        console.log(`\n── Approval Required ──`)
+        console.log(event.description)
+        console.log('\nPress ENTER to approve or Ctrl+C to cancel...')
+        await new Promise(resolve => process.stdin.once('data', resolve))
+      } else if (event.type === 'result') {
+        const r = event.data as Record<string, unknown>
+        console.log('\n── Result ──')
+        console.log(`  Found:    ${r.candidatesFound}`)
+        console.log(`  Saved:    ${r.candidatesSaved} new candidates`)
+        console.log(`  Credits:  estimated=${r.estimatedCredits} actual=${r.actualCredits} balance=${r.balanceAfter}`)
+        console.log(`\n  Next: npx tsx src/cli/index.ts candidates:qualify --brief-id ${opts.briefId}`)
+      } else if (event.type === 'error') {
+        console.error(`  ERROR: ${event.message}`)
+      }
+    }
+  }))
+
+// candidates:qualify — run the 7-gate qualification pipeline
+program
+  .command('candidates:qualify')
+  .description('Run the 7-gate qualification pipeline on sourced candidates')
+  .requiredOption('--brief-id <id>', 'Job brief ID')
+  .option('--no-dedup', 'Skip deduplication gate')
+  .option('--dry-run', 'Simulate without writing DB changes')
+  .action(withDiagnostics(async (opts: any) => {
+    const { runCandidatePipeline } = await import('../lib/qualification/candidate-pipeline')
+    const config = loadConfig(program.opts().config.replace('~', homedir()))
+
+    console.log(`\nRunning candidate qualification pipeline for brief ${opts.briefId}...\n`)
+    if (opts.dryRun) console.log('  [DRY RUN MODE]\n')
+
+    const result = await runCandidatePipeline({
+      config,
+      jobBriefId: opts.briefId,
+      dryRun: !!opts.dryRun,
+      noDedup: !!opts.noDedup,
+    })
+
+    console.log('\n── Pipeline Result ──')
+    console.log(`  Sourced:          ${result.sourced}`)
+    console.log(`  Deduped out:      ${result.deduped}`)
+    console.log(`  Failed headline:  ${result.failedHeadline}`)
+    console.log(`  Failed exclusion: ${result.failedExclusion}`)
+    console.log(`  Failed company:   ${result.failedCompany}`)
+    console.log(`  Enriched:         ${result.enriched}`)
+    console.log(`  AI-scored:        ${result.scored}`)
+    console.log(`  Passed threshold: ${result.passedThreshold}`)
+    console.log(`  Saved:            ${result.saved}`)
+    console.log(`  Duration:         ${result.durationMs}ms`)
+    console.log(`\n  Next: npx tsx src/cli/index.ts candidates:shortlist --brief-id ${opts.briefId}`)
+  }))
+
+// candidates:shortlist — build and rank the shortlist
+program
+  .command('candidates:shortlist')
+  .description('Build ranked shortlist from scored candidates')
+  .requiredOption('--brief-id <id>', 'Job brief ID')
+  .option('--top-n <n>', 'Number of candidates to shortlist (default: 10)', parseInt, 10)
+  .option('--min-score <n>', 'Minimum fit score to be eligible (default: 65)', parseInt, 65)
+  .option('--sync-notion', 'Push shortlist to Notion (requires candidates_ds in config)')
+  .action(withDiagnostics(async (opts: any) => {
+    const { buildShortlistSkill } = await import('../lib/skills/builtin/build-shortlist')
+
+    console.log(`\nBuilding shortlist for brief ${opts.briefId}...\n`)
+
+    for await (const event of buildShortlistSkill.execute({
+      jobBriefId: opts.briefId,
+      topN: opts.topN,
+      minScore: opts.minScore,
+      syncNotion: !!opts.syncNotion,
+    }, recruitmentContext)) {
+      if (event.type === 'progress') {
+        process.stdout.write(`  [${event.percent}%] ${event.message}\n`)
+      } else if (event.type === 'result') {
+        const r = event.data as { shortlisted: number; topScore: number; avgScore: number; candidates: Array<{ rank: number; name: string; currentTitle: string | null; currentCompany: string | null; fitScore: number; fitReason: string | null }> }
+        console.log('\n── Shortlist ──')
+        console.log(`  Total shortlisted: ${r.shortlisted}  |  Top: ${r.topScore}  |  Avg: ${r.avgScore}\n`)
+        for (const c of r.candidates) {
+          console.log(`  #${c.rank}  [${c.fitScore}]  ${c.name}`)
+          console.log(`       ${c.currentTitle ?? '?'} @ ${c.currentCompany ?? '?'}`)
+          if (c.fitReason) console.log(`       → ${c.fitReason}`)
+        }
+        console.log(`\n  Next: npx tsx src/cli/index.ts candidates:outreach --brief-id ${opts.briefId} --channel linkedin_dm --message-type connect_note`)
+      } else if (event.type === 'error') {
+        console.error(`  ERROR: ${event.message}`)
+      }
+    }
+  }))
+
+// candidates:outreach — draft (and optionally send) outreach messages
+program
+  .command('candidates:outreach')
+  .description('Draft personalised outreach messages for shortlisted candidates')
+  .requiredOption('--brief-id <id>', 'Job brief ID')
+  .option('--channel <channel>', 'linkedin_dm | email (default: linkedin_dm)', 'linkedin_dm')
+  .option('--message-type <type>', 'connect_note | dm1 | dm2 | email1 | email2 (default: connect_note)', 'connect_note')
+  .option('--send', 'Send messages via Unipile/Instantly (default: draft only)')
+  .option('--linkedin-account <id>', 'Unipile account ID (required when --send + --channel=linkedin_dm)')
+  .action(withDiagnostics(async (opts: any) => {
+    const { draftCandidateOutreachSkill } = await import('../lib/skills/builtin/draft-candidate-outreach')
+
+    const mode = opts.send ? 'SEND' : 'DRAFT'
+    console.log(`\n[${mode}] Preparing ${opts.messageType} via ${opts.channel} for brief ${opts.briefId}...\n`)
+
+    for await (const event of draftCandidateOutreachSkill.execute({
+      jobBriefId: opts.briefId,
+      channel: opts.channel,
+      messageType: opts.messageType,
+      send: !!opts.send,
+      linkedinAccountId: opts.linkedinAccount,
+    }, recruitmentContext)) {
+      if (event.type === 'progress') {
+        process.stdout.write(`  [${event.percent}%] ${event.message}\n`)
+      } else if (event.type === 'result') {
+        const r = event.data as { drafted: number; sent: number; skipped: number }
+        console.log('\n── Outreach Result ──')
+        console.log(`  Drafted: ${r.drafted}`)
+        console.log(`  Sent:    ${r.sent}`)
+        console.log(`  Skipped: ${r.skipped}`)
+      } else if (event.type === 'error') {
+        console.error(`  ERROR: ${event.message}`)
+      }
+    }
+  }))
+
+// candidates:track — daily pipeline tracker
+program
+  .command('candidates:track')
+  .description('Poll Unipile for candidate replies, advance pipeline statuses, notify Slack')
+  .option('--brief-id <id>', 'Track specific brief only (default: all active briefs)')
+  .option('--linkedin-account <id>', 'Unipile account ID to poll')
+  .option('--dry-run', 'Simulate without writing DB changes')
+  .action(withDiagnostics(async (opts: any) => {
+    const { trackCandidatePipelineSkill } = await import('../lib/skills/builtin/track-candidate-pipeline')
+
+    console.log(`\nTracking candidate pipeline${opts.briefId ? ` for brief ${opts.briefId}` : ' (all briefs)'}...\n`)
+
+    for await (const event of trackCandidatePipelineSkill.execute({
+      jobBriefId: opts.briefId,
+      linkedinAccountId: opts.linkedinAccount,
+      dryRun: !!opts.dryRun,
+    }, recruitmentContext)) {
+      if (event.type === 'progress') {
+        process.stdout.write(`  [${event.percent}%] ${event.message}\n`)
+      } else if (event.type === 'result') {
+        const r = event.data as { checked: number; newReplies: number; interested: number; advanced: number }
+        console.log('\n── Tracking Result ──')
+        console.log(`  Checked:           ${r.checked}`)
+        console.log(`  New replies:       ${r.newReplies}`)
+        console.log(`  Interested:        ${r.interested}`)
+        console.log(`  Statuses advanced: ${r.advanced}`)
+      } else if (event.type === 'error') {
+        console.error(`  ERROR: ${event.message}`)
+      }
+    }
+  }))
+
 program.parse()
