@@ -7,8 +7,16 @@
 
 import type { Skill, SkillEvent, SkillContext } from '../types'
 import { db } from '../../db'
-import { candidates, jobBriefs } from '../../db/schema'
-import { eq, and, inArray } from 'drizzle-orm'
+import { candidates, jobBriefs, candidateOutreach } from '../../db/schema'
+import { eq, and, isNull, lt } from 'drizzle-orm'
+
+// Days to wait before sending next message in sequence
+const DM1_DELAY_DAYS = 2
+const DM2_DELAY_DAYS = 3
+
+function daysSince(isoDate: string): number {
+  return (Date.now() - new Date(isoDate).getTime()) / (1000 * 60 * 60 * 24)
+}
 
 export const trackCandidatePipelineSkill: Skill = {
   id: 'track-candidate-pipeline',
@@ -187,7 +195,6 @@ export const trackCandidatePipelineSkill: Skill = {
       // ── 6. Slack notification ─────────────────────────────────────────────
       if (!dryRun && isInterested) {
         try {
-          // Load brief for context
           const [brief] = await db.select().from(jobBriefs).where(eq(jobBriefs.id, candidate.jobBriefId))
           const { sendSlackNotification } = await import('../../services/slack')
           await sendSlackNotification('reply', {
@@ -202,6 +209,82 @@ export const trackCandidatePipelineSkill: Skill = {
       }
     }
 
+    // ── 7. Sequence auto-advance — queue next step for non-repliers ───────────
+    yield { type: 'progress', message: 'Checking sequence auto-advance...', percent: 88 }
+
+    let queued = 0
+
+    // DM1: connected but no DM1 yet, connected >= DM1_DELAY_DAYS ago
+    const needsDm1 = await db.select().from(candidates).where(
+      and(
+        jobBriefId ? eq(candidates.jobBriefId, jobBriefId) : undefined,
+        eq(candidates.pipelineStatus, 'Contacted'),
+        isNull(candidates.dm1SentAt),
+        isNull(candidates.repliedAt),
+      ) as ReturnType<typeof and>
+    )
+    for (const c of needsDm1) {
+      if (!c.connectedAt) continue
+      if (daysSince(c.connectedAt) < DM1_DELAY_DAYS) continue
+
+      // Check there's an approved DM1 draft ready
+      const [dm1Draft] = await db.select().from(candidateOutreach).where(
+        and(eq(candidateOutreach.candidateId, c.id), eq(candidateOutreach.messageType, 'dm1'), eq(candidateOutreach.status, 'approved'))
+      )
+      if (!dm1Draft) continue
+
+      if (!dryRun) {
+        try {
+          const { unipileService } = await import('../../services/unipile')
+          await unipileService.sendMessage(linkedinAccountId ?? '', c.providerId, dm1Draft.content)
+          await db.update(candidates).set({ dm1SentAt: new Date().toISOString() }).where(eq(candidates.id, c.id))
+          await db.update(candidateOutreach).set({ status: 'sent', sentAt: new Date().toISOString() }).where(eq(candidateOutreach.id, dm1Draft.id))
+          queued++
+        } catch { /* non-fatal */ }
+      } else {
+        queued++
+      }
+    }
+
+    // DM2: DM1 sent but no reply, dm1SentAt >= DM2_DELAY_DAYS ago
+    const needsDm2 = await db.select().from(candidates).where(
+      and(
+        jobBriefId ? eq(candidates.jobBriefId, jobBriefId) : undefined,
+        eq(candidates.pipelineStatus, 'Contacted'),
+        isNull(candidates.dm2SentAt),
+        isNull(candidates.repliedAt),
+      ) as ReturnType<typeof and>
+    )
+    for (const c of needsDm2) {
+      if (!c.dm1SentAt) continue
+      if (daysSince(c.dm1SentAt) < DM2_DELAY_DAYS) continue
+
+      const [dm2Draft] = await db.select().from(candidateOutreach).where(
+        and(eq(candidateOutreach.candidateId, c.id), eq(candidateOutreach.messageType, 'dm2'), eq(candidateOutreach.status, 'approved'))
+      )
+      if (!dm2Draft) continue
+
+      if (!dryRun) {
+        try {
+          const { unipileService } = await import('../../services/unipile')
+          await unipileService.sendMessage(linkedinAccountId ?? '', c.providerId, dm2Draft.content)
+          await db.update(candidates).set({ dm2SentAt: new Date().toISOString() }).where(eq(candidates.id, c.id))
+          await db.update(candidateOutreach).set({ status: 'sent', sentAt: new Date().toISOString() }).where(eq(candidateOutreach.id, dm2Draft.id))
+          queued++
+        } catch { /* non-fatal */ }
+      } else {
+        queued++
+      }
+    }
+
+    if (queued > 0) {
+      yield {
+        type: 'progress',
+        message: `${dryRun ? '[DRY RUN] ' : ''}Auto-advanced ${queued} sequence step(s) (DM1/DM2).`,
+        percent: 95,
+      }
+    }
+
     yield {
       type: 'result',
       data: {
@@ -209,12 +292,13 @@ export const trackCandidatePipelineSkill: Skill = {
         newReplies,
         interested,
         advanced: dryRun ? 0 : advanced,
+        sequenceQueued: dryRun ? 0 : queued,
       },
     }
 
     yield {
       type: 'progress',
-      message: `${dryRun ? '[DRY RUN] ' : ''}Pipeline tracked. ${contacted.length} checked · ${newReplies} new replies · ${interested} interested · ${advanced} statuses advanced.`,
+      message: `${dryRun ? '[DRY RUN] ' : ''}Done. ${contacted.length} checked · ${newReplies} replies · ${interested} interested · ${advanced} advanced · ${queued} sequence steps sent.`,
       percent: 100,
     }
   },

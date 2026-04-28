@@ -2775,7 +2775,146 @@ program
     console.log(`  Location:   ${created.location} (${created.remotePolicy})`)
     console.log(`  Skills:     ${(created.skills as string[]).join(', ')}`)
     if (created.clientName) console.log(`  Client:     ${created.clientName}`)
+
+    // Sync to Notion if configured
+    const notionBriefDsId = process.env.NOTION_JOB_BRIEFS_DS
+    if (notionBriefDsId) {
+      try {
+        const { notionService } = await import('../lib/services/notion')
+        await notionService.bulkCreateLeads(notionBriefDsId, [{
+          Name: created.title,
+          Seniority: created.seniority,
+          Location: created.location,
+          Skills: (created.skills as string[]).join(', '),
+          Status: created.status,
+          Client: created.clientName ?? '',
+          BriefId: created.id,
+        }])
+        console.log('  Notion: ✓ synced to job briefs database')
+      } catch (e) {
+        console.log(`  Notion: skipped (${e})`)
+      }
+    }
+
     console.log(`\n  Next: npx tsx src/cli/index.ts candidates:source --brief-id ${created.id}`)
+  }))
+
+// candidates:brief:list — list all job briefs
+program
+  .command('candidates:brief:list')
+  .description('List all job briefs')
+  .option('--status <status>', 'Filter by status: draft|active|paused|filled|cancelled')
+  .action(withDiagnostics(async (opts: any) => {
+    const { db: dbConn } = await import('../lib/db')
+    const { jobBriefs: jobBriefsTable } = await import('../lib/db/schema')
+    const { eq } = await import('drizzle-orm')
+
+    const briefs = opts.status
+      ? await dbConn.select().from(jobBriefsTable).where(eq(jobBriefsTable.status, opts.status))
+      : await dbConn.select().from(jobBriefsTable)
+
+    if (briefs.length === 0) {
+      console.log('\nNo job briefs found. Create one with: candidates:brief --title ...')
+      return
+    }
+
+    console.log(`\n── Job Briefs (${briefs.length}) ──\n`)
+    for (const b of briefs) {
+      const skills = (b.skills as string[]).join(', ')
+      console.log(`  [${b.status.toUpperCase()}] ${b.title} · ${b.seniority} · ${b.location}`)
+      console.log(`    ID: ${b.id}`)
+      console.log(`    Skills: ${skills}`)
+      if (b.clientName) console.log(`    Client: ${b.clientName}`)
+      console.log()
+    }
+  }))
+
+// candidates:brief:update — update brief status or fields
+program
+  .command('candidates:brief:update')
+  .description('Update a job brief')
+  .requiredOption('--brief-id <id>', 'Job brief ID')
+  .option('--status <status>', 'New status: draft|active|paused|filled|cancelled')
+  .option('--title <text>', 'New title')
+  .option('--location <text>', 'New location')
+  .option('--min-score <n>', 'Update shortlist threshold in config (affects qualify gate)', parseInt)
+  .action(withDiagnostics(async (opts: any) => {
+    const { db: dbConn } = await import('../lib/db')
+    const { jobBriefs: jobBriefsTable } = await import('../lib/db/schema')
+    const { eq } = await import('drizzle-orm')
+
+    const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() }
+    if (opts.status) updates.status = opts.status
+    if (opts.title) updates.title = opts.title
+    if (opts.location) updates.location = opts.location
+
+    await dbConn.update(jobBriefsTable).set(updates).where(eq(jobBriefsTable.id, opts.briefId))
+    console.log(`\n✓ Brief ${opts.briefId} updated.`)
+    if (opts.status) console.log(`  Status → ${opts.status}`)
+    if (opts.title) console.log(`  Title  → ${opts.title}`)
+  }))
+
+// candidates:import — import candidates from CSV
+program
+  .command('candidates:import')
+  .description('Import candidates from a CSV file (columns: first_name, last_name, linkedin_url, email, current_title, current_company, location, provider_id)')
+  .requiredOption('--brief-id <id>', 'Job brief ID to attach candidates to')
+  .requiredOption('--file <path>', 'Path to CSV file')
+  .option('--dry-run', 'Parse and validate without writing to DB')
+  .action(withDiagnostics(async (opts: any) => {
+    const { readFileSync } = await import('fs')
+    const { db: dbConn } = await import('../lib/db')
+    const { candidates: candidatesTable } = await import('../lib/db/schema')
+
+    const raw = readFileSync(opts.file, 'utf-8')
+    const lines = raw.trim().split('\n')
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''))
+    const rows = lines.slice(1)
+
+    console.log(`\nParsed ${rows.length} rows from ${opts.file}`)
+    if (opts.dryRun) console.log('  [DRY RUN]\n')
+
+    let imported = 0
+    let skipped = 0
+
+    for (const line of rows) {
+      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''))
+      const row: Record<string, string> = {}
+      headers.forEach((h, i) => { row[h] = values[i] ?? '' })
+
+      const linkedinUrl = row.linkedin_url || row.linkedinurl || row.linkedin || null
+      const email = row.email || null
+      const providerId = row.provider_id || row.providerid || linkedinUrl || `csv-${crypto.randomUUID()}`
+
+      if (!row.first_name && !row.last_name && !linkedinUrl) {
+        skipped++
+        continue
+      }
+
+      if (!opts.dryRun) {
+        await dbConn.insert(candidatesTable).values({
+          jobBriefId: opts.briefId,
+          providerId,
+          linkedinUrl,
+          firstName: row.first_name || null,
+          lastName: row.last_name || null,
+          currentTitle: row.current_title || row.title || null,
+          currentCompany: row.current_company || row.company || null,
+          location: row.location || null,
+          email,
+          pipelineStatus: 'Sourced',
+          source: 'csv',
+        }).onConflictDoNothing()
+      }
+      imported++
+    }
+
+    console.log(`\n── Import Result ──`)
+    console.log(`  Imported: ${imported}`)
+    console.log(`  Skipped:  ${skipped} (missing name + linkedin_url)`)
+    if (!opts.dryRun) {
+      console.log(`\n  Next: npx tsx src/cli/index.ts candidates:qualify --brief-id ${opts.briefId}`)
+    }
   }))
 
 // candidates:source — source candidates from Crustdata

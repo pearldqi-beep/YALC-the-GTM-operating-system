@@ -193,6 +193,7 @@ Rules:
       if (send) {
         try {
           if (channel === 'linkedin_dm' && candidate.linkedinUrl) {
+            // ── LinkedIn send via Unipile ────────────────────────────────────
             const { unipileService } = await import('../../services/unipile')
             if (messageType === 'connect_note') {
               await unipileService.sendConnection(
@@ -210,16 +211,56 @@ Rules:
                 candidate.providerId,
                 content,
               )
-              const field = messageType === 'dm1' ? { dm1SentAt: new Date().toISOString() }
+              const field = messageType === 'dm1'
+                ? { dm1SentAt: new Date().toISOString() }
                 : { dm2SentAt: new Date().toISOString() }
-              await db.update(candidates).set({ ...field, pipelineStatus: 'Contacted' }).where(eq(candidates.id, candidate.id))
+              await db.update(candidates)
+                .set({ ...field, pipelineStatus: 'Contacted' })
+                .where(eq(candidates.id, candidate.id))
             }
-            // Mark outreach as sent
             await db
               .update(candidateOutreach)
               .set({ status: 'sent', sentAt: new Date().toISOString() })
               .where(and(eq(candidateOutreach.candidateId, candidate.id), eq(candidateOutreach.messageType, messageType)))
             sent++
+
+          } else if (channel === 'email' && candidate.email) {
+            // ── Email send via Instantly ─────────────────────────────────────
+            const { instantlyService } = await import('../../services/instantly')
+            if (!instantlyService.isAvailable()) {
+              yield { type: 'progress', message: `Instantly not configured — email skipped for ${name}`, percent: 0 }
+            } else {
+              // Parse subject + body from Claude output (format: "Subject: ...\n\n<body>")
+              const subjectMatch = content.match(/^Subject:\s*(.+)/i)
+              const subject = subjectMatch ? subjectMatch[1].trim() : `Reaching out — ${brief?.title ?? 'opportunity'}`
+              const body = content.replace(/^Subject:.+\n\n?/i, '').trim()
+
+              // Each candidate gets their own one-shot Instantly campaign
+              const campaignTitle = `[Recruit] ${name} — ${brief?.title ?? jobBriefId} — ${messageType}`
+              const campaign = await instantlyService.createCampaign({
+                name: campaignTitle,
+                sequences: [{ subject, body, delay_days: 0 }],
+              })
+              await instantlyService.addLeadsToCampaign(campaign.id, [{
+                email: candidate.email,
+                first_name: candidate.firstName ?? '',
+                last_name: candidate.lastName ?? '',
+                company_name: candidate.currentCompany ?? '',
+                custom_variables: { personalization: content.slice(0, 500) },
+              }])
+
+              const emailField = messageType === 'email1'
+                ? { email1SentAt: new Date().toISOString() }
+                : { emailRepliedAt: undefined } // email2 — track separately
+              await db.update(candidates)
+                .set({ ...emailField, pipelineStatus: 'Contacted' })
+                .where(eq(candidates.id, candidate.id))
+              await db
+                .update(candidateOutreach)
+                .set({ status: 'sent', sentAt: new Date().toISOString() })
+                .where(and(eq(candidateOutreach.candidateId, candidate.id), eq(candidateOutreach.messageType, messageType)))
+              sent++
+            }
           }
         } catch (err) {
           yield { type: 'progress', message: `Send failed for ${name}: ${err}`, percent: 0 }
