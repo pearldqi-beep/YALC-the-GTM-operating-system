@@ -95,6 +95,29 @@ export class FullEnrichService {
     }
     return results[0]
   }
+
+  // Reverse lookup: name + company → LinkedIn profile + email.
+  // Used for fair/exhibition leads that have no LinkedIn URL.
+  async enrichFromNameCompany(
+    firstName: string,
+    lastName: string,
+    companyName: string,
+  ): Promise<FullEnrichResult> {
+    return this.enrichSingle({ firstname: firstName, lastname: lastName, company_name: companyName })
+  }
+
+  // Bulk reverse lookup for a list of fair leads. Returns results in the same order.
+  async enrichBulkFromNameCompany(
+    leads: Array<{ firstName: string; lastName: string; companyName: string }>,
+  ): Promise<FullEnrichResult[]> {
+    const contacts: FullEnrichContact[] = leads.map(l => ({
+      firstname: l.firstName,
+      lastname: l.lastName,
+      company_name: l.companyName,
+    }))
+    const enrichmentId = await this.enrichBulk(contacts)
+    return this.pollResults(enrichmentId)
+  }
 }
 
 function normalizeResult(raw: Record<string, unknown>): FullEnrichResult {

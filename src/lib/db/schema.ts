@@ -371,6 +371,16 @@ export const campaignLeads = sqliteTable('campaign_leads', {
   emailStatus: text('email_status'), // queued | sent | opened | replied | bounced
   // Notion sync
   notionPageId: text('notion_page_id'),
+  // ── Fair / exhibition booth interaction ──────────────────────────────────
+  // Populated by import-badge-scans skill. staffRating: hot overrides weak
+  // headline scores at Gate 5 (see qualify-provider.ts booth scoring note).
+  staffRating: text('staff_rating'),          // 'hot' | 'warm' | 'cold'
+  demoAttended: integer('demo_attended', { mode: 'boolean' }).default(false),
+  dwellMinutes: integer('dwell_minutes'),
+  materialsCollected: text('materials_collected', { mode: 'json' }), // string[]
+  sessionAttended: text('session_attended', { mode: 'json' }),       // string[]
+  fairName: text('fair_name'),
+  fairDate: text('fair_date'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
   updatedAt: text('updated_at').default(sql`(datetime('now'))`),
 })
