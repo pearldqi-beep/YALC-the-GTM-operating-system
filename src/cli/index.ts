@@ -1935,6 +1935,25 @@ program
     console.log(`[memory:index][${tenantId}] wrote ${entries.length} entries`)
   }))
 
+// fair:context:load
+program
+  .command('fair:context:load')
+  .description('Register a fair catalog directory with the markdown-folder adapter and run initial sync')
+  .requiredOption('--fair <slug>', 'Fair slug (e.g. hannover-messe-2026)')
+  .requiredOption('--path <dir>', 'Path to the fair catalog markdown directory')
+  .action(withDiagnostics(async (opts) => {
+    const tenantId = getTenant()
+    const { loadFairCatalog } = await import('../lib/context/fair-catalog.js')
+    const result = await loadFairCatalog(tenantId, opts.fair, opts.path)
+    console.log(`[fair:context:load] ${result.isNew ? 'Registered' : 'Updated'} markdown-folder adapter → ${result.catalogPath}`)
+    console.log(`[fair:context:load] Config written to ${result.configPath}`)
+    console.log('[fair:context:load] Running initial sync...')
+    const { markdownFolderAdapter } = await import('../lib/context/adapters/markdown-folder.js')
+    const syncResult = await markdownFolderAdapter.sync(tenantId)
+    console.log(`[fair:context:load] Sync complete: +${syncResult.added} added, ${syncResult.unchanged} unchanged`)
+    console.log(`[fair:context:load] Fair context "${opts.fair}" is now loaded into memory for tenant "${tenantId}".`)
+  }))
+
 // context:sync
 program
   .command('context:sync')

@@ -11,6 +11,8 @@ import type {
   ScoringAccuracySection,
   TrendsSection,
   WinnerDeclaration,
+  BoothInteractionSection,
+  BoothInteractionStats,
 } from './report-types'
 import type { campaignLeads, campaignVariants } from '../db/schema'
 
@@ -355,4 +357,42 @@ export function declareWinner(
     bestReplyRate: best.replyRate,
     runnerUpReplyRate: runnerUp.replyRate,
   }
+}
+
+// ─── Booth Interaction (fair/exhibition leads) ───────────────────────────────
+
+function boothStats(leads: Lead[], label: string): BoothInteractionStats {
+  const count = leads.length
+  const accepted = leads.filter(l => l.connectedAt).length
+  const replied = leads.filter(l => l.repliedAt).length
+  return {
+    segment: label,
+    count,
+    acceptRate: count > 0 ? Math.round((accepted / count) * 1000) / 10 : 0,
+    replyRate: count > 0 ? Math.round((replied / count) * 1000) / 10 : 0,
+  }
+}
+
+export function buildBoothInteractionSection(leads: Lead[]): BoothInteractionSection {
+  const fairLeads = leads.filter(l => l.fairName)
+
+  if (fairLeads.length === 0) {
+    return { hasFairLeads: false, fairName: null, byInteractionType: [], byRating: [] }
+  }
+
+  const fairName = fairLeads[0].fairName ?? null
+
+  const demoAttendees = fairLeads.filter(l => l.demoAttended)
+  const passersBy = fairLeads.filter(l => !l.demoAttended)
+
+  const byInteractionType: BoothInteractionStats[] = [
+    boothStats(demoAttendees, 'demo_attendees'),
+    boothStats(passersBy, 'passers_by'),
+  ]
+
+  const byRating: BoothInteractionStats[] = (['hot', 'warm', 'cold'] as const).map(rating =>
+    boothStats(fairLeads.filter(l => l.staffRating === rating), rating)
+  )
+
+  return { hasFairLeads: true, fairName, byInteractionType, byRating }
 }

@@ -98,6 +98,20 @@ export interface WinnerDeclaration {
   runnerUpReplyRate: number
 }
 
+export interface BoothInteractionStats {
+  segment: string   // 'demo_attendees' | 'passers_by' | 'hot' | 'warm' | 'cold'
+  count: number
+  acceptRate: number
+  replyRate: number
+}
+
+export interface BoothInteractionSection {
+  hasFairLeads: boolean
+  fairName: string | null
+  byInteractionType: BoothInteractionStats[]  // demo vs. passerby
+  byRating: BoothInteractionStats[]           // hot / warm / cold
+}
+
 export interface CampaignReport {
   campaignId: string
   campaignTitle: string
@@ -111,4 +125,5 @@ export interface CampaignReport {
   trends: TrendsSection
   winner: WinnerDeclaration | null
   narrative: string | null
+  boothInteraction?: BoothInteractionSection
 }
