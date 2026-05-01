@@ -230,7 +230,7 @@ Known errors organized by diagnostic layer. Each entry maps an error pattern to 
 **Root cause:** User hasn't completed onboarding.
 **Diagnostic:** `test -f gtm-os.yaml`
 **Auto-fix:**
-1. Run `yalc-gtm onboard` — this asks 5 questions and creates the file.
+1. Run `orbit-gtm onboard` — this asks 5 questions and creates the file.
 **Approval level:** Standard
 **Severity:** Blocking — framework context injection fails
 
@@ -263,7 +263,7 @@ Known errors organized by diagnostic layer. Each entry maps an error pattern to 
 **Diagnostic:** Check `onboarding_complete` field in `gtm-os.yaml`
 **Auto-fix:**
 1. If the file has real company data → set `onboarding_complete: true`
-2. If the file is mostly empty → run `yalc-gtm onboard`
+2. If the file is mostly empty → run `orbit-gtm onboard`
 **Approval level:** Standard
 **Severity:** Degraded — system works but with poor context
 
@@ -272,12 +272,12 @@ Known errors organized by diagnostic layer. Each entry maps an error pattern to 
 ### CFG_004: Missing user config
 
 **Error patterns:**
-- `Config file not found at ~/.gtm-os/config.yaml`
+- `Config file not found at ~/.orbit-gtm/config.yaml`
 
 **Root cause:** First run or config was deleted.
-**Diagnostic:** `test -f ~/.gtm-os/config.yaml`
+**Diagnostic:** `test -f ~/.orbit-gtm/config.yaml`
 **Auto-fix:**
-1. Create `~/.gtm-os/config.yaml` with sensible defaults:
+1. Create `~/.orbit-gtm/config.yaml` with sensible defaults:
 ```yaml
 notion:
   enabled: false
@@ -298,7 +298,7 @@ crustdata:
 - Notion API errors on export
 
 **Root cause:** Notion data source ID in config isn't a valid 36-character UUID.
-**Diagnostic:** Check UUID format in `~/.gtm-os/config.yaml`
+**Diagnostic:** Check UUID format in `~/.orbit-gtm/config.yaml`
 **Auto-fix:**
 1. Show the invalid ID
 2. Tell user: "Notion database IDs are 36-character UUIDs. Get the correct ID from your Notion database URL."

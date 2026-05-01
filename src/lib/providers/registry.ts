@@ -10,7 +10,7 @@ export class ProviderNotFoundError extends Error {
     } else {
       availList = available.join(', ')
     }
-    const tail = stepType ? '. Run: yalc-gtm provider:list to see what is installed.' : '.'
+    const tail = stepType ? '. Run: orbit-gtm provider:list to see what is installed.' : '.'
     const msg = suggestion
       ? `Provider '${provider}' not found. Available: ${availList}. Did you mean '${suggestion}'?`
       : `Provider '${provider}' not found. Available: ${availList}${tail}`
@@ -169,7 +169,7 @@ export async function registerBuiltinProviders(registry: ProviderRegistry): Prom
 }
 
 /**
- * Register MCP providers discovered in ~/.gtm-os/mcp/*.json.
+ * Register MCP providers discovered in ~/.orbit-gtm/mcp/*.json.
  * Runs after builtins so MCP providers never shadow core providers.
  */
 export async function registerMcpProviders(registry: ProviderRegistry): Promise<void> {

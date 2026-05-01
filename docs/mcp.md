@@ -54,13 +54,13 @@ cat > /tmp/pipedrive.json <<'EOF'
 EOF
 
 # 2. Register it
-yalc-gtm provider:add --mcp /tmp/pipedrive.json
+orbit-gtm provider:add --mcp /tmp/pipedrive.json
 
 # 3. Verify
-yalc-gtm provider:test pipedrive
+orbit-gtm provider:test pipedrive
 ```
 
-The config is copied to `~/.gtm-os/mcp/<name>.json` (the `name` field decides the filename, not the input path). Pass `--force` to overwrite an existing provider of the same name. The `${ENV_VAR}` syntax inside any string field is expanded at load time from your shell environment / `.env`.
+The config is copied to `~/.orbit-gtm/mcp/<name>.json` (the `name` field decides the filename, not the input path). Pass `--force` to overwrite an existing provider of the same name. The `${ENV_VAR}` syntax inside any string field is expanded at load time from your shell environment / `.env`.
 
 ## Connecting External MCP Servers
 

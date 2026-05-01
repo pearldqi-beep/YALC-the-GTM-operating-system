@@ -98,7 +98,7 @@ export function buildPositioningPrompt(input: SectionPromptInput): string {
 
 export function buildQualificationPrompt(input: SectionPromptInput): string {
   return [
-    'Generate qualification rules as a markdown document. Lead with one-line regex patterns (one per line) for headline matches, then a short bullet list of disqualifiers, then a section of soft signals to look for. Match the existing format YALC writes today.',
+    'Generate qualification rules as a markdown document. Lead with one-line regex patterns (one per line) for headline matches, then a short bullet list of disqualifiers, then a section of soft signals to look for. Match the existing format Orbit GTM writes today.',
     contextBlock(input),
     rawBlock(input),
     hintBlock(input),

@@ -19,7 +19,7 @@ From your existing GTM-OS directory:
 npx tsx src/cli/index.ts update
 ```
 
-That pulls the latest, reinstalls dependencies, and keeps your `~/.gtm-os/config.yaml` + API keys intact.
+That pulls the latest, reinstalls dependencies, and keeps your `~/.orbit-gtm/config.yaml` + API keys intact.
 
 After updating, run:
 
@@ -66,7 +66,7 @@ For debugging, add `--verbose` to any command to see the full stack.
 ### `doctor` checks more
 
 - 7 built-in providers (added Crustdata, Instantly, FullEnrich — was Anthropic, Unipile, Firecrawl, Notion only)
-- Any MCP providers you've configured in `~/.gtm-os/mcp/*.json`
+- Any MCP providers you've configured in `~/.orbit-gtm/mcp/*.json`
 
 ### DB migration runs on first launch
 
@@ -89,7 +89,7 @@ provider:test hubspot               # check connection
 provider:remove hubspot             # remove
 ```
 
-Config files live at `~/.gtm-os/mcp/*.json`.
+Config files live at `~/.orbit-gtm/mcp/*.json`.
 
 ### 2. Markdown-based skills — `skills:create`
 
@@ -99,7 +99,7 @@ Write a skill as a `.md` file with frontmatter. No TypeScript required.
 skills:create --format markdown
 ```
 
-Wizard asks for name, description, inputs, provider. Writes a working skill to `~/.gtm-os/skills/`. Appears in the skill list alongside built-ins.
+Wizard asks for name, description, inputs, provider. Writes a working skill to `~/.orbit-gtm/skills/`. Appears in the skill list alongside built-ins.
 
 Examples in `configs/skills/`: `research-company.md`, `enrich-email.md`, `score-lead.md`.
 
@@ -148,7 +148,7 @@ crm:status
 crm:verify                          # drift detection if CRM schema changes
 ```
 
-Field mappings stored as YAML at `~/.gtm-os/crm/*.yaml`. Editable by hand.
+Field mappings stored as YAML at `~/.orbit-gtm/crm/*.yaml`. Editable by hand.
 
 ### 6. AI research agent — `research`
 

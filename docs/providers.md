@@ -18,7 +18,7 @@ Powers all AI reasoning — framework derivation, lead qualification, campaign p
 
 **What it unlocks:** Everything. Without this key, GTM-OS cannot function.
 
-**Verify:** `yalc-gtm doctor` will check the key is valid.
+**Verify:** `orbit-gtm doctor` will check the key is valid.
 
 ---
 
@@ -43,7 +43,7 @@ Company and people intelligence. 800M+ professional profiles, 200M+ companies. P
 - `leads:qualify` — enhanced qualification with company signals
 - `competitive-intel` — competitor research with company enrichment
 
-**Verify:** `yalc-gtm doctor` checks the key format. Run `yalc-gtm orchestrate "find 5 SaaS companies in Berlin"` to test.
+**Verify:** `orbit-gtm doctor` checks the key format. Run `orbit-gtm orchestrate "find 5 SaaS companies in Berlin"` to test.
 
 ### Unipile
 
@@ -66,7 +66,7 @@ LinkedIn operations — connect with prospects, send DMs, scrape post engagers, 
 
 **Rate limits enforced by GTM-OS:** 30 connection requests/day, 3-second delay between API calls.
 
-**Verify:** `yalc-gtm doctor` validates both keys with a live API call.
+**Verify:** `orbit-gtm doctor` validates both keys with a live API call.
 
 ### Firecrawl
 
@@ -84,7 +84,7 @@ Web scraping and search. Converts any URL to clean markdown. Used during onboard
 - `competitive-intel` — scrape competitor websites for positioning analysis
 - `orchestrate` — web research as part of multi-step workflows
 
-**Verify:** `yalc-gtm doctor` scrapes example.com to test connectivity.
+**Verify:** `orbit-gtm doctor` scrapes example.com to test connectivity.
 
 ### Notion
 
@@ -102,7 +102,7 @@ CRM sync — track campaigns, leads, and results in Notion databases. Bidirectio
 - `notion:bootstrap` — import existing Notion data into GTM-OS
 - Campaign tracking in Notion (leads status, variant performance)
 
-**After adding the key**, configure your Notion database IDs in `~/.gtm-os/config.yaml`:
+**After adding the key**, configure your Notion database IDs in `~/.orbit-gtm/config.yaml`:
 ```yaml
 notion:
   campaigns_ds: "your-campaigns-database-id"
@@ -111,7 +111,7 @@ notion:
   parent_page: "your-parent-page-id"
 ```
 
-**Verify:** `yalc-gtm doctor` runs a Notion search to test connectivity.
+**Verify:** `orbit-gtm doctor` runs a Notion search to test connectivity.
 
 ---
 
@@ -139,7 +139,7 @@ Cold email campaign management. Create email sequences, add leads, track opens/r
 | | |
 |---|---|
 | **Env var** | `INSTANTLY_API_KEY` |
-| **Sign up** | https://instantly.ai?via=yalc |
+| **Sign up** | https://instantly.ai?via=orbit-gtm |
 | **Get API key** | https://instantly.ai/settings/api |
 | **Pricing** | Subscription-based. Check Instantly pricing. |
 | **Prerequisite** | You need at least one email sending account configured in Instantly before creating campaigns |
@@ -159,7 +159,7 @@ Universal API gateway — one key gives access to 100+ enrichment, scraping, and
 | | |
 |---|---|
 | **Env var** | `ORTHOGONAL_API_KEY` |
-| **Sign up** | https://www.orthogonal.com/?utm_source=yalc&utm_medium=referral&utm_campaign=in-app |
+| **Sign up** | https://www.orthogonal.com/?utm_source=orbit-gtm&utm_medium=referral&utm_campaign=in-app |
 | **Get API key** | https://orthogonal.com/sign-up |
 | **Free tier** | $5 free credits, no card required |
 
@@ -178,26 +178,26 @@ Test provider for development. Returns synthetic data. No API key needed.
 
 ## Bring your own email provider
 
-Instantly is the default email backend, but YALC can route `email:send` through any provider that advertises the `email_send` capability via the MCP registry. Brevo, Mailgun, and SendGrid ship as templates out of the box.
+Instantly is the default email backend, but Orbit GTM can route `email:send` through any provider that advertises the `email_send` capability via the MCP registry. Brevo, Mailgun, and SendGrid ship as templates out of the box.
 
 Three steps to swap in a new provider:
 
-1. **Copy the template** into `~/.gtm-os/mcp/` so it loads on the next CLI invocation:
+1. **Copy the template** into `~/.orbit-gtm/mcp/` so it loads on the next CLI invocation:
    ```bash
-   yalc-gtm provider:add --mcp brevo
+   orbit-gtm provider:add --mcp brevo
    ```
    The command prints the env vars the template references and whether each is already set.
-2. **Set the env var(s)** the template needs in `~/.gtm-os/.env` (or your shell):
+2. **Set the env var(s)** the template needs in `~/.orbit-gtm/.env` (or your shell):
    ```bash
-   echo "BREVO_API_KEY=xkeysib-..." >> ~/.gtm-os/.env
+   echo "BREVO_API_KEY=xkeysib-..." >> ~/.orbit-gtm/.env
    ```
 3. **Verify connectivity** with the provider health check:
    ```bash
-   yalc-gtm provider:test brevo
+   orbit-gtm provider:test brevo
    ```
-   On success, `provider:list` shows the provider as `OK` and you can route a send through it with `email:send --provider brevo`. To make it the default for all sends, set `email.provider: brevo` in `~/.gtm-os/config.yaml`.
+   On success, `provider:list` shows the provider as `OK` and you can route a send through it with `email:send --provider brevo`. To make it the default for all sends, set `email.provider: brevo` in `~/.orbit-gtm/config.yaml`.
 
-The same recipe works for `mailgun` and `sendgrid` — only the env var names change. To stop using a provider, run `yalc-gtm provider:remove <name>`.
+The same recipe works for `mailgun` and `sendgrid` — only the env var names change. To stop using a provider, run `orbit-gtm provider:remove <name>`.
 
 ---
 
@@ -206,7 +206,7 @@ The same recipe works for `mailgun` and `sendgrid` — only the env var names ch
 Run the doctor command anytime to verify all providers:
 
 ```bash
-yalc-gtm doctor
+orbit-gtm doctor
 ```
 
 This runs a 5-layer diagnostic:
@@ -221,5 +221,5 @@ This runs a 5-layer diagnostic:
 You can always add new provider keys after initial setup:
 
 1. Add the key to `.env.local`
-2. Run `yalc-gtm doctor` to verify
+2. Run `orbit-gtm doctor` to verify
 3. The new capabilities are immediately available

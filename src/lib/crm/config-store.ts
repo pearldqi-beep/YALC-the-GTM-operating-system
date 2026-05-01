@@ -2,7 +2,7 @@
  * CRM Config Store
  *
  * Reads and writes CRM provider configs (field mappings, tool bindings)
- * from ~/.gtm-os/crm/<provider>.yaml
+ * from ~/.orbit-gtm/crm/<provider>.yaml
  *
  * Users can edit these YAML files manually — this module never
  * overwrites without explicit intent.
@@ -14,7 +14,7 @@ import { homedir } from 'os'
 import yaml from 'js-yaml'
 import type { CRMProviderConfig } from './types'
 
-const CRM_CONFIG_DIR = join(homedir(), '.gtm-os', 'crm')
+const CRM_CONFIG_DIR = join(homedir(), '.orbit-gtm', 'crm')
 
 export function getCrmConfigDir(): string {
   return CRM_CONFIG_DIR

@@ -4,7 +4,7 @@
  * Precedence (highest first):
  *   1. Explicit `cliFlag` argument (from Commander `--tenant <slug>`)
  *   2. `GTM_OS_TENANT` env var
- *   3. `.gtm-os-tenant` file in cwd (single-line slug, trimmed)
+ *   3. `.orbit-gtm-tenant` file in cwd (single-line slug, trimmed)
  *   4. Default `'default'` (so single-tenant invocations keep working)
  *
  * Slugs are validated: lowercase letters, digits, hyphens only.
@@ -49,7 +49,7 @@ export function resolveTenant(opts: ResolveOpts = {}): string {
 }
 
 function readTenantFile(cwd: string): string | undefined {
-  const path = join(cwd, '.gtm-os-tenant')
+  const path = join(cwd, '.orbit-gtm-tenant')
   if (!existsSync(path)) return undefined
   try {
     return readFileSync(path, 'utf8').split('\n')[0]
@@ -60,5 +60,5 @@ function readTenantFile(cwd: string): string | undefined {
 
 /** Where per-tenant config (framework.yaml, adapters.yaml, notion.yaml) lives. */
 export function tenantConfigDir(tenantId: string, home = process.env.HOME ?? ''): string {
-  return join(home, '.gtm-os', 'tenants', tenantId)
+  return join(home, '.orbit-gtm', 'tenants', tenantId)
 }

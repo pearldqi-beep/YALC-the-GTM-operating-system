@@ -25,12 +25,12 @@ import type { ColumnDef } from '../ai/types'
 
 /**
  * True when the user opted into transport-level debug output via
- * `--verbose` (which sets GTM_OS_VERBOSE=1) or YALC_DEBUG=1. Default-off
+ * `--verbose` (which sets GTM_OS_VERBOSE=1) or ORBIT_GTM_DEBUG=1. Default-off
  * suppresses chatter from `mcp-remote` and similar stdio servers — that
  * chatter routinely contains Authorization bearer tokens.
  */
 function isMcpDebugEnabled(): boolean {
-  return process.env.YALC_DEBUG === '1' || process.env.GTM_OS_VERBOSE === '1'
+  return process.env.ORBIT_GTM_DEBUG === '1' || process.env.GTM_OS_VERBOSE === '1'
 }
 
 /**
@@ -369,12 +369,12 @@ export class McpProviderAdapter implements StepExecutor {
     // Build arguments from step config + previous step rows.
     // `step.config` is, by construction, only tool args (skill-runtime
     // fields live on `step.metadata`). We still strip `tool` (our routing
-    // key) and any `_yalc_*` keys as a defence-in-depth — third-party
+    // key) and any `_orbit_gtm_*` keys as a defence-in-depth — third-party
     // adapters or older callers may still smuggle internal fields here.
     const args: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(step.config ?? {})) {
       if (k === 'tool') continue
-      if (k.startsWith('_yalc_')) continue
+      if (k.startsWith('_orbit_gtm_')) continue
       args[k] = v
     }
 

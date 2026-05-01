@@ -9,7 +9,7 @@ labels: bug
 A clear description of the bug.
 
 ## Steps to Reproduce
-1. Run `yalc-gtm ...`
+1. Run `orbit-gtm ...`
 2. ...
 
 ## Expected Behavior
@@ -21,8 +21,8 @@ What actually happened. Include error messages if any.
 ## Environment
 - OS: (e.g., macOS 14.5, Ubuntu 22.04)
 - Node.js version: (`node --version`)
-- YALC version: (`yalc-gtm --version`)
-- Output of `yalc-gtm doctor`:
+- Orbit GTM version: (`orbit-gtm --version`)
+- Output of `orbit-gtm doctor`:
 
 ```
 (paste doctor output here)

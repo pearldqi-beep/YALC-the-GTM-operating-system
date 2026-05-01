@@ -13,10 +13,10 @@ import yaml from 'js-yaml'
 let TMP: string
 
 beforeEach(() => {
-  TMP = mkdtempSync(join(tmpdir(), 'yalc-migrate-'))
+  TMP = mkdtempSync(join(tmpdir(), 'orbit-gtm-migrate-'))
   vi.stubEnv('HOME', TMP)
   vi.resetModules()
-  mkdirSync(join(TMP, '.gtm-os'), { recursive: true })
+  mkdirSync(join(TMP, '.orbit-gtm'), { recursive: true })
 })
 
 afterEach(() => {
@@ -25,7 +25,7 @@ afterEach(() => {
 })
 
 function writeLegacyFramework(content: Record<string, unknown>) {
-  writeFileSync(join(TMP, '.gtm-os', 'framework.yaml'), yaml.dump(content))
+  writeFileSync(join(TMP, '.orbit-gtm', 'framework.yaml'), yaml.dump(content))
 }
 
 describe('runMigrate', () => {
@@ -53,7 +53,7 @@ describe('runMigrate', () => {
     const { runMigrate } = await import('../lib/onboarding/migrate')
     const result = runMigrate()
     expect(result.migrated).toBe(true)
-    expect(result.path).toBe(join(TMP, '.gtm-os', 'company_context.yaml'))
+    expect(result.path).toBe(join(TMP, '.orbit-gtm', 'company_context.yaml'))
 
     const written = yaml.load(readFileSync(result.path!, 'utf-8')) as Record<string, any>
     expect(written.company.name).toBe('Acme Inc')
@@ -68,12 +68,12 @@ describe('runMigrate', () => {
 
   it('is a no-op when company_context.yaml already exists', async () => {
     writeLegacyFramework({ version: 7, company: { name: 'Acme' } })
-    writeFileSync(join(TMP, '.gtm-os', 'company_context.yaml'), 'company:\n  name: Existing\n')
+    writeFileSync(join(TMP, '.orbit-gtm', 'company_context.yaml'), 'company:\n  name: Existing\n')
 
     const { runMigrate } = await import('../lib/onboarding/migrate')
     const result = runMigrate()
     expect(result.migrated).toBe(false)
-    expect(readFileSync(join(TMP, '.gtm-os', 'company_context.yaml'), 'utf-8')).toContain(
+    expect(readFileSync(join(TMP, '.orbit-gtm', 'company_context.yaml'), 'utf-8')).toContain(
       'Existing',
     )
   })
@@ -83,7 +83,7 @@ describe('runMigrate', () => {
     const result = runMigrate()
     expect(result.migrated).toBe(false)
     expect(result.reason).toMatch(/No legacy framework/)
-    expect(existsSync(join(TMP, '.gtm-os', 'company_context.yaml'))).toBe(false)
+    expect(existsSync(join(TMP, '.orbit-gtm', 'company_context.yaml'))).toBe(false)
   })
 })
 
@@ -96,7 +96,7 @@ describe('isPre060State', () => {
 
   it('is false once company_context.yaml has been written', async () => {
     writeLegacyFramework({ company: { name: 'Acme' } })
-    writeFileSync(join(TMP, '.gtm-os', 'company_context.yaml'), 'company:\n  name: Acme\n')
+    writeFileSync(join(TMP, '.orbit-gtm', 'company_context.yaml'), 'company:\n  name: Acme\n')
     const { isPre060State } = await import('../lib/onboarding/migrate')
     expect(isPre060State()).toBe(false)
   })

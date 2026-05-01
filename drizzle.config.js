@@ -7,7 +7,7 @@ export default {
   out: './src/lib/db/migrations',
   dialect: 'turso',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? `file:${join(homedir(), '.gtm-os', 'gtm-os.db')}`,
+    url: process.env.DATABASE_URL ?? `file:${join(homedir(), '.orbit-gtm', 'gtm-os.db')}`,
     authToken: process.env.TURSO_AUTH_TOKEN,
   },
 }

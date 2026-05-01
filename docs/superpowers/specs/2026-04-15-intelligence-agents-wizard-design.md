@@ -55,17 +55,17 @@ Users must hand-write AgentConfig in TypeScript or YAML. Only one example exists
 ### CLI Command
 
 ```
-yalc-gtm agent:create
+orbit-gtm agent:create
 ```
 
 ### Interactive Flow
-1. **Agent ID** — kebab-case, validated unique against `~/.gtm-os/agents/`
+1. **Agent ID** — kebab-case, validated unique against `~/.orbit-gtm/agents/`
 2. **Description** — free text
 3. **Skills** — multi-select from registered skills (fetched from SkillRegistry)
 4. **Per-skill inputs** — for each selected skill, prompt for required inputs. Use skill metadata to determine which inputs are needed.
 5. **Schedule** — type (daily/weekly/interval/cron), then timing fields
 6. **Retry/timeout** — defaults to 2 retries, 5 min timeout. Prompt to override.
-7. **Write YAML** — saves to `~/.gtm-os/agents/{id}.yaml`
+7. **Write YAML** — saves to `~/.orbit-gtm/agents/{id}.yaml`
 8. **Offer install** — prompt to run `agent:install` immediately
 
 ### YAML Output Format
@@ -98,7 +98,7 @@ timeoutMs: 300000
 
 ### Changes to Existing Files
 - `src/cli/index.ts` — add `agent:create` command
-- `src/lib/agents/runner.ts` — `agent:run` resolves YAML from `~/.gtm-os/agents/` if no TypeScript factory matches the agent ID
+- `src/lib/agents/runner.ts` — `agent:run` resolves YAML from `~/.orbit-gtm/agents/` if no TypeScript factory matches the agent ID
 
 ---
 
@@ -110,7 +110,7 @@ New users must manually edit `.env.local` with 8-10 keys. No guidance, no valida
 ### CLI Command
 
 ```
-yalc-gtm setup --wizard
+orbit-gtm setup --wizard
 ```
 
 ### Flow

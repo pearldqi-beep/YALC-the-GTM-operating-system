@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Portable bin entry for `yalc-gtm`.
+ * Portable bin entry for `orbit-gtm`.
  *
  * Registers tsx's ESM loader, then imports the TypeScript CLI entry.
  * Works on Linux, macOS, and Windows without a build step because we

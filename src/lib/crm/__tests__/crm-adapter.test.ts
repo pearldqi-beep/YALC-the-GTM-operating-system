@@ -166,7 +166,7 @@ describe('applyMapping', () => {
 
 describe('config store', () => {
   // These tests use the real filesystem via saveCrmConfig/loadCrmConfig.
-  // In CI, the ~/.gtm-os/crm/ directory is writable.
+  // In CI, the ~/.orbit-gtm/crm/ directory is writable.
 
   const testConfig: CRMProviderConfig = {
     provider: 'test-crm',

@@ -8,7 +8,7 @@ import yaml from 'js-yaml'
 import { getSkillRegistryReady } from '../../lib/skills/registry'
 import { requireTTY } from '../../lib/cli/tty'
 
-const AGENTS_DIR = join(homedir(), '.gtm-os', 'agents')
+const AGENTS_DIR = join(homedir(), '.orbit-gtm', 'agents')
 
 export async function runAgentCreate(): Promise<void> {
   requireTTY('agent:create')
@@ -165,7 +165,7 @@ async function runAgentCreateInner(): Promise<void> {
   writeFileSync(filePath, yamlStr)
 
   console.log(`\n✓ Agent written to ${filePath}`)
-  console.log(`\nRun it now:  yalc-gtm agent:run --agent ${id}`)
+  console.log(`\nRun it now:  orbit-gtm agent:run --agent ${id}`)
 
   // 8. Offer install
   const doInstall = await confirm({ message: 'Install as launchd service now?', default: false })

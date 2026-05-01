@@ -107,7 +107,7 @@ export function buildIndex(rootPath: string, isPreview: boolean): string {
   const lines: string[] = []
   if (isPreview) {
     lines.push(
-      '> **Preview** — review and run `yalc-gtm start --commit-preview` to make these live.',
+      '> **Preview** — review and run `orbit-gtm start --commit-preview` to make these live.',
     )
     lines.push('')
   }

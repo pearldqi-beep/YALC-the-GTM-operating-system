@@ -20,7 +20,7 @@ import type {
   StepExecutionResult,
 } from './chain-types'
 
-const STATE_DIR = join(homedir(), '.gtm-os', 'pipelines', '.state')
+const STATE_DIR = join(homedir(), '.orbit-gtm', 'pipelines', '.state')
 
 // ─── Pipeline Loader ─────────────────────────────────────────────────────────
 
@@ -416,7 +416,7 @@ export function listPipelines(): Array<{ name: string; file: string; description
   // PKG_ROOT/templates/sequences and PKG_ROOT/configs/pipelines so a fresh
   // install isn't an empty list.
   const userDirs = [
-    join(homedir(), '.gtm-os', 'pipelines'),
+    join(homedir(), '.orbit-gtm', 'pipelines'),
     join(process.cwd(), 'configs', 'pipelines'),
   ]
   const bundledDirs = [

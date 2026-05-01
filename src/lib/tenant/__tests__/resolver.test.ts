@@ -18,18 +18,18 @@ describe('resolveTenant', () => {
     expect(resolveTenant({ env: {}, cwd })).toBe(DEFAULT_TENANT)
   })
 
-  it('honors the .gtm-os-tenant file', () => {
-    writeFileSync(join(cwd, '.gtm-os-tenant'), 'acme-corp\n')
+  it('honors the .orbit-gtm-tenant file', () => {
+    writeFileSync(join(cwd, '.orbit-gtm-tenant'), 'acme-corp\n')
     expect(resolveTenant({ env: {}, cwd })).toBe('acme-corp')
   })
 
   it('GTM_OS_TENANT env beats the file', () => {
-    writeFileSync(join(cwd, '.gtm-os-tenant'), 'acme-corp')
+    writeFileSync(join(cwd, '.orbit-gtm-tenant'), 'acme-corp')
     expect(resolveTenant({ env: { GTM_OS_TENANT: 'gamma-co' }, cwd })).toBe('gamma-co')
   })
 
   it('CLI flag beats env and file', () => {
-    writeFileSync(join(cwd, '.gtm-os-tenant'), 'acme-corp')
+    writeFileSync(join(cwd, '.orbit-gtm-tenant'), 'acme-corp')
     expect(
       resolveTenant({ cliFlag: 'beta-inc', env: { GTM_OS_TENANT: 'gamma-co' }, cwd }),
     ).toBe('beta-inc')
@@ -44,7 +44,7 @@ describe('resolveTenant', () => {
     expect(resolveTenant({ cliFlag: '   ', env: { GTM_OS_TENANT: 'delta-ltd' }, cwd })).toBe('delta-ltd')
   })
 
-  it('tenantConfigDir returns ~/.gtm-os/tenants/<slug>', () => {
+  it('tenantConfigDir returns ~/.orbit-gtm/tenants/<slug>', () => {
     expect(tenantConfigDir('default', '/h')).toBe('/h/.gtm-os/tenants/default')
   })
 })

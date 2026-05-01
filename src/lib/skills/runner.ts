@@ -53,7 +53,7 @@ export async function runSkill(skillId: string, opts: RunSkillOpts): Promise<voi
   const skill = await resolveSkill(skillId)
   if (!skill) {
     console.error(
-      `Skill "${skillId}" not found. Run \`yalc-gtm skills:browse --installed\` to see installed skills.`,
+      `Skill "${skillId}" not found. Run \`orbit-gtm skills:browse --installed\` to see installed skills.`,
     )
     process.exit(1)
   }
@@ -88,7 +88,7 @@ export async function runSkill(skillId: string, opts: RunSkillOpts): Promise<voi
   const missing = required.filter(k => inputs[k] === undefined || inputs[k] === null || inputs[k] === '')
   if (missing.length > 0) {
     console.error(`Missing required input(s): ${missing.join(', ')}`)
-    console.error(`Run: yalc-gtm skills:info ${skillId}  to see the input schema.`)
+    console.error(`Run: orbit-gtm skills:info ${skillId}  to see the input schema.`)
     process.exit(1)
   }
 

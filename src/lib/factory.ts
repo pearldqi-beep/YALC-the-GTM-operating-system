@@ -5,7 +5,7 @@ import type { GTMOSConfig } from './config/types'
 import type { GTMFramework } from './framework/types'
 
 export interface GTMOSOptions {
-  /** Path to YAML config (default: ~/.gtm-os/config.yaml) */
+  /** Path to YAML config (default: ~/.orbit-gtm/config.yaml) */
   configPath?: string
   /** Inline config — merged with defaults, overrides file config */
   config?: Partial<GTMOSConfig>

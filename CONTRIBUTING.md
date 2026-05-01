@@ -1,12 +1,12 @@
-# Contributing to YALC
+# Contributing to Orbit GTM
 
-Thanks for your interest in contributing to YALC. Here's how to get started.
+Thanks for your interest in contributing to Orbit GTM. Here's how to get started.
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/Othmane-Khadri/YALC-the-GTM-operating-system.git
-cd YALC-the-GTM-operating-system
+git clone https://github.com/Othmane-Khadri/Orbit GTM-the-GTM-operating-system.git
+cd Orbit GTM-the-GTM-operating-system
 pnpm install
 cp .env.example .env.local   # Add at least ANTHROPIC_API_KEY
 pnpm typecheck                # Verify everything compiles
@@ -15,7 +15,7 @@ pnpm test                     # Run the test suite
 
 ## Architecture Rules
 
-YALC follows a strict **three-layer pattern**:
+Orbit GTM follows a strict **three-layer pattern**:
 
 ```
 Service (API wrapper) → Provider (StepExecutor) → Skill (user-facing operation)
@@ -56,10 +56,10 @@ Never skip layers. A skill should never call an API directly — it goes through
 
 ## Reporting Bugs
 
-Open an issue at https://github.com/Othmane-Khadri/YALC-the-GTM-operating-system/issues with:
+Open an issue at https://github.com/Othmane-Khadri/Orbit GTM-the-GTM-operating-system/issues with:
 - What you expected to happen
 - What actually happened
-- Output of `yalc-gtm doctor`
+- Output of `orbit-gtm doctor`
 - Your Node.js version (`node --version`)
 
 ## Security Vulnerabilities

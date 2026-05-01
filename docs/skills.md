@@ -37,7 +37,7 @@ Skills are provider-agnostic — `find-companies` doesn't know about Crustdata o
 Search for companies matching specific criteria — industry, size, location, funding stage.
 
 ```
-yalc-gtm orchestrate "find 10 SaaS companies in Berlin with 50-200 employees"
+orbit-gtm orchestrate "find 10 SaaS companies in Berlin with 50-200 employees"
 ```
 
 **Inputs:** `query` (natural language), `count` (default: 10)
@@ -48,7 +48,7 @@ yalc-gtm orchestrate "find 10 SaaS companies in Berlin with 50-200 employees"
 Search for people by title, company, seniority level, and location.
 
 ```
-yalc-gtm orchestrate "find VP of Engineering at Stripe"
+orbit-gtm orchestrate "find VP of Engineering at Stripe"
 ```
 
 **Inputs:** `companies` (array), `titles` (array), `seniorityLevels` (array), `location`, `limit`
@@ -59,7 +59,7 @@ yalc-gtm orchestrate "find VP of Engineering at Stripe"
 Scrape likers and commenters from a LinkedIn post URL. Optionally auto-qualify results.
 
 ```
-yalc-gtm leads:scrape-post --url "https://linkedin.com/feed/update/..."
+orbit-gtm leads:scrape-post --url "https://linkedin.com/feed/update/..."
 ```
 
 **Inputs:** `url`, `type` (likers, commenters, both), `maxPages`, `autoQualify`
@@ -70,7 +70,7 @@ yalc-gtm leads:scrape-post --url "https://linkedin.com/feed/update/..."
 Research a competitor — scrape their website, pull company data, analyze positioning.
 
 ```
-yalc-gtm orchestrate "research Gainsight's positioning and pricing"
+orbit-gtm orchestrate "research Gainsight's positioning and pricing"
 ```
 
 **Inputs:** `competitor` (URL or name), `enrichWithCrustdata` (boolean)
@@ -176,7 +176,7 @@ Combined LinkedIn + email campaign. Sends LinkedIn connections via Unipile and e
 The meta-skill. Takes a natural language request, decomposes it into a multi-step workflow, selects skills and providers, and executes.
 
 ```
-yalc-gtm orchestrate "find 10 companies matching my ICP, find their decision makers, qualify them, and create a LinkedIn campaign"
+orbit-gtm orchestrate "find 10 companies matching my ICP, find their decision makers, qualify them, and create a LinkedIn campaign"
 ```
 
 **Inputs:** `query` (natural language), `autoApprove` (skip confirmation gates)

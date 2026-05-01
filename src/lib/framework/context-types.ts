@@ -1,5 +1,5 @@
 /**
- * Canonical schema for `~/.gtm-os/company_context.yaml` — the captured
+ * Canonical schema for `~/.orbit-gtm/company_context.yaml` — the captured
  * answers about the user's company, ICP, voice, and the raw sources they
  * came from. Promoted to a first-class file in 0.6.0 so derivation steps
  * read structured input instead of mining a framework preamble.
@@ -47,9 +47,9 @@ export interface CompanyContextSources {
 export interface CompanyContextMeta {
   captured_at: string
   last_updated_at: string
-  /** Set when the file was produced by `yalc-gtm migrate`. */
+  /** Set when the file was produced by `orbit-gtm migrate`. */
   migrated_from?: string
-  /** YALC version that authored the file. */
+  /** Orbit GTM version that authored the file. */
   version?: string
 }
 

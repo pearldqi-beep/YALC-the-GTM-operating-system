@@ -1,4 +1,4 @@
-# YALC — Product Direction
+# Orbit GTM — Product Direction
 
 **Author:** Othmane Khadri
 **Updated:** March 2026
@@ -25,7 +25,7 @@ A CLI-first framework to operate any GTM campaign. The user describes an outcome
 ## 2. Core Principles
 
 ### CLI-First, Library-Second
-YALC ships as a CLI (`yalc-gtm <command>`) and a TypeScript library (`import { createGtmOS } from 'gtm-os'`). No web UI required. Dashboards exist for visualization but are not the primary interface.
+Orbit GTM ships as a CLI (`orbit-gtm <command>`) and a TypeScript library (`import { createGtmOS } from 'gtm-os'`). No web UI required. Dashboards exist for visualization but are not the primary interface.
 
 ### AI-Native Intelligence
 - **Workflow construction:** AI plans campaigns from natural language
@@ -91,7 +91,7 @@ YAML-defined sequences spanning LinkedIn + email + Twitter. Condition-based bran
 Auto-personalization using lead context. A/B test statistical significance (chi-squared). Competitive intelligence skill.
 
 ### Phase 5: Plugin System
-`YALCPlugin` interface. Auto-discovery from `./plugins/` or `gtm-os.yaml`. Plugin-provided providers and skills auto-register.
+`Orbit GTMPlugin` interface. Auto-discovery from `./plugins/` or `gtm-os.yaml`. Plugin-provided providers and skills auto-register.
 
 ### Future: HubSpot CRM, Dialer, Twitter, Webhooks, Signals, Multi-User
 
@@ -101,7 +101,7 @@ Auto-personalization using lead context. A/B test statistical significance (chi-
 
 A solo founder can:
 1. Clone the repo and run locally
-2. Add API keys via `yalc-gtm setup`
+2. Add API keys via `orbit-gtm setup`
 3. Import leads from CSV
 4. Run 7-gate qualification with `--dry-run`
 5. Create a multi-variant campaign

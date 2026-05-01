@@ -7,7 +7,7 @@
  * partial GTMFramework via a tool call, merges that with the template,
  * and writes the result to both the DB (`frameworks` table, scoped by
  * tenantId) and the per-tenant YAML at
- * `~/.gtm-os/tenants/<slug>/framework.yaml`.
+ * `~/.orbit-gtm/tenants/<slug>/framework.yaml`.
  *
  * The derived framework is a *view* over memory \u2014 safe to regenerate
  * any time. It carries `onboardingComplete: true` when there is any

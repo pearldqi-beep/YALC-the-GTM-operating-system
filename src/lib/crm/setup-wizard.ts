@@ -6,7 +6,7 @@
  *   2. Discover tools and objects
  *   3. Auto-map GTM-OS fields to CRM fields
  *   4. Show mapping for user confirmation
- *   5. Save to ~/.gtm-os/crm/<provider>.yaml
+ *   5. Save to ~/.orbit-gtm/crm/<provider>.yaml
  *
  * Swapping CRM = running this wizard again with a different provider name.
  */
@@ -60,7 +60,7 @@ export async function runCrmSetupWizard(opts: SetupWizardOptions): Promise<Setup
       success: false,
       message:
         `No MCP config found for "${provider}". ` +
-        `Expected: ~/.gtm-os/mcp/${provider}.json or configs/mcp/${provider}.json\n` +
+        `Expected: ~/.orbit-gtm/mcp/${provider}.json or configs/mcp/${provider}.json\n` +
         `Available templates: hubspot, apollo, zoominfo, peopledatalabs`,
     }
   }
@@ -231,11 +231,11 @@ async function editMapping(
 // ─── MCP config loader ──────────────────────────────────────────────────────
 
 function loadMcpConfig(provider: string): McpProviderConfig | null {
-  // Resolution order: ~/.gtm-os/mcp (user override) → cwd (dev checkout)
+  // Resolution order: ~/.orbit-gtm/mcp (user override) → cwd (dev checkout)
   // → PKG_ROOT (installed tarball). When the bundled template is the only
-  // copy we find, seed it into ~/.gtm-os/mcp so the user has a writable
+  // copy we find, seed it into ~/.orbit-gtm/mcp so the user has a writable
   // baseline going forward — matches the behavior of `provider:add`.
-  const userPath = join(homedir(), '.gtm-os', 'mcp', `${provider}.json`)
+  const userPath = join(homedir(), '.orbit-gtm', 'mcp', `${provider}.json`)
   const paths = [
     userPath,
     join(process.cwd(), 'configs', 'mcp', `${provider}.json`),
@@ -253,7 +253,7 @@ function loadMcpConfig(provider: string): McpProviderConfig | null {
         continue
       }
 
-      // Seed into ~/.gtm-os/mcp on first use so users can edit the file.
+      // Seed into ~/.orbit-gtm/mcp on first use so users can edit the file.
       if (filePath !== userPath && !existsSync(userPath)) {
         try {
           mkdirSync(dirname(userPath), { recursive: true })

@@ -268,7 +268,7 @@ function buildSkillFromDefinition(def: MarkdownSkillDefinition, promptTemplate: 
 // ---------------------------------------------------------------------------
 
 export function getMarkdownSkillsDir(): string {
-  return join(homedir(), '.gtm-os', 'skills')
+  return join(homedir(), '.orbit-gtm', 'skills')
 }
 
 export interface MarkdownSkillLoadResult {

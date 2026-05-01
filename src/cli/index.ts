@@ -3,10 +3,10 @@ import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-// Load env from ~/.gtm-os/.env first (canonical), then .env.local in CWD
+// Load env from ~/.orbit-gtm/.env first (canonical), then .env.local in CWD
 // (legacy) as a fallback. dotenv v16.4+ supports an array of paths; later
 // entries do NOT override earlier ones, so the canonical location wins.
-const globalEnvPath = join(homedir(), '.gtm-os', '.env')
+const globalEnvPath = join(homedir(), '.orbit-gtm', '.env')
 const localEnvPath = join(process.cwd(), '.env.local')
 const envPaths = [globalEnvPath, localEnvPath].filter(existsSync)
 if (envPaths.length > 0) {
@@ -40,11 +40,11 @@ function readPackageVersion(): string {
 const program = new Command()
 
 program
-  .name('yalc-gtm')
-  .description('YALC — open-source AI-native GTM operating system')
+  .name('orbit-gtm')
+  .description('Orbit GTM — open-source AI-native GTM operating system')
   .version(readPackageVersion())
-  .option('-c, --config <path>', 'Path to config YAML', '~/.gtm-os/config.yaml')
-  .option('-t, --tenant <slug>', 'Tenant slug (overrides GTM_OS_TENANT env and .gtm-os-tenant file)')
+  .option('-c, --config <path>', 'Path to config YAML', '~/.orbit-gtm/config.yaml')
+  .option('-t, --tenant <slug>', 'Tenant slug (overrides GTM_OS_TENANT env and .orbit-gtm-tenant file)')
   .option('-v, --verbose', 'Enable verbose output with full stack traces')
   .hook('preAction', (thisCommand) => {
     // Resolve verbose flag first — affects error output globally
@@ -52,14 +52,14 @@ program
     if (opts.verbose) {
       setVerbose(true)
       process.env.GTM_OS_VERBOSE = '1'
-      // YALC_DEBUG is the canonical opt-in for transport-level chatter
+      // ORBIT_GTM_DEBUG is the canonical opt-in for transport-level chatter
       // (e.g. MCP stdio child stderr). The MCP adapter reads it directly.
-      process.env.YALC_DEBUG = '1'
+      process.env.ORBIT_GTM_DEBUG = '1'
     }
 
     // Phase 1 / A3 — resolve once per invocation, cache on the program so
     // any command can read it via `getTenant()`. Precedence: --tenant flag
-    // > GTM_OS_TENANT env > .gtm-os-tenant file > 'default'.
+    // > GTM_OS_TENANT env > .orbit-gtm-tenant file > 'default'.
     const tenantId = resolveTenant({ cliFlag: opts.tenant })
     ;(program as any)._tenantId = tenantId
   })
@@ -219,7 +219,7 @@ program
     console.log(`\n✓ Scraped ${result.totalEngagers} engagers (${result.reactorCount} reactors, ${result.commenterCount} commenters)`)
     console.log(`  Result set: ${result.resultSetId}`)
     console.log(`  Output: ${result.outputPath}`)
-    console.log(`\nNext: yalc-gtm leads:qualify --result-set ${result.resultSetId}`)
+    console.log(`\nNext: orbit-gtm leads:qualify --result-set ${result.resultSetId}`)
   }))
 
 // ─── linkedin:answer-comments ───────────────────────────────────────────────
@@ -757,9 +757,9 @@ program
     }
 
     // Load MCP config
-    // Resolution order: ~/.gtm-os/mcp (user override) → cwd (dev checkout) → PKG_ROOT (installed tarball)
+    // Resolution order: ~/.orbit-gtm/mcp (user override) → cwd (dev checkout) → PKG_ROOT (installed tarball)
     const mcpPaths = [
-      join(homedir(), '.gtm-os', 'mcp', `${crmConfig.mcpServer}.json`),
+      join(homedir(), '.orbit-gtm', 'mcp', `${crmConfig.mcpServer}.json`),
       join(process.cwd(), 'configs', 'mcp', `${crmConfig.mcpServer}.json`),
       join(PKG_ROOT, 'configs', 'mcp', `${crmConfig.mcpServer}.json`),
     ]
@@ -840,7 +840,7 @@ program
     }
 
     const mcpPaths = [
-      join(homedir(), '.gtm-os', 'mcp', `${crmConfig.mcpServer}.json`),
+      join(homedir(), '.orbit-gtm', 'mcp', `${crmConfig.mcpServer}.json`),
       join(process.cwd(), 'configs', 'mcp', `${crmConfig.mcpServer}.json`),
     ]
     let mcpConfig = null
@@ -930,7 +930,7 @@ program
     }
 
     const mcpPaths = [
-      join(homedir(), '.gtm-os', 'mcp', `${crmConfig.mcpServer}.json`),
+      join(homedir(), '.orbit-gtm', 'mcp', `${crmConfig.mcpServer}.json`),
       join(process.cwd(), 'configs', 'mcp', `${crmConfig.mcpServer}.json`),
     ]
     let mcpConfig = null
@@ -1344,7 +1344,7 @@ program
     const { configureSkills } = await import('../lib/onboarding/skill-configurator')
     const framework = await loadFramework()
     if (!framework) {
-      console.log('No framework found. Run "yalc-gtm onboard" first.')
+      console.log('No framework found. Run "orbit-gtm onboard" first.')
       return
     }
     const goals = await setGoals(framework)
@@ -1538,7 +1538,7 @@ program
     const { homedir } = await import('os')
     const { AgentLogger } = await import('../lib/agents/logger')
 
-    const logBase = join(homedir(), '.gtm-os', 'logs', 'agents')
+    const logBase = join(homedir(), '.orbit-gtm', 'logs', 'agents')
     if (!existsSync(logBase)) {
       console.log('No agents have been run yet.')
       return
@@ -1568,7 +1568,7 @@ program
 // ─── update ─────────────────────────────────────────────────────────────────
 program
   .command('update')
-  .description('Pull latest YALC updates without breaking your config')
+  .description('Pull latest Orbit GTM updates without breaking your config')
   .action(async () => {
     const { runUpdate } = await import('./commands/update')
     await runUpdate()
@@ -1606,7 +1606,7 @@ program
         rows.push({ id: s.id, version: s.version, category: s.category, description: s.description, source: 'marketplace' })
       }
 
-      // Markdown skills from ~/.gtm-os/skills/ (user) and configs/skills/ (bundled).
+      // Markdown skills from ~/.orbit-gtm/skills/ (user) and configs/skills/ (bundled).
       const { loadAllMarkdownSkills, loadMarkdownSkill, getMarkdownSkillsDir } = await import('../lib/skills/markdown-loader')
       const { existsSync, readdirSync } = await import('fs')
       const { join } = await import('path')
@@ -1641,7 +1641,7 @@ program
       } catch { /* ignore */ }
 
       if (rows.length === 0) {
-        console.log('No skills installed. Run `yalc-gtm skills:create` for a markdown skill, or `skills:search <query>` for marketplace skills.')
+        console.log('No skills installed. Run `orbit-gtm skills:create` for a markdown skill, or `skills:search <query>` for marketplace skills.')
         return
       }
 
@@ -1666,7 +1666,7 @@ program
       const stars = s.downloads ? `★ ${s.downloads}` : ''
       console.log(`  ${s.id.padEnd(30)} ${s.author.padEnd(16)} ${stars.padEnd(8)} ${s.description.slice(0, 60)}`)
     }
-    console.log(`\nInstall with: yalc-gtm skills:install --github <owner>/<repo>`)
+    console.log(`\nInstall with: orbit-gtm skills:install --github <owner>/<repo>`)
   }))
 
 // ─── skills:search ────────────────────────────────────────────────────────
@@ -1688,7 +1688,7 @@ program
       const stars = s.downloads ? `★ ${s.downloads}` : ''
       console.log(`  ${s.id.padEnd(30)} ${s.author.padEnd(16)} ${stars.padEnd(8)} ${s.description.slice(0, 60)}`)
     }
-    console.log(`\nInstall with: yalc-gtm skills:install --github <owner>/<repo>`)
+    console.log(`\nInstall with: orbit-gtm skills:install --github <owner>/<repo>`)
   }))
 
 // ─── skills:create ───────────────────────────────────────────────────────
@@ -1736,7 +1736,7 @@ program
     if (result.success) {
       console.log(`\n✓ ${result.message}`)
       console.log(`  Path: ${result.installPath}`)
-      console.log(`\nThe skill is now available. Run \`yalc-gtm skills:browse --installed\` to verify.`)
+      console.log(`\nThe skill is now available. Run \`orbit-gtm skills:browse --installed\` to verify.`)
     } else {
       console.error(`\n✗ Installation failed: ${result.message}`)
       process.exit(1)
@@ -1798,7 +1798,7 @@ program
     }
 
     if (!skill) {
-      console.error(`Skill "${skillId}" not found. Run \`yalc-gtm skills:browse --installed\` to see installed skills.`)
+      console.error(`Skill "${skillId}" not found. Run \`orbit-gtm skills:browse --installed\` to see installed skills.`)
       process.exit(1)
     }
 
@@ -1842,7 +1842,7 @@ program
       if (!(await adapter.isAvailable(tenantId))) {
         console.error(
           `Adapter "${opts.adapter}" is not available for tenant "${tenantId}". ` +
-            `Check ~/.gtm-os/tenants/${tenantId}/adapters.yaml.`,
+            `Check ~/.orbit-gtm/tenants/${tenantId}/adapters.yaml.`,
         )
         process.exit(1)
       }
@@ -2040,7 +2040,7 @@ program
         console.log(`  ${p.id.padEnd(24)} [${statusTag.padEnd(13)}] ${p.capabilities.join(', ').padEnd(28)} ${p.name}`)
       }
     } else {
-      console.log('\n  No MCP providers loaded. Drop configs into ~/.gtm-os/mcp/ or run: provider:add --mcp <name>')
+      console.log('\n  No MCP providers loaded. Drop configs into ~/.orbit-gtm/mcp/ or run: provider:add --mcp <name>')
     }
 
     console.log(`\n  Total: ${all.length} providers (${builtins.length} builtin, ${mcps.length} MCP)\n`)
@@ -2058,7 +2058,7 @@ program
     const { homedir } = await import('os')
     const { getMcpTemplateDir, listTemplateConfigs } = await import('../lib/providers/mcp-loader')
 
-    const targetDir = join(homedir(), '.gtm-os', 'mcp')
+    const targetDir = join(homedir(), '.orbit-gtm', 'mcp')
     const input = String(opts.mcp)
 
     // Detect path-vs-template-name. A path either contains a separator,
@@ -2156,7 +2156,7 @@ program
         }
         console.log('\nAdd them to your .env.local or export them before running GTM-OS.')
       }
-      console.log(`\nVerify with: yalc-gtm provider:test ${targetName}`)
+      console.log(`\nVerify with: orbit-gtm provider:test ${targetName}`)
       return
     }
 
@@ -2204,7 +2204,7 @@ program
       console.log('\nAdd them to your .env.local or export them before running GTM-OS.')
     }
 
-    console.log('\nVerify with: yalc-gtm provider:test ' + input)
+    console.log('\nVerify with: orbit-gtm provider:test ' + input)
   }))
 
 // ─── provider:test ─────────────────────────────────────────────────────────
@@ -2280,7 +2280,7 @@ program
     const { join } = await import('path')
     const { homedir } = await import('os')
 
-    const configPath = join(homedir(), '.gtm-os', 'mcp', `${name}.json`)
+    const configPath = join(homedir(), '.orbit-gtm', 'mcp', `${name}.json`)
 
     if (!existsSync(configPath)) {
       console.error(`No MCP config found at ${configPath}`)
@@ -2322,14 +2322,14 @@ program
 // ─── pipeline:list ─────────────────────────────────────────────────────────
 program
   .command('pipeline:list')
-  .description('List available pipelines from ~/.gtm-os/pipelines/ and configs/pipelines/')
+  .description('List available pipelines from ~/.orbit-gtm/pipelines/ and configs/pipelines/')
   .action(async () => {
     const { listPipelines } = await import('../lib/orchestrator/chain')
     const pipelines = listPipelines()
 
     if (pipelines.length === 0) {
       console.log('No pipelines found. Create one with: pipeline:create')
-      console.log('  Or add YAML files to ~/.gtm-os/pipelines/ or configs/pipelines/')
+      console.log('  Or add YAML files to ~/.orbit-gtm/pipelines/ or configs/pipelines/')
       return
     }
 
@@ -2417,7 +2417,7 @@ program
     }
 
     if (status.status === 'failed') {
-      console.log(`\n  Resume with: yalc-gtm pipeline:resume --name "${status.pipelineName}"`)
+      console.log(`\n  Resume with: orbit-gtm pipeline:resume --name "${status.pipelineName}"`)
     }
   })
 
@@ -2427,7 +2427,7 @@ program
   .description('Create a new pipeline YAML from a template')
   .argument('[name]', 'Pipeline name')
   .option('--name <name>', 'Pipeline name (overrides positional argument)')
-  .option('--output <path>', 'Output path (default: ~/.gtm-os/pipelines/<name>.yaml)')
+  .option('--output <path>', 'Output path (default: ~/.orbit-gtm/pipelines/<name>.yaml)')
   .action(async (positionalName, opts) => {
     const { existsSync, writeFileSync, mkdirSync } = await import('fs')
     const { join } = await import('path')
@@ -2440,7 +2440,7 @@ program
       process.exit(1)
     }
 
-    const pipelinesDir = join(homedir(), '.gtm-os', 'pipelines')
+    const pipelinesDir = join(homedir(), '.orbit-gtm', 'pipelines')
     mkdirSync(pipelinesDir, { recursive: true })
 
     const outputPath = opts.output ?? join(pipelinesDir, `${pipelineName}.yaml`)
@@ -2470,7 +2470,7 @@ program
 
     writeFileSync(outputPath, yaml.dump(template, { lineWidth: 120 }))
     console.log(`Pipeline created: ${outputPath}`)
-    console.log(`Edit the YAML, then run: yalc-gtm pipeline:run --file "${outputPath}" --dry-run`)
+    console.log(`Edit the YAML, then run: orbit-gtm pipeline:run --file "${outputPath}" --dry-run`)
   })
 
 // ─── signals:watch ──────────────────────────────────────────────────────────
@@ -2530,7 +2530,7 @@ program
     }
 
     console.log(`\n[signals] Estimated daily credit cost: ${projectedCost} credits`)
-    console.log(`[signals] Run detection: yalc-gtm signals:detect`)
+    console.log(`[signals] Run detection: orbit-gtm signals:detect`)
   }))
 
 // ─── signals:detect ─────────────────────────────────────────────────────────

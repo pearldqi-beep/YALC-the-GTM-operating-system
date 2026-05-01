@@ -1,7 +1,7 @@
 /**
  * MCP Provider Loader
  *
- * Scans ~/.gtm-os/mcp/*.json for MCP provider configs, validates them,
+ * Scans ~/.orbit-gtm/mcp/*.json for MCP provider configs, validates them,
  * expands environment variables, and registers each as a provider in
  * the ProviderRegistry.
  */
@@ -18,7 +18,7 @@ import type { ProviderRegistry } from './registry'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MCP_CONFIG_DIR = join(homedir(), '.gtm-os', 'mcp')
+const MCP_CONFIG_DIR = join(homedir(), '.orbit-gtm', 'mcp')
 const VALID_CAPABILITIES: ProviderCapability[] = [
   'search',
   'enrich',
@@ -158,7 +158,7 @@ export interface McpLoadResult {
 }
 
 /**
- * Scan ~/.gtm-os/mcp/ for JSON configs, validate, expand env vars,
+ * Scan ~/.orbit-gtm/mcp/ for JSON configs, validate, expand env vars,
  * connect, and register in the provided registry.
  */
 export async function loadMcpProviders(registry: ProviderRegistry): Promise<McpLoadResult> {

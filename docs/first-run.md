@@ -1,24 +1,24 @@
 # First Run Tutorial
 
-This guide walks you through what happens when you run `yalc-gtm start` for the first time, and then shows you three things to try after setup.
+This guide walks you through what happens when you run `orbit-gtm start` for the first time, and then shows you three things to try after setup.
 
 ## Prerequisites
 
 ```bash
-git clone https://github.com/Othmane-Khadri/YALC-the-GTM-operating-system.git
-cd YALC-the-GTM-operating-system
+git clone https://github.com/Othmane-Khadri/Orbit GTM-the-GTM-operating-system.git
+cd Orbit GTM-the-GTM-operating-system
 pnpm install
 ```
 
 ## Running `start`
 
 ```bash
-yalc-gtm start
+orbit-gtm start
 ```
 
 ### Step 1/4 — Environment
 
-The CLI creates `~/.gtm-os/` (your persistent GTM brain) and checks for API keys.
+The CLI creates `~/.orbit-gtm/` (your persistent GTM brain) and checks for API keys.
 
 **Anthropic key** — the only required key. If it's already in your environment (common in Claude Code sessions), it's detected automatically. Otherwise you'll be prompted:
 
@@ -50,7 +50,7 @@ The CLI first asks how you want to provide context. Three modes are available:
 
 - **A. Q&A** — answer the 10 onboarding questions one by one (the flow shown below).
 - **B. Long-form** — your editor opens with a markdown template; you paste a single response covering every heading and Claude maps it back to structured fields.
-- **C. Context-only** — give YALC your website URL plus any local docs, and Claude infers the answers for you. Falls back to Q&A if no Anthropic key is available.
+- **C. Context-only** — give Orbit GTM your website URL plus any local docs, and Claude infers the answers for you. Falls back to Q&A if no Anthropic key is available.
 
 For Q&A mode, the CLI asks 10 questions about your company. Answer as specifically as you can — this data drives everything that follows.
 
@@ -88,7 +88,7 @@ The framework includes:
 - **ICP segments** — target roles, industries, company sizes, pain points, buying triggers
 - **Signals** — buying intent signals, monitoring keywords, trigger events
 
-Before anything is written to disk, the CLI prints a structured summary and asks you to confirm: `Save this framework? (Y/n)`. Answering `n` opens the framework YAML in your `$EDITOR` so you can fix anything Claude got wrong, then saves the edited version. Saved to `~/.gtm-os/framework.yaml` and the local database.
+Before anything is written to disk, the CLI prints a structured summary and asks you to confirm: `Save this framework? (Y/n)`. Answering `n` opens the framework YAML in your `$EDITOR` so you can fix anything Claude got wrong, then saves the edited version. Saved to `~/.orbit-gtm/framework.yaml` and the local database.
 
 ### Step 4/4 — Goals & Configuration
 
@@ -103,9 +103,9 @@ Campaign Style:  test-and-learn
 ```
 
 Then auto-generates:
-- **Qualification rules** (`~/.gtm-os/qualification_rules.md`) — regex patterns matching your ICP titles and industries
-- **Outreach templates** (`~/.gtm-os/campaign_templates.yaml`) — LinkedIn connect note, DM1, DM2 written in your voice
-- **Search queries** (`~/.gtm-os/search_queries.txt`) — keywords for monitoring and prospecting
+- **Qualification rules** (`~/.orbit-gtm/qualification_rules.md`) — regex patterns matching your ICP titles and industries
+- **Outreach templates** (`~/.orbit-gtm/campaign_templates.yaml`) — LinkedIn connect note, DM1, DM2 written in your voice
+- **Search queries** (`~/.orbit-gtm/search_queries.txt`) — keywords for monitoring and prospecting
 
 ### Readiness Report
 
@@ -123,7 +123,7 @@ At the end, you see what's available based on your configured providers:
     ○ Web intelligence           (add FIRECRAWL_API_KEY to unlock)
 
   Try this first:
-    yalc-gtm orchestrate "find companies matching my ICP"
+    orbit-gtm orchestrate "find companies matching my ICP"
 ```
 
 ---
@@ -135,13 +135,13 @@ At the end, you see what's available based on your configured providers:
 Already have a lead list? Run qualification in dry-run mode against your CSV:
 
 ```bash
-yalc-gtm leads:qualify --source csv --input ./your-leads.csv --dry-run
+orbit-gtm leads:qualify --source csv --input ./your-leads.csv --dry-run
 ```
 
-Don't have a list yet? Let YALC find and qualify leads for you:
+Don't have a list yet? Let Orbit GTM find and qualify leads for you:
 
 ```bash
-yalc-gtm orchestrate "find 10 SaaS CTOs matching my ICP and qualify them"
+orbit-gtm orchestrate "find 10 SaaS CTOs matching my ICP and qualify them"
 ```
 
 This runs each lead through the 7-gate qualification pipeline:
@@ -160,14 +160,14 @@ Each lead gets a score and reason. Review the results, then run without `--dry-r
 Requires: `UNIPILE_API_KEY` + `UNIPILE_DSN`
 
 ```bash
-yalc-gtm campaign:create --title "Q2 CS Leaders" --hypothesis "VP CS responds to churn data"
+orbit-gtm campaign:create --title "Q2 CS Leaders" --hypothesis "VP CS responds to churn data"
 ```
 
 This creates a 3-step LinkedIn sequence (connect → DM1 → DM2) with A/B variant testing. The templates use your voice from Step 4.
 
 Track progress daily:
 ```bash
-yalc-gtm campaign:track --dry-run
+orbit-gtm campaign:track --dry-run
 ```
 
 ### 3. Orchestrate with Natural Language
@@ -175,7 +175,7 @@ yalc-gtm campaign:track --dry-run
 The orchestrator takes a plain English request and plans a multi-step workflow:
 
 ```bash
-yalc-gtm orchestrate "find 10 SaaS companies in New York with 100-500 employees, find their VP of Customer Success, and qualify them"
+orbit-gtm orchestrate "find 10 SaaS companies in New York with 100-500 employees, find their VP of Customer Success, and qualify them"
 ```
 
 Claude decomposes this into skills (find-companies → find-people → qualify-leads), picks the right providers, and executes step by step.
@@ -185,7 +185,7 @@ Claude decomposes this into skills (find-companies → find-people → qualify-l
 ## File Structure After Setup
 
 ```
-~/.gtm-os/                          Your GTM brain (persists across projects)
+~/.orbit-gtm/                          Your GTM brain (persists across projects)
 ├── config.yaml                     Provider settings, Notion IDs, rate limits
 ├── framework.yaml                  GTM framework — ICP, positioning, signals
 ├── qualification_rules.md          Lead qualification patterns (auto-generated)
@@ -201,9 +201,9 @@ Claude decomposes this into skills (find-companies → find-people → qualify-l
 
 ## Re-running Setup
 
-Run `yalc-gtm start` again anytime to reconfigure. It preserves existing keys and lets you update your company context.
+Run `orbit-gtm start` again anytime to reconfigure. It preserves existing keys and lets you update your company context.
 
 To just check your setup health without reconfiguring:
 ```bash
-yalc-gtm doctor
+orbit-gtm doctor
 ```

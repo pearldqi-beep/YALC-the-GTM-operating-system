@@ -22,7 +22,7 @@ Every skill must implement:
 ## Hard Rules
 1. **`execute()` must yield `RowBatch` objects** via async generator. Never return a flat array.
 2. **All skills register in `SkillRegistry`** (`src/lib/skills/registry.ts`) and must be discoverable via `skills:browse`.
-3. **Markdown skills** (`.md` files in `~/.gtm-os/skills/`) are also valid skill definitions. They get loaded dynamically at runtime.
+3. **Markdown skills** (`.md` files in `~/.orbit-gtm/skills/`) are also valid skill definitions. They get loaded dynamically at runtime.
 4. Skills must handle their own error boundaries — a failing skill should not crash the pipeline.
 5. Add new builtin skills to `src/lib/skills/builtin/index.ts` barrel export.
 

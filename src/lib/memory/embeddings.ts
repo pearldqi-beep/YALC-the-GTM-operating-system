@@ -22,7 +22,7 @@
  *   - VoyageEmbeddings  (voyage-3-large, 1024 dims, VOYAGE_API_KEY)
  *   - OpenAIEmbeddings  (text-embedding-3-large, 3072 dims, OPENAI_API_KEY)
  *
- * Selection is read from `~/.gtm-os/config.yaml → memory.embeddings.provider`
+ * Selection is read from `~/.orbit-gtm/config.yaml → memory.embeddings.provider`
  * at call time. Default 'voyage' if unset. Missing key throws — no silent
  * mock fallback (matches Rule #2 of the GTM-OS contract).
  *
@@ -76,7 +76,7 @@ class VoyageEmbeddings implements EmbeddingProvider {
     const key = process.env.VOYAGE_API_KEY
     if (!key) {
       throw new Error(
-        'VOYAGE_API_KEY missing. Set it in .env.local or switch memory.embeddings.provider to "openai" in ~/.gtm-os/config.yaml.',
+        'VOYAGE_API_KEY missing. Set it in .env.local or switch memory.embeddings.provider to "openai" in ~/.orbit-gtm/config.yaml.',
       )
     }
     this.apiKey = key
@@ -207,7 +207,7 @@ class OpenAIEmbeddings implements EmbeddingProvider {
     const key = process.env.OPENAI_API_KEY
     if (!key) {
       throw new Error(
-        'OPENAI_API_KEY missing. Set it in .env.local or switch memory.embeddings.provider to "voyage" in ~/.gtm-os/config.yaml.',
+        'OPENAI_API_KEY missing. Set it in .env.local or switch memory.embeddings.provider to "voyage" in ~/.orbit-gtm/config.yaml.',
       )
     }
     this.apiKey = key
@@ -249,11 +249,11 @@ let cachedProvider: EmbeddingProvider | null = null
 let cachedProviderName: EmbeddingProviderName | null = null
 
 /**
- * Read `~/.gtm-os/config.yaml → memory.embeddings.provider`.
+ * Read `~/.orbit-gtm/config.yaml → memory.embeddings.provider`.
  * Returns 'voyage' if the file or key is missing.
  */
 export function readConfiguredProvider(home = homedir()): EmbeddingProviderName {
-  const configPath = join(home, '.gtm-os', 'config.yaml')
+  const configPath = join(home, '.orbit-gtm', 'config.yaml')
   if (!existsSync(configPath)) return 'voyage'
   try {
     const raw = readFileSync(configPath, 'utf-8')

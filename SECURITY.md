@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in YALC, **please do not file a public issue.**
+If you discover a security vulnerability in Orbit GTM, **please do not file a public issue.**
 
 Instead, email the details to the project maintainer. Include:
 
@@ -22,7 +22,7 @@ You can expect an initial response within 48 hours.
 
 ## Security Design
 
-YALC handles sensitive data (API keys, lead information, campaign data). Key security measures:
+Orbit GTM handles sensitive data (API keys, lead information, campaign data). Key security measures:
 
 - **API key encryption:** Stored keys are encrypted with AES-256-GCM using the `ENCRYPTION_KEY` env var
 - **Outbound validation:** Every human-facing message passes through `validateMessage()` before sending

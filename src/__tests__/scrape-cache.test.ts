@@ -7,13 +7,13 @@ import { join } from 'node:path'
  * Tests for the local scrape cache (D3 design).
  *
  * Mocks `globalThis.fetch` to control HEAD-revalidation behavior. The cache
- * lives under `~/.gtm-os/_cache/scrape/` and is keyed on `sha256(url)`.
+ * lives under `~/.orbit-gtm/_cache/scrape/` and is keyed on `sha256(url)`.
  */
 
 let TMP: string
 
 beforeEach(() => {
-  TMP = mkdtempSync(join(tmpdir(), 'yalc-cache-'))
+  TMP = mkdtempSync(join(tmpdir(), 'orbit-gtm-cache-'))
   vi.stubEnv('HOME', TMP)
   vi.resetModules()
 })

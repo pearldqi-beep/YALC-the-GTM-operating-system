@@ -5,12 +5,12 @@ import { dirname, join } from 'node:path'
 import { homedir } from 'node:os'
 import * as schema from './schema'
 
-const GTM_OS_DIR = join(homedir(), '.gtm-os')
+const GTM_OS_DIR = join(homedir(), '.orbit-gtm')
 const DEFAULT_DB_PATH = join(GTM_OS_DIR, 'gtm-os.db')
 const DATABASE_URL = process.env.DATABASE_URL ?? `file:${DEFAULT_DB_PATH}`
 
 // libsql needs the parent directory of the DB file to exist before it
-// can create the file. On a fresh install ~/.gtm-os doesn't exist yet.
+// can create the file. On a fresh install ~/.orbit-gtm doesn't exist yet.
 if (DATABASE_URL.startsWith('file:')) {
   const path = DATABASE_URL.slice('file:'.length)
   if (!path.startsWith(':')) mkdirSync(dirname(path), { recursive: true })

@@ -1,6 +1,6 @@
 // ─── Signal Trigger System ──────────────────────────────────────────────────
 // Maps detected signals to downstream GTM actions.
-// Config lives in ~/.gtm-os/tenants/<slug>/signal-triggers.yaml
+// Config lives in ~/.orbit-gtm/tenants/<slug>/signal-triggers.yaml
 
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
@@ -14,7 +14,7 @@ import type { DetectedSignal, TriggerConfig, TriggerFile, SignalType } from './t
 export async function loadTriggerConfig(tenantId: string): Promise<TriggerFile | null> {
   const configPath = join(
     homedir(),
-    '.gtm-os',
+    '.orbit-gtm',
     'tenants',
     tenantId,
     'signal-triggers.yaml',
@@ -134,7 +134,7 @@ export async function setTrigger(
 ): Promise<void> {
   const configPath = join(
     homedir(),
-    '.gtm-os',
+    '.orbit-gtm',
     'tenants',
     tenantId,
     'signal-triggers.yaml',
@@ -163,7 +163,7 @@ export async function setTrigger(
   }
 
   const { mkdirSync, writeFileSync } = await import('fs')
-  const dir = join(homedir(), '.gtm-os', 'tenants', tenantId)
+  const dir = join(homedir(), '.orbit-gtm', 'tenants', tenantId)
   mkdirSync(dir, { recursive: true })
   writeFileSync(configPath, yaml.dump(config, { lineWidth: 120 }))
 }

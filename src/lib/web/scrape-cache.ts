@@ -1,12 +1,12 @@
 /**
  * Local on-disk scrape cache for onboarding website fetches.
  *
- * Cache location: `~/.gtm-os/_cache/scrape/<sha256(url)>.json`. Stored
+ * Cache location: `~/.orbit-gtm/_cache/scrape/<sha256(url)>.json`. Stored
  * payload includes the scraped markdown plus the conditional-fetch
  * headers (Last-Modified, ETag) so subsequent hits can do a HEAD revalidate
  * before re-scraping.
  *
- * - 1-hour default TTL (override via `YALC_SCRAPE_CACHE_TTL_S`).
+ * - 1-hour default TTL (override via `Orbit GTM_SCRAPE_CACHE_TTL_S`).
  * - `--no-cache` callers should bypass `fetchCachedScrape()` entirely.
  * - Same cache shared across tenants — keyed on URL alone.
  */
@@ -36,7 +36,7 @@ export interface ScrapeCacheEntry {
 }
 
 export function scrapeCacheDir(): string {
-  return resolve(homedir(), '.gtm-os', '_cache', 'scrape')
+  return resolve(homedir(), '.orbit-gtm', '_cache', 'scrape')
 }
 
 export function scrapeCacheKey(url: string): string {
@@ -48,7 +48,7 @@ export function scrapeCachePath(url: string): string {
 }
 
 function getTtlSeconds(): number {
-  const raw = process.env.YALC_SCRAPE_CACHE_TTL_S
+  const raw = process.env.Orbit GTM_SCRAPE_CACHE_TTL_S
   if (!raw) return DEFAULT_TTL_S
   const n = parseInt(raw, 10)
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_TTL_S
@@ -111,7 +111,7 @@ export async function conditionalHead(
 ): Promise<ConditionalHeadResult | null> {
   try {
     const headers: Record<string, string> = {
-      'User-Agent': 'YALC-GTM-OS Scraper/1.0',
+      'User-Agent': 'Orbit GTM-GTM-OS Scraper/1.0',
     }
     if (prev.last_modified) headers['If-Modified-Since'] = prev.last_modified
     if (prev.etag) headers['If-None-Match'] = prev.etag

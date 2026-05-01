@@ -62,7 +62,7 @@ export class InstantlyProvider implements StepExecutor {
       const body = String(merged.body ?? '')
       const campaignName = merged.campaignName != null
         ? String(merged.campaignName)
-        : `YALC ad-hoc send ${new Date().toISOString().slice(0, 10)}`
+        : `Orbit GTM ad-hoc send ${new Date().toISOString().slice(0, 10)}`
       const accountId = merged.accountId != null ? String(merged.accountId) : undefined
 
       if (!to || !body) {
@@ -121,7 +121,7 @@ export class InstantlyProvider implements StepExecutor {
         return
       }
 
-      const campaignName = String(step.config?.campaignName ?? step.title ?? 'YALC Campaign')
+      const campaignName = String(step.config?.campaignName ?? step.title ?? 'Orbit GTM Campaign')
 
       // Sequences must be provided via step config — Instantly campaigns with no
       // sequences silently never send. Refuse to create one without them.

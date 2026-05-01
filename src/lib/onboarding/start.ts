@@ -17,7 +17,7 @@ import yaml from 'js-yaml'
 import { SIGNUP_URLS } from '../constants.js'
 import { isClaudeCode } from '../env/claude-code.js'
 
-const GTM_OS_DIR = join(homedir(), '.gtm-os')
+const GTM_OS_DIR = join(homedir(), '.orbit-gtm')
 const CONFIG_PATH = join(GTM_OS_DIR, 'config.yaml')
 const ENV_PATH = join(GTM_OS_DIR, '.env')
 
@@ -40,7 +40,7 @@ interface ProviderKey {
 }
 
 const PROVIDER_KEYS: ProviderKey[] = [
-  { key: 'ANTHROPIC_API_KEY', label: 'Anthropic (Claude)', url: 'https://console.anthropic.com/settings/keys', tier: 1, capability: 'AI reasoning — powers planning, qualification, personalization', claudeCodeNote: 'Claude Code provides LLM reasoning. Skip unless you also run YALC standalone, via cron, or as a launchd job.' },
+  { key: 'ANTHROPIC_API_KEY', label: 'Anthropic (Claude)', url: 'https://console.anthropic.com/settings/keys', tier: 1, capability: 'AI reasoning — powers planning, qualification, personalization', claudeCodeNote: 'Claude Code provides LLM reasoning. Skip unless you also run Orbit GTM standalone, via cron, or as a launchd job.' },
   { key: 'FIRECRAWL_API_KEY', label: 'Firecrawl', url: 'https://firecrawl.dev/app/api-keys', tier: 2, capability: 'Web scraping — auto-learn from your website', claudeCodeNote: 'Claude Code\'s WebFetch tool covers single-URL scrapes. Add Firecrawl later if you need JS-rendered pages, multi-page crawls, or web search.' },
   { key: 'CRUSTDATA_API_KEY', label: 'Crustdata', url: 'https://crustdata.com/dashboard/api', tier: 2, capability: 'Company & people search — find leads at scale' },
   { key: 'UNIPILE_API_KEY', label: 'Unipile (LinkedIn)', url: 'https://app.unipile.com/settings/api', signupUrl: SIGNUP_URLS.unipile, tier: 2, capability: 'LinkedIn outreach — connect, DM, scrape' },
@@ -123,7 +123,7 @@ export async function runStart(opts: StartOptions): Promise<void> {
 
   if (opts.commitPreview) {
     if (!previewExists(tenantCtx)) {
-      console.error('  No preview to commit. Run `yalc-gtm start --non-interactive` with capture flags first.')
+      console.error('  No preview to commit. Run `orbit-gtm start --non-interactive` with capture flags first.')
       process.exitCode = 1
       return
     }
@@ -183,10 +183,10 @@ export async function runStart(opts: StartOptions): Promise<void> {
       `Uncommitted preview detected at ${previewRoot(tenantCtx)} (captured ${when}).`,
     )
     console.error('Resolve before running start again:')
-    console.error('  yalc-gtm start --commit-preview               # ship as-is')
-    console.error('  yalc-gtm start --regenerate <section>         # rerun synthesis on a section')
-    console.error('  yalc-gtm start --discard-preview              # delete the preview entirely')
-    console.error('  yalc-gtm start --force-overwrite-preview      # advance anyway (power-user override)')
+    console.error('  orbit-gtm start --commit-preview               # ship as-is')
+    console.error('  orbit-gtm start --regenerate <section>         # rerun synthesis on a section')
+    console.error('  orbit-gtm start --discard-preview              # delete the preview entirely')
+    console.error('  orbit-gtm start --force-overwrite-preview      # advance anyway (power-user override)')
     process.exitCode = 1
     return
   }
@@ -198,7 +198,7 @@ export async function runStart(opts: StartOptions): Promise<void> {
 
   console.log(`
   ╔══════════════════════════════════════╗
-  ║         YALC — Getting Started       ║
+  ║         Orbit GTM — Getting Started       ║
   ╚══════════════════════════════════════╝
 `)
 
@@ -222,7 +222,7 @@ export async function runStart(opts: StartOptions): Promise<void> {
     console.log(`  Created default config`)
   }
 
-  // Read existing env. Canonical location is ~/.gtm-os/.env. For back-compat
+  // Read existing env. Canonical location is ~/.orbit-gtm/.env. For back-compat
   // we also look at ./.env.local in the CWD — if only the legacy file exists,
   // migrate it to the canonical location and keep the original in place.
   const legacyEnvPath = join(process.cwd(), '.env.local')
@@ -340,10 +340,10 @@ export async function runStart(opts: StartOptions): Promise<void> {
   } else if (!inClaudeCode) {
     console.log('\n  ⚠ No ANTHROPIC_API_KEY set. LLM commands (orchestrate, leads:qualify,')
     console.log('    personalize, competitive-intel) will require one. Add it later to')
-    console.log('    .env.local and re-run `yalc-gtm setup` to validate.')
+    console.log('    .env.local and re-run `orbit-gtm setup` to validate.')
   }
 
-  // Write canonical env file at ~/.gtm-os/.env
+  // Write canonical env file at ~/.orbit-gtm/.env
   const envContent = Object.entries(collectedKeys)
     .map(([k, v]) => `${k}=${v}`)
     .join('\n') + '\n'
@@ -404,7 +404,7 @@ export async function runStart(opts: StartOptions): Promise<void> {
     )
 
     console.log(
-      `\n  ✓ Preview ready. Review then run: yalc-gtm start --commit-preview`,
+      `\n  ✓ Preview ready. Review then run: orbit-gtm start --commit-preview`,
     )
   }
 
@@ -439,9 +439,9 @@ export async function runStart(opts: StartOptions): Promise<void> {
     console.log('\n── Step 3/4 — Building GTM Framework ──\n')
     console.log('  ⊘ Skipped — framework derivation needs an Anthropic key.')
     console.log('    Your company context is saved. To finish setup later:')
-    console.log('      1. Add ANTHROPIC_API_KEY to ~/.gtm-os/.env (or .env.local in your project)')
-    console.log('      2. Run: yalc-gtm onboard --linkedin <url> --website <url>')
-    console.log('      3. Run: yalc-gtm configure')
+    console.log('      1. Add ANTHROPIC_API_KEY to ~/.orbit-gtm/.env (or .env.local in your project)')
+    console.log('      2. Run: orbit-gtm onboard --linkedin <url> --website <url>')
+    console.log('      3. Run: orbit-gtm configure')
     console.log('\n── Step 4/4 — Goals & Configuration ──\n')
     console.log('  ⊘ Skipped (depends on the framework above).')
   } else {
@@ -550,7 +550,7 @@ type SelectFn = (args: {
 
 /**
  * Prompt the user to pick an email (and optionally LinkedIn) provider, then
- * persist the choice into ~/.gtm-os/config.yaml under `email.provider` and
+ * persist the choice into ~/.orbit-gtm/config.yaml under `email.provider` and
  * `linkedin.provider`. Defaults preserve current behavior (Instantly + Unipile).
  *
  * Picking a non-built-in provider does not install anything inline — we just
@@ -576,7 +576,7 @@ async function pickOutboundProvider(deps: { select: SelectFn }): Promise<void> {
     message: 'Email provider',
     default: existingEmail,
     choices: [
-      { name: 'Instantly (built-in)', value: 'instantly', description: 'Default cold email engine bundled with YALC.' },
+      { name: 'Instantly (built-in)', value: 'instantly', description: 'Default cold email engine bundled with Orbit GTM.' },
       { name: 'Brevo (via MCP)', value: 'brevo', description: 'Adds Brevo through an MCP server template.' },
       { name: 'Mailgun (via MCP)', value: 'mailgun', description: 'Adds Mailgun through an MCP server template.' },
       { name: 'SendGrid (via MCP)', value: 'sendgrid', description: 'Adds SendGrid through an MCP server template.' },
@@ -606,7 +606,7 @@ async function pickOutboundProvider(deps: { select: SelectFn }): Promise<void> {
     console.log('  ✓ Email provider set to instantly (built-in).')
   } else {
     console.log(`  ✓ Email provider set to ${emailChoice}.`)
-    console.log(`    Run: yalc-gtm provider:add --mcp ${emailChoice}`)
+    console.log(`    Run: orbit-gtm provider:add --mcp ${emailChoice}`)
   }
 
   if (linkedinChoice === 'none') {
@@ -694,9 +694,9 @@ function printFileStructure(): void {
   console.log(`
   ── Where Things Live ──
 
-  YALC organizes your GTM data across two locations:
+  Orbit GTM organizes your GTM data across two locations:
 
-  ~/.gtm-os/                          Your GTM brain (persists across projects)
+  ~/.orbit-gtm/                          Your GTM brain (persists across projects)
   ├── config.yaml                     Provider settings, Notion IDs, rate limits
   ├── framework.yaml                  GTM framework — ICP, positioning, signals
   ├── qualification_rules.md          Lead qualification patterns (auto-generated)
@@ -712,8 +712,8 @@ function printFileStructure(): void {
   └── campaigns/                      Campaign exports and reports
 
   When talking to Claude Code, reference these locations directly:
-    "Update my qualification rules"   → edits ~/.gtm-os/qualification_rules.md
-    "Add a segment to my framework"   → edits ~/.gtm-os/framework.yaml
+    "Update my qualification rules"   → edits ~/.orbit-gtm/qualification_rules.md
+    "Add a segment to my framework"   → edits ~/.orbit-gtm/framework.yaml
     "Qualify leads from this CSV"      → reads from ./data/leads/
     "Show my campaign learnings"       → reads from ./data/intelligence/
 `)
@@ -735,11 +735,11 @@ function printReadinessReport(
 `)
 
   const capabilities: Array<{ check: boolean; label: string; command: string }> = [
-    { check: hasAnthropic, label: 'AI-powered GTM planning', command: 'yalc-gtm orchestrate "find companies matching my ICP"' },
-    { check: hasAnthropic && has('CRUSTDATA_API_KEY'), label: 'Lead qualification', command: 'yalc-gtm leads:qualify --source csv --input ./your-leads.csv --dry-run' },
-    { check: has('UNIPILE_API_KEY'), label: 'LinkedIn campaigns', command: 'yalc-gtm campaign:create --title "First Campaign"' },
-    { check: has('NOTION_API_KEY'), label: 'Notion CRM sync', command: 'yalc-gtm notion:sync' },
-    { check: has('FIRECRAWL_API_KEY') || state.inClaudeCode, label: 'Web intelligence', command: 'yalc-gtm orchestrate "research competitors"' },
+    { check: hasAnthropic, label: 'AI-powered GTM planning', command: 'orbit-gtm orchestrate "find companies matching my ICP"' },
+    { check: hasAnthropic && has('CRUSTDATA_API_KEY'), label: 'Lead qualification', command: 'orbit-gtm leads:qualify --source csv --input ./your-leads.csv --dry-run' },
+    { check: has('UNIPILE_API_KEY'), label: 'LinkedIn campaigns', command: 'orbit-gtm campaign:create --title "First Campaign"' },
+    { check: has('NOTION_API_KEY'), label: 'Notion CRM sync', command: 'orbit-gtm notion:sync' },
+    { check: has('FIRECRAWL_API_KEY') || state.inClaudeCode, label: 'Web intelligence', command: 'orbit-gtm orchestrate "research competitors"' },
   ]
 
   for (const cap of capabilities) {
@@ -761,13 +761,13 @@ function printReadinessReport(
   // research → scrape-post → browse-skills.
   let firstCommand: string
   if (!hasAnthropic && state.inClaudeCode) {
-    firstCommand = 'yalc-gtm provider:list'
+    firstCommand = 'orbit-gtm provider:list'
   } else if (hasAnthropic && has('CRUSTDATA_API_KEY')) {
-    firstCommand = 'yalc-gtm research --question "what does <my-target-company> do" --target acme.com'
+    firstCommand = 'orbit-gtm research --question "what does <my-target-company> do" --target acme.com'
   } else if (has('UNIPILE_API_KEY')) {
-    firstCommand = 'yalc-gtm leads:scrape-post --url <linkedin-post-url>'
+    firstCommand = 'orbit-gtm leads:scrape-post --url <linkedin-post-url>'
   } else {
-    firstCommand = 'yalc-gtm skills:browse --installed'
+    firstCommand = 'orbit-gtm skills:browse --installed'
   }
   console.log(`  Try this first:
     ${firstCommand}
@@ -776,8 +776,8 @@ function printReadinessReport(
   if (!state.frameworkDerived) {
     console.log('  Pending: GTM framework not yet derived (needs ANTHROPIC_API_KEY).')
   }
-  console.log('  Run "yalc-gtm doctor" anytime to check your setup health.')
-  console.log('  Run "yalc-gtm start" again to reconfigure.\n')
+  console.log('  Run "orbit-gtm doctor" anytime to check your setup health.')
+  console.log('  Run "orbit-gtm start" again to reconfigure.\n')
 }
 
 /**
@@ -796,7 +796,7 @@ async function runRegenerateSection(args: {
   const { ALL_SECTION_IDS, writeSynthesizedPreview } = await import('./synthesis.js')
 
   if (!previewExists(tenant)) {
-    console.error('  No preview to regenerate. Run capture first: yalc-gtm start --non-interactive --website ...')
+    console.error('  No preview to regenerate. Run capture first: orbit-gtm start --non-interactive --website ...')
     process.exitCode = 1
     return
   }
@@ -827,7 +827,7 @@ async function runRegenerateSection(args: {
   const inCC = isClaudeCode()
   if (!process.env.ANTHROPIC_API_KEY && !inCC) {
     console.error('  --regenerate needs an Anthropic key (or run inside Claude Code).')
-    console.error('  Add ANTHROPIC_API_KEY to ~/.gtm-os/.env and retry.')
+    console.error('  Add ANTHROPIC_API_KEY to ~/.orbit-gtm/.env and retry.')
     process.exitCode = 1
     return
   }

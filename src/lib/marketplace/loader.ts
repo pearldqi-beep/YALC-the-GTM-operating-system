@@ -4,7 +4,7 @@ import type { SkillManifest } from './types'
 import type { Skill, SkillEvent, SkillContext } from '../skills/types'
 
 export function getSkillsDir(): string {
-  return join(process.env.HOME!, '.gtm-os', 'skills')
+  return join(process.env.HOME!, '.orbit-gtm', 'skills')
 }
 
 export async function loadCommunitySkills(): Promise<Skill[]> {

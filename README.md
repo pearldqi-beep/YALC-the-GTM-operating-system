@@ -1,51 +1,51 @@
-# YALC — The Open-Source GTM Operating System
+# Orbit GTM — The Open-Source GTM Operating System
 
-![CI](https://github.com/Othmane-Khadri/YALC-the-GTM-operating-system/actions/workflows/ci.yml/badge.svg)
-[![npm version](https://img.shields.io/npm/v/yalc-gtm-os.svg)](https://www.npmjs.com/package/yalc-gtm-os)
+![CI](https://github.com/Othmane-Khadri/Orbit GTM-the-GTM-operating-system/actions/workflows/ci.yml/badge.svg)
+[![npm version](https://img.shields.io/npm/v/orbit-gtm.svg)](https://www.npmjs.com/package/orbit-gtm)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
 
 > AI plans your campaigns, qualifies your leads, and learns from every interaction.
 
-YALC is an open-source, AI-native operating system for running any GTM campaign. CLI-first. Intelligence compounds from every interaction.
+Orbit GTM is an open-source, AI-native operating system for running any GTM campaign. CLI-first. Intelligence compounds from every interaction.
 
 ## Quick Start
 
 Node.js 20 or higher required ([nodejs.org](https://nodejs.org/)).
 
 ```bash
-npm install -g yalc-gtm-os
-yalc-gtm start
+npm install -g orbit-gtm
+orbit-gtm start
 ```
 
-That is the whole installation. The `start` command writes its config to `~/.gtm-os/` and walks you through the rest.
+That is the whole installation. The `start` command writes its config to `~/.orbit-gtm/` and walks you through the rest.
 
-YALC is a CLI; there's no public Node API to import.
+Orbit GTM is a CLI; there's no public Node API to import.
 
 ### Updating
 
 ```bash
-npm update -g yalc-gtm-os
+npm update -g orbit-gtm
 ```
 
 ### From source (contributors)
 
-If you want to hack on YALC itself, clone the repo and link locally:
+If you want to hack on Orbit GTM itself, clone the repo and link locally:
 
 ```bash
-git clone https://github.com/Othmane-Khadri/YALC-the-GTM-operating-system.git
-cd YALC-the-GTM-operating-system
+git clone https://github.com/Othmane-Khadri/Orbit GTM-the-GTM-operating-system.git
+cd Orbit GTM-the-GTM-operating-system
 corepack enable && corepack prepare pnpm@latest --activate
 pnpm install
 pnpm link --global
 ```
 
-If `pnpm link --global` fails with `ERR_PNPM_NO_GLOBAL_BIN_DIR` (or you are on Windows), run YALC in-repo with `pnpm cli start` instead.
+If `pnpm link --global` fails with `ERR_PNPM_NO_GLOBAL_BIN_DIR` (or you are on Windows), run Orbit GTM in-repo with `pnpm cli start` instead.
 
 The `start` command walks you through 4 steps:
 
-1. **Environment** — Collects API keys. All keys are optional; setup never blocks on a missing one. Without `ANTHROPIC_API_KEY` you can still complete onboarding — Steps 3–4 are skipped and can be finished later by running `yalc-gtm onboard` then `yalc-gtm configure`. When run inside Claude Code, both `ANTHROPIC_API_KEY` and `FIRECRAWL_API_KEY` default to skip (the parent CC session covers LLM + WebFetch).
+1. **Environment** — Collects API keys. All keys are optional; setup never blocks on a missing one. Without `ANTHROPIC_API_KEY` you can still complete onboarding — Steps 3–4 are skipped and can be finished later by running `orbit-gtm onboard` then `orbit-gtm configure`. When run inside Claude Code, both `ANTHROPIC_API_KEY` and `FIRECRAWL_API_KEY` default to skip (the parent CC session covers LLM + WebFetch).
 2. **Company Context** — Interactive interview about your company, ICP, pain points, competitors, and voice. Optionally scrapes your website for additional context.
 3. **Framework** *(skipped without an Anthropic key)* — Claude synthesizes everything into a structured GTM framework (segments, signals, positioning, competitors). You see a summary and confirm before anything is written to disk.
 4. **Goals & Config** *(skipped without an Anthropic key)* — Claude recommends goals and generates qualification rules, outreach templates, and search queries.
@@ -54,33 +54,33 @@ You'll end with a readiness report showing what's unlocked and a suggested first
 
 ### Onboarding modes
 
-When you run `yalc-gtm start`, you can choose how to provide context: answer questions one by one, paste a long-form response covering all questions at once, or hand over your website + documents and let YALC infer the positioning for you. Pick whichever matches the material you already have ready.
+When you run `orbit-gtm start`, you can choose how to provide context: answer questions one by one, paste a long-form response covering all questions at once, or hand over your website + documents and let Orbit GTM infer the positioning for you. Pick whichever matches the material you already have ready.
 
 ### After Setup
 
 ```bash
-# Easiest: describe what you want in natural language and let YALC plan the work
-yalc-gtm orchestrate "find 10 SaaS CTOs matching my ICP and qualify them"
+# Easiest: describe what you want in natural language and let Orbit GTM plan the work
+orbit-gtm orchestrate "find 10 SaaS CTOs matching my ICP and qualify them"
 
 # Create a campaign
-yalc-gtm campaign:create --title "Q2 Outbound" --hypothesis "VP Eng responds to pain-point messaging"
+orbit-gtm campaign:create --title "Q2 Outbound" --hypothesis "VP Eng responds to pain-point messaging"
 
 # Track campaign progress
-yalc-gtm campaign:track --dry-run
+orbit-gtm campaign:track --dry-run
 
 # Or qualify a lead list you already have (CSV or JSON)
-yalc-gtm leads:qualify --source csv --input ./your-leads.csv --dry-run
+orbit-gtm leads:qualify --source csv --input ./your-leads.csv --dry-run
 
 # Send via a non-default email provider (e.g. Brevo via the MCP template)
-yalc-gtm email:send --provider brevo --to lead@example.com --body "Hi there"
+orbit-gtm email:send --provider brevo --to lead@example.com --body "Hi there"
 ```
 
 ### Non-Interactive Setup
 
-For CI or automation, set your keys in `~/.gtm-os/.env` (or `.env.local` in your project) and run:
+For CI or automation, set your keys in `~/.orbit-gtm/.env` (or `.env.local` in your project) and run:
 
 ```bash
-yalc-gtm start --non-interactive
+orbit-gtm start --non-interactive
 ```
 
 A minimal env file looks like:
@@ -93,17 +93,17 @@ NOTION_API_KEY=secret_...
 ENCRYPTION_KEY=$(openssl rand -hex 32)
 ```
 
-## Recommended workflow: drive YALC from your IDE chat
+## Recommended workflow: drive Orbit GTM from your IDE chat
 
-YALC is designed to be driven by an AI assistant — Claude Code, Cursor, Copilot, or whatever you have open. Once it's installed globally, you don't need to remember commands. You just talk to your assistant.
+Orbit GTM is designed to be driven by an AI assistant — Claude Code, Cursor, Copilot, or whatever you have open. Once it's installed globally, you don't need to remember commands. You just talk to your assistant.
 
 Typical flow inside Cursor or VS Code with Claude Code:
 
-1. Install once: `npm i -g yalc-gtm-os`.
-2. Open your IDE and ask in plain language: *"Set up YALC for my company, then find 10 SaaS CTOs and qualify them."*
+1. Install once: `npm i -g orbit-gtm`.
+2. Open your IDE and ask in plain language: *"Set up Orbit GTM for my company, then find 10 SaaS CTOs and qualify them."*
 3. The assistant runs the commands. Interactive prompts from `start` show up in the same chat panel; you answer them inline.
 
-Every command also works directly in a terminal if you prefer that style. The "Using YALC from Claude Code" section below has the details on how Claude Code integrates with YALC's commands and how the LLM hand-off works when no `ANTHROPIC_API_KEY` is set.
+Every command also works directly in a terminal if you prefer that style. The "Using Orbit GTM from Claude Code" section below has the details on how Claude Code integrates with Orbit GTM's commands and how the LLM hand-off works when no `ANTHROPIC_API_KEY` is set.
 
 ## Features at a Glance
 
@@ -116,32 +116,32 @@ Every command also works directly in a terminal if you prefer that style. The "U
 - **Rate limiting** — DB-backed token bucket on all external sends
 - **Outbound validation** — every message checked before send, hard blocks on violations
 - **Background agents** — launchd-integrated for automated campaign tracking
-- **Natural language orchestration** — describe what you want, YALC plans the workflow
+- **Natural language orchestration** — describe what you want, Orbit GTM plans the workflow
 - **Swappable email providers** — Instantly built in, plus drop-in MCP templates for Brevo, Mailgun, and SendGrid (`provider:add --mcp <name>` then `email:send --provider <name>`)
 
 <!-- ## Demo
-![YALC Demo](demo.gif)
+![Orbit GTM Demo](demo.gif)
 Demo GIF will be added here -->
 
-## Using YALC from Claude Code (IDE or Terminal)
+## Using Orbit GTM from Claude Code (IDE or Terminal)
 
-YALC works the same whether you run it from a coding IDE (VS Code, Cursor) or a standalone terminal. The CLI uses the same interactive prompts in both.
+Orbit GTM works the same whether you run it from a coding IDE (VS Code, Cursor) or a standalone terminal. The CLI uses the same interactive prompts in both.
 
 **IDE (VS Code / Cursor with Claude Code extension):**
-You can ask Claude Code to run commands for you. For the initial setup, it's better to run `yalc-gtm start` yourself in the integrated terminal so you can answer the interactive prompts. After that, Claude Code can run any YALC command on your behalf — qualifying leads, creating campaigns, tracking results.
+You can ask Claude Code to run commands for you. For the initial setup, it's better to run `orbit-gtm start` yourself in the integrated terminal so you can answer the interactive prompts. After that, Claude Code can run any Orbit GTM command on your behalf — qualifying leads, creating campaigns, tracking results.
 
 If your `ANTHROPIC_API_KEY` is already in your environment (common in Claude Code sessions), the `start` command detects it automatically and skips the prompt.
 
 **Terminal (standalone):**
 Run commands directly. The interactive prompts work as expected in any terminal emulator.
 
-### Running YALC inside Claude Code (no extra keys required)
+### Running Orbit GTM inside Claude Code (no extra keys required)
 
-When YALC detects a parent Claude Code session — via `CLAUDECODE`, `CLAUDE_CODE_ENTRYPOINT`, or `CLAUDE_CODE_SSE_PORT` env vars set by Claude Code itself — both the **Anthropic** and **Firecrawl** keys become **optional**:
+When Orbit GTM detects a parent Claude Code session — via `CLAUDECODE`, `CLAUDE_CODE_ENTRYPOINT`, or `CLAUDE_CODE_SSE_PORT` env vars set by Claude Code itself — both the **Anthropic** and **Firecrawl** keys become **optional**:
 
 - The parent CC session already provides LLM reasoning, so a separate Anthropic API key isn't needed for ad-hoc planning, qualification, or personalization (just ask Claude Code).
 - Claude Code's built-in `WebFetch` tool covers single-URL scrapes, so Firecrawl is only needed for JS-rendered pages, multi-page crawls, or web search.
-- Claude Code's `WebSearch` is also honored when onboarding needs to discover a company URL — if you skip the website prompt, YALC asks the parent CC session to run a `WebSearch` for `"<company> official website"` instead of calling Firecrawl.
+- Claude Code's `WebSearch` is also honored when onboarding needs to discover a company URL — if you skip the website prompt, Orbit GTM asks the parent CC session to run a `WebSearch` for `"<company> official website"` instead of calling Firecrawl.
 
 **What works in Claude Code mode with zero provider keys:**
 
@@ -157,8 +157,8 @@ When YALC detects a parent Claude Code session — via `CLAUDECODE`, `CLAUDE_COD
 
 **When you DO still want an Anthropic key:**
 
-- Running YALC standalone (no parent CC session)
-- Running YALC under cron, launchd, CI, or any unattended scheduler
+- Running Orbit GTM standalone (no parent CC session)
+- Running Orbit GTM under cron, launchd, CI, or any unattended scheduler
 - You want the qualifier / personalizer / orchestrator to run autonomously without you babysitting it from a CC chat
 
 **Web-fetch provider override** — set `WEB_FETCH_PROVIDER` in `.env.local`:
@@ -170,7 +170,7 @@ When YALC detects a parent Claude Code session — via `CLAUDECODE`, `CLAUDE_COD
 **File Structure — Where Things Live:**
 
 ```
-~/.gtm-os/                          Your GTM brain (persists across projects)
+~/.orbit-gtm/                          Your GTM brain (persists across projects)
 ├── config.yaml                     Provider settings, Notion IDs, rate limits
 ├── framework.yaml                  GTM framework — ICP, positioning, signals
 ├── qualification_rules.md          Lead qualification patterns (auto-generated)
@@ -186,8 +186,8 @@ When YALC detects a parent Claude Code session — via `CLAUDECODE`, `CLAUDE_COD
 ```
 
 When talking to Claude Code, reference these locations directly:
-- "Update my qualification rules" → edits `~/.gtm-os/qualification_rules.md`
-- "Add a segment to my framework" → edits `~/.gtm-os/framework.yaml`
+- "Update my qualification rules" → edits `~/.orbit-gtm/qualification_rules.md`
+- "Add a segment to my framework" → edits `~/.orbit-gtm/framework.yaml`
 - "Qualify leads from this CSV" → reads from `./data/leads/`
 
 ## Architecture
@@ -264,7 +264,7 @@ agent:install           Install agent as launchd service
 agent:list              List agents with last run status
 ```
 
-The listing above covers the common commands. The full surface also includes the `crm:*` (CRM sync and import), `email:*` (send, accounts, status), `provider:*`, `memory:*`, `context:*`, `pipeline:*`, `skills:*`, and `tenant:*` families, plus `configure`, `doctor`, `update`, `personalize`, `competitive-intel`, `test-run`, and `campaign:schedule`. Run `yalc-gtm --help` for the complete list.
+The listing above covers the common commands. The full surface also includes the `crm:*` (CRM sync and import), `email:*` (send, accounts, status), `provider:*`, `memory:*`, `context:*`, `pipeline:*`, `skills:*`, and `tenant:*` families, plus `configure`, `doctor`, `update`, `personalize`, `competitive-intel`, `test-run`, and `campaign:schedule`. Run `orbit-gtm --help` for the complete list.
 
 All commands that send or write support `--dry-run`. See [Command Reference](docs/commands.md) for full details, flags, and examples.
 
@@ -285,7 +285,7 @@ All commands that send or write support `--dry-run`. See [Command Reference](doc
 
 ## Configuration
 
-YALC uses `~/.gtm-os/config.yaml` for persistent configuration:
+Orbit GTM uses `~/.orbit-gtm/config.yaml` for persistent configuration:
 
 ```yaml
 notion:
@@ -300,9 +300,9 @@ unipile:
     dm1_to_dm2_days: 3
   rate_limit_ms: 3000
 qualification:
-  rules_path: ~/.gtm-os/qualification_rules.md
-  exclusion_path: ~/.gtm-os/exclusion_list.md
-  disqualifiers_path: ~/.gtm-os/company_disqualifiers.md
+  rules_path: ~/.orbit-gtm/qualification_rules.md
+  exclusion_path: ~/.orbit-gtm/exclusion_list.md
+  disqualifiers_path: ~/.orbit-gtm/company_disqualifiers.md
   cache_ttl_days: 30
 crustdata:
   max_results_per_query: 50
@@ -316,7 +316,7 @@ memory:
 
 ### Env file precedence
 
-YALC loads `~/.gtm-os/.env` automatically on every run (followed by `.env.local` in the current working directory as a fallback). Variables already present in your shell environment win — `~/.gtm-os/.env` only fills in keys that aren't already set. To stop using a provider, remove its line from `~/.gtm-os/.env` rather than `unset`-ing it in your terminal, since the file is reloaded on the next invocation.
+Orbit GTM loads `~/.orbit-gtm/.env` automatically on every run (followed by `.env.local` in the current working directory as a fallback). Variables already present in your shell environment win — `~/.orbit-gtm/.env` only fills in keys that aren't already set. To stop using a provider, remove its line from `~/.orbit-gtm/.env` rather than `unset`-ing it in your terminal, since the file is reloaded on the next invocation.
 
 ## Key Design Decisions
 

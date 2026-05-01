@@ -6,8 +6,8 @@
  * sections, then commits — at which point the preview moves to live.
  *
  * Layout:
- *   ~/.gtm-os/_preview/                          (default tenant)
- *   ~/.gtm-os/tenants/<slug>/_preview/           (named tenant)
+ *   ~/.orbit-gtm/_preview/                          (default tenant)
+ *   ~/.orbit-gtm/tenants/<slug>/_preview/           (named tenant)
  *
  * Both layouts mirror the live structure under their respective root:
  *   <root>/company_context.yaml
@@ -44,7 +44,7 @@ export interface TenantContext {
 export function liveRoot(tenant?: TenantContext): string {
   const id = tenant?.tenantId ?? DEFAULT_TENANT
   if (id === DEFAULT_TENANT) {
-    return resolve(homedir(), '.gtm-os')
+    return resolve(homedir(), '.orbit-gtm')
   }
   return tenantConfigDir(id, homedir())
 }

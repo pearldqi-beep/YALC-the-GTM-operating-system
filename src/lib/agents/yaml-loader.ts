@@ -1,5 +1,5 @@
 // ─── YAML Agent Config Loader ────────────────────────────────────────────────
-// Loads AgentConfig from YAML files in ~/.gtm-os/agents/
+// Loads AgentConfig from YAML files in ~/.orbit-gtm/agents/
 
 import { readFileSync, existsSync, readdirSync } from 'fs'
 import { join } from 'path'
@@ -7,7 +7,7 @@ import { homedir } from 'os'
 import yaml from 'js-yaml'
 import type { AgentConfig, AgentSchedule, AgentStep } from './types'
 
-const AGENTS_DIR = join(homedir(), '.gtm-os', 'agents')
+const AGENTS_DIR = join(homedir(), '.orbit-gtm', 'agents')
 
 interface RawYamlAgent {
   id: string

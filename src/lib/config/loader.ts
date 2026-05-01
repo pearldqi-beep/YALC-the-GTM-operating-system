@@ -75,7 +75,7 @@ export function getConfig(): GTMOSConfig {
  *   null, undefined, '', 'none', 'disabled' (case-insensitive).
  *
  * Used by setup, doctor, and the runtime to skip provider-specific validation
- * when the user has opted out via ~/.gtm-os/config.yaml.
+ * when the user has opted out via ~/.orbit-gtm/config.yaml.
  */
 export function isProviderDisabled(value: unknown): boolean {
   if (value === null || value === undefined) return true

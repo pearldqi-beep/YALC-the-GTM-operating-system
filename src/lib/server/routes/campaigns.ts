@@ -17,7 +17,7 @@ campaignRoutes.get('/monthly-report', async (c) => {
   try {
     const { loadConfig } = await import('../../config/loader')
     const config = loadConfig(
-      (process.env.GTM_OS_CONFIG ?? '~/.gtm-os/config.yaml').replace('~', process.env.HOME!),
+      (process.env.GTM_OS_CONFIG ?? '~/.orbit-gtm/config.yaml').replace('~', process.env.HOME!),
     )
     const { generateMonthlyReport } = await import('../../campaign/monthly-report')
     const report = await generateMonthlyReport({ config, month })

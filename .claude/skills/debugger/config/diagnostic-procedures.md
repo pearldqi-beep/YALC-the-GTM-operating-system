@@ -152,7 +152,7 @@ fi
 
 ### 3.1 Check gtm-os.yaml
 ```bash
-test -f gtm-os.yaml && echo "PASS: gtm-os.yaml exists" || echo "FAIL: gtm-os.yaml missing — run: yalc-gtm onboard"
+test -f gtm-os.yaml && echo "PASS: gtm-os.yaml exists" || echo "FAIL: gtm-os.yaml missing — run: orbit-gtm onboard"
 ```
 
 ### 3.2 Validate YAML syntax
@@ -174,8 +174,8 @@ try {
 
 ### 3.3 Check user config
 ```bash
-if test -f ~/.gtm-os/config.yaml; then
-  echo "PASS: User config exists at ~/.gtm-os/config.yaml"
+if test -f ~/.orbit-gtm/config.yaml; then
+  echo "PASS: User config exists at ~/.orbit-gtm/config.yaml"
   node -e "
   try {
     require('js-yaml').load(require('fs').readFileSync(require('os').homedir()+'/.gtm-os/config.yaml','utf8'));
@@ -185,7 +185,7 @@ if test -f ~/.gtm-os/config.yaml; then
   }
   " 2>&1
 else
-  echo "WARN: No user config at ~/.gtm-os/config.yaml — using defaults"
+  echo "WARN: No user config at ~/.orbit-gtm/config.yaml — using defaults"
 fi
 ```
 
@@ -303,5 +303,5 @@ DB_PATH=$(grep "^DATABASE_URL=" .env.local 2>/dev/null | cut -d= -f2- | sed 's/^
 DB_PATH="${DB_PATH:-gtm-os.db}"
 echo "DB tables: $(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM sqlite_master WHERE type='table';" 2>&1)"
 echo "Framework: $(test -f gtm-os.yaml && echo 'present' || echo 'missing')"
-echo "User config: $(test -f ~/.gtm-os/config.yaml && echo 'present' || echo 'missing')"
+echo "User config: $(test -f ~/.orbit-gtm/config.yaml && echo 'present' || echo 'missing')"
 ```

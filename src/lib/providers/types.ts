@@ -60,7 +60,7 @@ export interface ProviderMetadata {
  * strict-schema servers if it contains unknown keys.
  *
  * Convention: any field the executor needs that is NOT a real tool
- * argument MUST live here, OR be prefixed with `_yalc_` inside `config`
+ * argument MUST live here, OR be prefixed with `_orbit_gtm_` inside `config`
  * (also stripped before tool dispatch, see mcp-adapter).
  */
 export interface StepMetadata {

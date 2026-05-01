@@ -3,7 +3,7 @@
  *
  * Bridges a local markdown knowledge base (a folder of markdown files) into
  * a tenant's memory layer. Config lives in
- * `~/.gtm-os/tenants/<slug>/adapters.yaml` with the shape:
+ * `~/.orbit-gtm/tenants/<slug>/adapters.yaml` with the shape:
  *
  *   adapters:
  *     - id: markdown-folder

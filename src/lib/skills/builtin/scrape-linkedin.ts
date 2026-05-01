@@ -67,7 +67,7 @@ export const scrapeLinkedinSkill: Skill = {
     // Load config for the scraper
     const { loadConfig } = await import('../../config/loader')
     const config = loadConfig(
-      (process.env.GTM_OS_CONFIG ?? '~/.gtm-os/config.yaml').replace('~', process.env.HOME!),
+      (process.env.GTM_OS_CONFIG ?? '~/.orbit-gtm/config.yaml').replace('~', process.env.HOME!),
     )
 
     yield { type: 'progress', message: `Scraping LinkedIn post: ${url}`, percent: 10 }

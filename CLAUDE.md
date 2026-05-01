@@ -1,4 +1,4 @@
-# YALC GTM-OS — Claude Code Rules
+# Orbit GTM — Claude Code Rules
 
 ## Project Identity
 Open-source AI-native GTM operating system. Stack: Next.js 14, Tailwind, Drizzle + SQLite, Jotai, Anthropic SDK.
@@ -13,7 +13,7 @@ Open-source AI-native GTM operating system. Stack: Next.js 14, Tailwind, Drizzle
 - `src/lib/framework/` — GTM framework derivation from company context
 - `src/lib/agents/` — background agents, launchd integrations
 - `src/app/` — Next.js web UI (chat, onboarding)
-- `~/.gtm-os/` — per-tenant config, framework YAML, adapters
+- `~/.orbit-gtm/` — per-tenant config, framework YAML, adapters
 - `docs/` — architecture, commands, troubleshooting
 
 ## CLI
@@ -61,7 +61,7 @@ If the rule contradicts an existing line in the file, replace the old line and a
 
 ## Persisting Runtime Context (the GTM brain)
 
-Project rules above describe how Claude Code should behave. Runtime context is different — it describes the user's company, ICP, voice, and outreach assets, and lives under `~/.gtm-os/`. When the user shares context mid-session that should land in the GTM brain, route the change through the preview/commit flow, never write directly to the live file.
+Project rules above describe how Claude Code should behave. Runtime context is different — it describes the user's company, ICP, voice, and outreach assets, and lives under `~/.orbit-gtm/`. When the user shares context mid-session that should land in the GTM brain, route the change through the preview/commit flow, never write directly to the live file.
 
 | When user says... | Save to (in `_preview/`) |
 |---|---|
@@ -73,9 +73,9 @@ Project rules above describe how Claude Code should behave. Runtime context is d
 | "we compete with X" | `company_context.yaml` (`icp.competitors`) |
 | "our segment is...", "primary segment description..." | `icp/segments.yaml` |
 
-Hard rule: **runtime context modifications must go through `_preview/` and a commit step.** Never write directly to `~/.gtm-os/<live-file>`. Use `yalc-gtm start --regenerate <section>` to refresh a section, then `yalc-gtm start --commit-preview` (optionally with `--discard <section>`) to promote it. If the user asks for an immediate edit, write the change into `_preview/` and tell them to review + commit.
+Hard rule: **runtime context modifications must go through `_preview/` and a commit step.** Never write directly to `~/.orbit-gtm/<live-file>`. Use `orbit-gtm start --regenerate <section>` to refresh a section, then `orbit-gtm start --commit-preview` (optionally with `--discard <section>`) to promote it. If the user asks for an immediate edit, write the change into `_preview/` and tell them to review + commit.
 
-For per-tenant runs (`--tenant acme`), substitute `~/.gtm-os/tenants/acme/_preview/<file>`.
+For per-tenant runs (`--tenant acme`), substitute `~/.orbit-gtm/tenants/acme/_preview/<file>`.
 
 ## Second Brain Context
 For Earleads-specific client context (ICP, playbooks, battlecards), read from the Second Brain workspace configured as `additionalDirectory`. Client files: `01_Projects/Clients/Active/{ClientName}/`.

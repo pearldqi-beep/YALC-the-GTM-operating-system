@@ -1,7 +1,7 @@
 /**
  * Detection helpers for running inside a parent Claude Code session.
  *
- * When YALC is invoked from Claude Code, the parent already provides LLM
+ * When Orbit GTM is invoked from Claude Code, the parent already provides LLM
  * reasoning and a built-in WebFetch tool, so prompting for ANTHROPIC_API_KEY
  * or FIRECRAWL_API_KEY in onboarding adds friction with no payoff.
  *

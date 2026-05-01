@@ -2,7 +2,7 @@
  * Pre-0.6.0 → 0.6.0 migration helper.
  *
  * Extracts captured-answer fields from a pre-0.6.0 `framework.yaml` and
- * writes them to a canonical `~/.gtm-os/company_context.yaml`. Idempotent:
+ * writes them to a canonical `~/.orbit-gtm/company_context.yaml`. Idempotent:
  * if both files already exist, the call is a no-op.
  *
  * Migration source: `framework.yaml` is the file that 0.5.x onboarding
@@ -12,7 +12,7 @@
  *
  * The migration writes to the LIVE folder — not preview — because the
  * source is already-committed live state. Migration is opt-in (the user
- * runs `yalc-gtm migrate`); it is never auto-triggered.
+ * runs `orbit-gtm migrate`); it is never auto-triggered.
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -21,7 +21,7 @@ import { homedir } from 'node:os'
 import yaml from 'js-yaml'
 import { emptyCompanyContext, type CompanyContext } from '../framework/context-types.js'
 
-const GTM_OS_DIR = join(homedir(), '.gtm-os')
+const GTM_OS_DIR = join(homedir(), '.orbit-gtm')
 const LEGACY_FRAMEWORK_PATH = join(GTM_OS_DIR, 'framework.yaml')
 const COMPANY_CONTEXT_PATH = join(GTM_OS_DIR, 'company_context.yaml')
 
@@ -96,7 +96,7 @@ export function buildContextFromLegacy(legacy: Record<string, unknown>): Company
 }
 
 /**
- * Run the migration. Writes `~/.gtm-os/company_context.yaml` from the
+ * Run the migration. Writes `~/.orbit-gtm/company_context.yaml` from the
  * existing framework.yaml. No-op when the target already exists or when
  * there is no framework.yaml to migrate from.
  */

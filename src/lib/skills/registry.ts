@@ -81,14 +81,14 @@ export async function registerBuiltinSkills(registry: SkillRegistry): Promise<vo
   registry.register(findPeopleSkill)
   registry.register(researchSkill)
 
-  // Load community skills from ~/.gtm-os/skills/ (JSON-based)
+  // Load community skills from ~/.orbit-gtm/skills/ (JSON-based)
   const { loadCommunitySkills } = await import('../marketplace/loader')
   const communitySkills = await loadCommunitySkills()
   for (const skill of communitySkills) {
     registry.register(skill)
   }
 
-  // Load markdown skills from ~/.gtm-os/skills/*.md
+  // Load markdown skills from ~/.orbit-gtm/skills/*.md
   const { loadAllMarkdownSkills } = await import('./markdown-loader')
   const markdownSkills = await loadAllMarkdownSkills()
   for (const skill of markdownSkills) {

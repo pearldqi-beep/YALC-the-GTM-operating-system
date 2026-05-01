@@ -78,7 +78,7 @@ describe('pickOnboardingMode', () => {
 describe('parseLongformMarkdown', () => {
   it('extracts answers from the canonical template headings', async () => {
     const { parseLongformMarkdown } = await import('../lib/context/onboarding')
-    const sample = `# YALC Onboarding — Long-form
+    const sample = `# Orbit GTM Onboarding — Long-form
 
 ## Company name
 Acme Corp

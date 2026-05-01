@@ -13,7 +13,7 @@ import { join } from 'node:path'
 let TMP: string
 
 beforeEach(() => {
-  TMP = mkdtempSync(join(tmpdir(), 'yalc-idx-'))
+  TMP = mkdtempSync(join(tmpdir(), 'orbit-gtm-idx-'))
 })
 
 afterEach(() => {

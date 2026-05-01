@@ -62,9 +62,9 @@ describe('embedding helpers', () => {
   it('readConfiguredProvider honors explicit openai choice', () => {
     const home = mkdtempSync(join(tmpdir(), 'gtm-cfg-'))
     try {
-      mkdirSync(join(home, '.gtm-os'))
+      mkdirSync(join(home, '.orbit-gtm'))
       writeFileSync(
-        join(home, '.gtm-os', 'config.yaml'),
+        join(home, '.orbit-gtm', 'config.yaml'),
         'memory:\n  embeddings:\n    provider: openai\n',
       )
       expect(readConfiguredProvider(home)).toBe('openai')

@@ -4,10 +4,10 @@
 // are separate and live in the provider config arrays.
 
 export const SIGNUP_URLS = {
-  unipile: 'https://www.unipile.com/?utm_source=partner&utm_campaign=Yalc',
+  unipile: 'https://www.unipile.com/?utm_source=partner&utm_campaign=OrbitGTM',
   fullenrich: 'https://fullenrich.com?via=sNO0yIysrHzw',
-  instantly: 'https://instantly.ai?via=yalc',
-  orthogonal: 'https://www.orthogonal.com/?utm_source=yalc&utm_medium=referral&utm_campaign=in-app',
+  instantly: 'https://instantly.ai?via=orbit-gtm',
+  orthogonal: 'https://www.orthogonal.com/?utm_source=orbit-gtm&utm_medium=referral&utm_campaign=in-app',
 } as const
 
 /** @deprecated Use SIGNUP_URLS.instantly */

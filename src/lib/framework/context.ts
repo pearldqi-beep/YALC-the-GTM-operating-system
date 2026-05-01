@@ -10,11 +10,11 @@ import { IntelligenceStore } from '../intelligence/store'
 import { DEFAULT_TENANT, tenantConfigDir } from '../tenant/index.js'
 
 /** Legacy single-tenant path. Migrated into tenants/default/ on first access. */
-const LEGACY_FRAMEWORK_PATH = join(homedir(), '.gtm-os', 'framework.yaml')
+const LEGACY_FRAMEWORK_PATH = join(homedir(), '.orbit-gtm', 'framework.yaml')
 
 /**
  * Per-tenant framework YAML path (Phase 1 / A4).
- * Resolves to `~/.gtm-os/tenants/<tenantId>/framework.yaml`.
+ * Resolves to `~/.orbit-gtm/tenants/<tenantId>/framework.yaml`.
  */
 export function frameworkPathFor(tenantId: string): string {
   return join(tenantConfigDir(tenantId), 'framework.yaml')
@@ -22,7 +22,7 @@ export function frameworkPathFor(tenantId: string): string {
 
 /**
  * One-time migration: when the default tenant is accessed and the legacy
- * `~/.gtm-os/framework.yaml` still exists (but the tenant-scoped file does
+ * `~/.orbit-gtm/framework.yaml` still exists (but the tenant-scoped file does
  * not), copy it into place. Idempotent.
  */
 function migrateLegacyFrameworkYaml(tenantId: string): void {

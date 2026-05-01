@@ -112,7 +112,7 @@ const LONGFORM_HEADINGS: Record<keyof InterviewAnswers, string> = {
  */
 function buildLongformTemplate(): string {
   const lines: string[] = [
-    '# YALC Onboarding — Long-form',
+    '# Orbit GTM Onboarding — Long-form',
     '',
     'Answer freely under each heading. Empty headings will be inferred from context if possible.',
     '',

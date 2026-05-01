@@ -15,7 +15,7 @@ import { join } from 'node:path'
 let TMP: string
 
 beforeEach(() => {
-  TMP = mkdtempSync(join(tmpdir(), 'yalc-preview-sec-'))
+  TMP = mkdtempSync(join(tmpdir(), 'orbit-gtm-preview-sec-'))
   vi.stubEnv('HOME', TMP)
   vi.resetModules()
 })

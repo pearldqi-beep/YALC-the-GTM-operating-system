@@ -126,7 +126,7 @@ ${inputs.map(inp => `  "${inp.name}_result": ""`).join(',\n')}
 `
 
   // 8. Save
-  const skillsDir = join(homedir(), '.gtm-os', 'skills')
+  const skillsDir = join(homedir(), '.orbit-gtm', 'skills')
   mkdirSync(skillsDir, { recursive: true })
   const filePath = join(skillsDir, `${name}.md`)
 
@@ -144,11 +144,11 @@ ${inputs.map(inp => `  "${inp.name}_result": ""`).join(',\n')}
   const firstInput = inputs[0]
   const moreInputs = inputs.length > 1 ? ' --input ...' : ''
   if (firstInput) {
-    console.log(`  yalc-gtm skills:run md:${name} --input ${firstInput.name}=<value>${moreInputs}`)
+    console.log(`  orbit-gtm skills:run md:${name} --input ${firstInput.name}=<value>${moreInputs}`)
   } else {
-    console.log(`  yalc-gtm skills:run md:${name}`)
+    console.log(`  orbit-gtm skills:run md:${name}`)
   }
   console.log(`Inspect schema:`)
-  console.log(`  yalc-gtm skills:info md:${name}`)
+  console.log(`  orbit-gtm skills:info md:${name}`)
   console.log(`\nEdit the prompt template in the file to customize the skill behavior.`)
 }

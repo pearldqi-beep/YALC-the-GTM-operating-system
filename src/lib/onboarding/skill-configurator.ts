@@ -6,7 +6,7 @@ import { getAnthropicClient, PLANNER_MODEL } from '../ai/client'
 import type { GTMFramework } from '../framework/types'
 import type { GTMGoals } from './goal-setter'
 
-const GTM_OS_DIR = join(homedir(), '.gtm-os')
+const GTM_OS_DIR = join(homedir(), '.orbit-gtm')
 
 export async function configureSkills(framework: GTMFramework, goals: GTMGoals): Promise<void> {
   console.log('\n[configure] Configuring skills based on goals...')

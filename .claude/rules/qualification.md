@@ -3,7 +3,7 @@
 Applies to: `src/lib/qualification/`
 
 ## Context to Load
-- `~/.gtm-os/qualification_rules.md` — lead qualification patterns and gate configs
+- `~/.orbit-gtm/qualification_rules.md` — lead qualification patterns and gate configs
 - `src/lib/intelligence/store.ts` — intelligence context injection pattern
 - `src/lib/qualification/` — existing gate implementations for reference
 
@@ -21,4 +21,4 @@ Applies to: `src/lib/qualification/`
 2. **Output goes to the Unified Leads DB** — never write qualification results to a separate store.
 3. Gates execute sequentially. A lead that fails any gate is tagged with the failure reason and skipped for remaining gates.
 4. Each gate must emit structured logs: gate name, lead count in, lead count out, duration.
-5. Gate configs are tenant-scoped — read from `~/.gtm-os/tenants/{slug}/qualification/`.
+5. Gate configs are tenant-scoped — read from `~/.orbit-gtm/tenants/{slug}/qualification/`.

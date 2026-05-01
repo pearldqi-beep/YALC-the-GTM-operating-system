@@ -168,7 +168,7 @@ Create `src/lib/agents/yaml-loader.ts`:
 
 ```typescript
 // ─── YAML Agent Config Loader ────────────────────────────────────────────────
-// Loads AgentConfig from YAML files in ~/.gtm-os/agents/
+// Loads AgentConfig from YAML files in ~/.orbit-gtm/agents/
 
 import { readFileSync, existsSync, readdirSync } from 'fs'
 import { join } from 'path'
@@ -176,7 +176,7 @@ import { homedir } from 'os'
 import yaml from 'js-yaml'
 import type { AgentConfig, AgentSchedule, AgentStep } from './types'
 
-const AGENTS_DIR = join(homedir(), '.gtm-os', 'agents')
+const AGENTS_DIR = join(homedir(), '.orbit-gtm', 'agents')
 
 interface RawYamlAgent {
   id: string
@@ -316,7 +316,7 @@ Expected: No errors
 
 ```bash
 git add src/cli/index.ts
-git commit -m "feat: agent:run resolves YAML configs from ~/.gtm-os/agents/"
+git commit -m "feat: agent:run resolves YAML configs from ~/.orbit-gtm/agents/"
 ```
 
 ---
@@ -341,7 +341,7 @@ import { homedir } from 'os'
 import yaml from 'js-yaml'
 import { getSkillRegistryReady } from '../../lib/skills/registry'
 
-const AGENTS_DIR = join(homedir(), '.gtm-os', 'agents')
+const AGENTS_DIR = join(homedir(), '.orbit-gtm', 'agents')
 
 export async function runAgentCreate(): Promise<void> {
   console.log('\n🔧 Agent Creator\n')
@@ -482,7 +482,7 @@ export async function runAgentCreate(): Promise<void> {
   writeFileSync(filePath, yamlStr)
 
   console.log(`\n✓ Agent written to ${filePath}`)
-  console.log(`\nRun it now:  yalc-gtm agent:run --agent ${id}`)
+  console.log(`\nRun it now:  orbit-gtm agent:run --agent ${id}`)
 
   // 8. Offer install
   const doInstall = await confirm({ message: 'Install as launchd service now?', default: false })
@@ -678,8 +678,8 @@ export async function runSetupWizard(): Promise<void> {
 
   // 9. Next steps
   console.log('\n── Next Steps ──')
-  console.log('  yalc-gtm onboard --linkedin <your-linkedin-url> --website <your-website-url>')
-  console.log('  yalc-gtm doctor')
+  console.log('  orbit-gtm onboard --linkedin <your-linkedin-url> --website <your-website-url>')
+  console.log('  orbit-gtm doctor')
   console.log('')
 }
 
@@ -778,12 +778,12 @@ Expected: All existing tests pass
 
 - [ ] **Step 3: Smoke test setup wizard**
 
-Run: `yalc-gtm setup --help`
+Run: `orbit-gtm setup --help`
 Expected: Shows `--wizard` option in help output
 
 - [ ] **Step 4: Smoke test agent:create**
 
-Run: `yalc-gtm agent:create --help`
+Run: `orbit-gtm agent:create --help`
 Expected: Shows command description
 
 - [ ] **Step 5: Push to both remotes**

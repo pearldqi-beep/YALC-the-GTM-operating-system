@@ -69,7 +69,7 @@ function stubBody(section: SectionId, ctx: CompanyContext): string {
       return [
         '# Tone of voice (placeholder)',
         '',
-        ctx.voice.description || 'Voice description not yet captured. Add ANTHROPIC_API_KEY and run `yalc-gtm start --regenerate voice` to extract from samples.',
+        ctx.voice.description || 'Voice description not yet captured. Add ANTHROPIC_API_KEY and run `orbit-gtm start --regenerate voice` to extract from samples.',
         '---END---',
         '# Examples (placeholder)',
         '',
@@ -97,7 +97,7 @@ function stubBody(section: SectionId, ctx: CompanyContext): string {
         `Company: ${ctx.company.name || '(unknown)'}`,
         '',
         '## Value prop',
-        '_Run `yalc-gtm start --regenerate positioning` with an Anthropic key to synthesize._',
+        '_Run `orbit-gtm start --regenerate positioning` with an Anthropic key to synthesize._',
         ...(ctx.icp.competitors.length > 0
           ? ctx.icp.competitors.flatMap((c) => [
               `---BATTLECARD: ${c.toLowerCase().replace(/[^a-z0-9]+/g, '-')}---`,

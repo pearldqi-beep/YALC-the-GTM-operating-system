@@ -2,7 +2,7 @@
  * GTM-OS Doctor
  *
  * Proactive health check that runs through all 5 diagnostic layers.
- * Like `brew doctor` — users run `yalc-gtm doctor` to validate their setup
+ * Like `brew doctor` — users run `orbit-gtm doctor` to validate their setup
  * before anything breaks.
  *
  * Optionally generates a diagnostic report file for bug reports.
@@ -63,7 +63,7 @@ function maskEnvValue(value: string | undefined): string {
 }
 
 function readEnvFile(): Map<string, string> {
-  // Read both ~/.gtm-os/.env (canonical) and ./.env.local (legacy). Later
+  // Read both ~/.orbit-gtm/.env (canonical) and ./.env.local (legacy). Later
   // files do NOT override earlier ones — first writer wins, matching the
   // dotenv array-of-paths behavior used by the CLI entrypoint.
   const envMap = new Map<string, string>()
@@ -123,7 +123,7 @@ function checkEnvironment(): LayerResult {
     return { layer: 'Environment', checks }
   }
   if (hasGlobal) {
-    checks.push({ name: '~/.gtm-os/.env', status: 'pass', detail: '' })
+    checks.push({ name: '~/.orbit-gtm/.env', status: 'pass', detail: '' })
   }
   if (hasLocal) {
     checks.push({ name: '.env.local (legacy)', status: 'pass', detail: '' })
@@ -238,7 +238,7 @@ function checkDatabase(): LayerResult {
     checks.push({
       name: 'Database file',
       status: 'fail',
-      detail: `Not found at ${dbPath}. Run: yalc-gtm start to initialize.`,
+      detail: `Not found at ${dbPath}. Run: orbit-gtm start to initialize.`,
     })
     return { layer: 'Database', checks }
   }
@@ -261,13 +261,13 @@ function checkDatabase(): LayerResult {
     checks.push({
       name: 'Core tables',
       status: 'fail',
-      detail: `All core tables missing. Run: yalc-gtm start to initialize.`,
+      detail: `All core tables missing. Run: orbit-gtm start to initialize.`,
     })
   } else {
     checks.push({
       name: `Core tables (${coreTables.length - missingTables.length}/${coreTables.length})`,
       status: 'fail',
-      detail: `Missing: ${missingTables.join(', ')}. Run: yalc-gtm start to initialize.`,
+      detail: `Missing: ${missingTables.join(', ')}. Run: orbit-gtm start to initialize.`,
     })
   }
 
@@ -303,21 +303,21 @@ function checkDatabase(): LayerResult {
 function checkConfiguration(): LayerResult {
   const checks: CheckResult[] = []
 
-  // framework.yaml lives in ~/.gtm-os/
+  // framework.yaml lives in ~/.orbit-gtm/
   const frameworkPath = join(GTM_OS_DIR, 'framework.yaml')
-  const frameworkLabel = 'GTM framework (~/.gtm-os/framework.yaml)'
+  const frameworkLabel = 'GTM framework (~/.orbit-gtm/framework.yaml)'
   if (!existsSync(frameworkPath)) {
     if (isClaudeCode() && !process.env.ANTHROPIC_API_KEY) {
       checks.push({
         name: frameworkLabel,
         status: 'skip',
-        detail: 'Optional inside Claude Code. Run `yalc-gtm onboard` once you add ANTHROPIC_API_KEY to derive a framework.',
+        detail: 'Optional inside Claude Code. Run `orbit-gtm onboard` once you add ANTHROPIC_API_KEY to derive a framework.',
       })
     } else {
       checks.push({
         name: frameworkLabel,
         status: 'fail',
-        detail: 'Missing. Run: yalc-gtm onboard',
+        detail: 'Missing. Run: orbit-gtm onboard',
       })
     }
   } else {
@@ -338,7 +338,7 @@ function checkConfiguration(): LayerResult {
         checks.push({
           name: frameworkLabel,
           status: 'warn',
-          detail: 'File exists but onboarding_complete is false. Run: yalc-gtm onboard',
+          detail: 'File exists but onboarding_complete is false. Run: orbit-gtm onboard',
         })
       }
     } catch (e) {
@@ -351,20 +351,20 @@ function checkConfiguration(): LayerResult {
   }
 
   // User config
-  const configPath = join(homedir(), '.gtm-os', 'config.yaml')
+  const configPath = join(homedir(), '.orbit-gtm', 'config.yaml')
   if (!existsSync(configPath)) {
     checks.push({
-      name: 'User config (~/.gtm-os/config.yaml)',
+      name: 'User config (~/.orbit-gtm/config.yaml)',
       status: 'warn',
-      detail: 'Missing. Run: yalc-gtm setup — to create with defaults.',
+      detail: 'Missing. Run: orbit-gtm setup — to create with defaults.',
     })
   } else {
     try {
       yaml.load(readFileSync(configPath, 'utf-8'))
-      checks.push({ name: 'User config (~/.gtm-os/config.yaml)', status: 'pass', detail: '' })
+      checks.push({ name: 'User config (~/.orbit-gtm/config.yaml)', status: 'pass', detail: '' })
     } catch (e) {
       checks.push({
-        name: 'User config (~/.gtm-os/config.yaml)',
+        name: 'User config (~/.orbit-gtm/config.yaml)',
         status: 'fail',
         detail: `Invalid YAML: ${e instanceof Error ? e.message : String(e)}`,
       })
@@ -373,19 +373,19 @@ function checkConfiguration(): LayerResult {
 
   // 0.6.0: company_context.yaml is first-class. Pre-0.6.0 installs have a
   // framework.yaml without a paired company_context.yaml — flag it so the
-  // user knows to run `yalc-gtm migrate`.
+  // user knows to run `orbit-gtm migrate`.
   const companyContextPath = join(GTM_OS_DIR, 'company_context.yaml')
   const hasFramework = existsSync(frameworkPath)
   const hasCompanyContext = existsSync(companyContextPath)
   if (hasFramework && !hasCompanyContext) {
     checks.push({
-      name: 'Company context (~/.gtm-os/company_context.yaml)',
+      name: 'Company context (~/.orbit-gtm/company_context.yaml)',
       status: 'warn',
-      detail: 'Pre-0.6.0 install detected. Run yalc-gtm migrate to extract company context to its own file.',
+      detail: 'Pre-0.6.0 install detected. Run orbit-gtm migrate to extract company context to its own file.',
     })
   } else if (hasCompanyContext) {
     checks.push({
-      name: 'Company context (~/.gtm-os/company_context.yaml)',
+      name: 'Company context (~/.orbit-gtm/company_context.yaml)',
       status: 'pass',
       detail: '',
     })
@@ -401,7 +401,7 @@ async function checkProviders(): Promise<LayerResult> {
 
   // Read user config to honor explicit provider opt-outs
   let userConfig: Record<string, unknown> = {}
-  const userConfigPath = join(homedir(), '.gtm-os', 'config.yaml')
+  const userConfigPath = join(homedir(), '.orbit-gtm', 'config.yaml')
   if (existsSync(userConfigPath)) {
     try {
       userConfig = (yaml.load(readFileSync(userConfigPath, 'utf-8')) as Record<string, unknown>) ?? {}
@@ -712,7 +712,7 @@ function checkRuntimeState(): LayerResult {
 function isProjectDirectory(cwd: string): boolean {
   return (
     existsSync(join(cwd, 'package.json')) ||
-    existsSync(join(cwd, '.gtm-os-tenant')) ||
+    existsSync(join(cwd, '.orbit-gtm-tenant')) ||
     existsSync(join(cwd, 'framework.yaml')) ||
     existsSync(join(cwd, '.git')) ||
     existsSync(join(cwd, 'node_modules'))

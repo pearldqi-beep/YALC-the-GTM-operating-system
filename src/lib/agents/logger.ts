@@ -6,7 +6,7 @@ import { join } from 'path'
 import { homedir } from 'os'
 import type { StepLog, AgentRunLog } from './types'
 
-const LOG_BASE = join(homedir(), '.gtm-os', 'logs', 'agents')
+const LOG_BASE = join(homedir(), '.orbit-gtm', 'logs', 'agents')
 
 export class AgentLogger {
   private agentId: string

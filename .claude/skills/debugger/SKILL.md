@@ -37,7 +37,7 @@ GTM-OS is a CLI-first TypeScript system for AI-native go-to-market automation.
 
 **Entry point:** `src/cli/index.ts` via `npx tsx`
 **Env loading:** `.env.local` via `loadEnv()` at CLI startup
-**Config files:** `~/.gtm-os/config.yaml` (user prefs) + `gtm-os.yaml` (GTM framework)
+**Config files:** `~/.orbit-gtm/config.yaml` (user prefs) + `gtm-os.yaml` (GTM framework)
 **Database:** SQLite via `@libsql/client` + Drizzle ORM. Default path: `file:./gtm-os.db`
 
 ### Three-Layer Architecture
@@ -68,7 +68,7 @@ GTM-OS is a CLI-first TypeScript system for AI-native go-to-market automation.
 | Database | `src/lib/db/schema.ts`, `src/lib/db/index.ts`, `drizzle.config.ts` |
 | Providers | `src/lib/services/{name}.ts`, `src/lib/providers/builtin/{name}-provider.ts` |
 | Framework | `gtm-os.yaml`, `src/lib/framework/context.ts` |
-| Config | `~/.gtm-os/config.yaml`, `src/lib/config/loader.ts` |
+| Config | `~/.orbit-gtm/config.yaml`, `src/lib/config/loader.ts` |
 | Encryption | `src/lib/crypto.ts` |
 | Rate limits | `src/lib/rate-limiter/index.ts` |
 | CLI entry | `src/cli/index.ts` |
@@ -205,14 +205,14 @@ console.log('onboarding_complete:', y.onboarding_complete || false);
 
 ```bash
 # Check user config
-test -f ~/.gtm-os/config.yaml && echo "OK: User config exists" || echo "FAIL: User config missing at ~/.gtm-os/config.yaml"
+test -f ~/.orbit-gtm/config.yaml && echo "OK: User config exists" || echo "FAIL: User config missing at ~/.orbit-gtm/config.yaml"
 ```
 
 **Auto-fix actions:**
-- Missing `gtm-os.yaml` → "Run `yalc-gtm onboard` to create your GTM framework. This asks 5 questions about your business."
+- Missing `gtm-os.yaml` → "Run `orbit-gtm onboard` to create your GTM framework. This asks 5 questions about your business."
 - Invalid YAML → Show the syntax error location and offer to fix it
-- `onboarding_complete: false` → "Run `yalc-gtm onboard` to complete setup."
-- Missing user config → "I'll create `~/.gtm-os/config.yaml` with defaults. Approve?"
+- `onboarding_complete: false` → "Run `orbit-gtm onboard` to complete setup."
+- Missing user config → "I'll create `~/.orbit-gtm/config.yaml` with defaults. Approve?"
 
 ### Step 4: Layer 4 — Provider Connectivity (1 API call)
 

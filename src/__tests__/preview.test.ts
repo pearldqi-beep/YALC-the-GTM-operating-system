@@ -7,13 +7,13 @@ import { join } from 'node:path'
  * Tests for `src/lib/onboarding/preview.ts` — preview folder helpers.
  *
  * We override HOME so the helpers operate in a sandboxed temp directory,
- * preventing any pollution of the developer's real `~/.gtm-os/`.
+ * preventing any pollution of the developer's real `~/.orbit-gtm/`.
  */
 
 let TMP: string
 
 beforeEach(() => {
-  TMP = mkdtempSync(join(tmpdir(), 'yalc-preview-'))
+  TMP = mkdtempSync(join(tmpdir(), 'orbit-gtm-preview-'))
   vi.stubEnv('HOME', TMP)
   // Reset module cache so paths.ts re-resolves HOME_DIR per test.
   vi.resetModules()
@@ -25,9 +25,9 @@ afterEach(() => {
 })
 
 describe('preview helpers — default tenant', () => {
-  it('previewRoot resolves to ~/.gtm-os/_preview when no tenant given', async () => {
+  it('previewRoot resolves to ~/.orbit-gtm/_preview when no tenant given', async () => {
     const { previewRoot } = await import('../lib/onboarding/preview')
-    expect(previewRoot()).toBe(join(homedir(), '.gtm-os', '_preview'))
+    expect(previewRoot()).toBe(join(homedir(), '.orbit-gtm', '_preview'))
   })
 
   it('previewExists is false on a clean tree', async () => {
@@ -60,7 +60,7 @@ describe('preview helpers — named tenant', () => {
   it('previewRoot points under tenants/<slug>/_preview', async () => {
     const { previewRoot } = await import('../lib/onboarding/preview')
     expect(previewRoot({ tenantId: 'acme' })).toBe(
-      join(homedir(), '.gtm-os', 'tenants', 'acme', '_preview'),
+      join(homedir(), '.orbit-gtm', 'tenants', 'acme', '_preview'),
     )
   })
 

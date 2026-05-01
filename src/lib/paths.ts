@@ -7,7 +7,7 @@
  * globally-installed tarball — unlike `process.cwd()` which depends on
  * where the user invoked the CLI.
  *
- * `GTM_OS_DIR` is the per-user state directory (`~/.gtm-os/`).
+ * `GTM_OS_DIR` is the per-user state directory (`~/.orbit-gtm/`).
  */
 
 import { fileURLToPath } from 'node:url'
@@ -17,4 +17,4 @@ import { homedir } from 'node:os'
 // This file lives at `src/lib/paths.ts`. Two levels up is the package root.
 export const PKG_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 export const HOME_DIR = homedir()
-export const GTM_OS_DIR = resolve(HOME_DIR, '.gtm-os')
+export const GTM_OS_DIR = resolve(HOME_DIR, '.orbit-gtm')

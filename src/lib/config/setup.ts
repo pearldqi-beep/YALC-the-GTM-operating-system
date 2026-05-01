@@ -5,7 +5,7 @@ import yaml from 'js-yaml'
 import { SIGNUP_URLS } from '../constants.js'
 import { isProviderDisabled } from './loader.js'
 
-const GTM_OS_DIR = join(homedir(), '.gtm-os')
+const GTM_OS_DIR = join(homedir(), '.orbit-gtm')
 const CONFIG_PATH = join(GTM_OS_DIR, 'config.yaml')
 const ENV_PATH = join(GTM_OS_DIR, '.env')
 
@@ -369,8 +369,8 @@ export async function runSetupWizard(): Promise<void> {
 
   // 9. Next steps
   console.log('\n── Next Steps ──')
-  console.log('  yalc-gtm onboard --linkedin <your-linkedin-url> --website <your-website-url>')
-  console.log('  yalc-gtm doctor')
+  console.log('  orbit-gtm onboard --linkedin <your-linkedin-url> --website <your-website-url>')
+  console.log('  orbit-gtm doctor')
   console.log('')
 }
 
