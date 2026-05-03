@@ -12,7 +12,8 @@ import { fullenrichService } from '../services/fullenrich'
 import { calculateSignificance } from './significance'
 import type { GTMOSConfig } from '../config/types'
 import { fireWebhooks } from '../services/webhooks'
-import { sendSlackNotification, setSlackConfig } from '../services/slack'
+import { sendSlackNotification, setSlackConfig, setNotionNotificationsConfig } from '../services/slack'
+import { setDedupReviewDb } from '../dedup/slack-confirm'
 import { parseSchedule, shouldAutoActivate, isWithinSendWindow, isBusinessDaysAgo } from './schedule'
 import { DEFAULT_TENANT } from '../tenant/index.js'
 import { hasReplied } from './blocklist.js'
@@ -87,7 +88,14 @@ export async function runTracker(opts: TrackerOptions): Promise<TrackerSummary> 
 
   console.log(`[tracker] Starting campaign tracker${opts.dryRun ? ' (DRY RUN)' : ''}`)
 
-  // Initialize Slack config if available
+  // Initialize Notion notification config (replaces Slack)
+  if (opts.config.notion?.notifications_db) {
+    setNotionNotificationsConfig(opts.config.notion.notifications_db)
+  }
+  // Wire dedup review DB (falls back to notifications_db if no dedicated DB configured)
+  const dedupDb = opts.config.notion?.dedup_review_db ?? opts.config.notion?.notifications_db
+  if (dedupDb) setDedupReviewDb(dedupDb)
+  // Keep legacy call as no-op for backward compat
   setSlackConfig(opts.config.slack)
 
   // ── Gate A: Auto-activate scheduled campaigns ──────────────────────────────

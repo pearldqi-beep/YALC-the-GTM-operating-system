@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GTM-OS · Design Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *{font-family:'Plus Jakarta Sans',sans-serif}
+    .mono{font-family:'JetBrains Mono',monospace}
+
+    /* ── HERO DARK ── */
+    .hero-dark{
+      background:#0F172A;
+      position:relative;
+      overflow:hidden;
+    }
+    /* Aurora mesh */
+    .aurora-1{position:absolute;top:-20%;left:-10%;width:70%;height:70%;border-radius:50%;background:radial-gradient(circle,rgba(3,105,161,0.35) 0%,transparent 65%);filter:blur(80px);pointer-events:none}
+    .aurora-2{position:absolute;top:10%;right:-15%;width:60%;height:60%;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,0.25) 0%,transparent 65%);filter:blur(80px);pointer-events:none}
+    .aurora-3{position:absolute;bottom:-10%;left:30%;width:50%;height:50%;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.15) 0%,transparent 60%);filter:blur(80px);pointer-events:none}
+
+    /* Subtle grid overlay */
+    .hero-grid{
+      position:absolute;inset:0;
+      background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+      background-size:48px 48px;
+      pointer-events:none;
+    }
+
+    /* Navbar */
+    .nav-dark{background:rgba(15,23,42,0.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.07)}
+
+    /* Gradient text */
+    .gtext{background:linear-gradient(135deg,#38BDF8 0%,#818CF8 55%,#A78BFA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    /* CTA button */
+    .btn-cta{
+      background:linear-gradient(135deg,#0369A1 0%,#4F46E5 100%);
+      box-shadow:0 0 0 0 rgba(3,105,161,0.4);
+      transition:all .25s ease;
+    }
+    .btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(3,105,161,0.45)}
+
+    /* Ghost button */
+    .btn-outline{border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.05);color:#CBD5E1;transition:all .2s ease}
+    .btn-outline:hover{border-color:rgba(56,189,248,0.5);background:rgba(56,189,248,0.08);color:#fff}
+
+    /* Glass stat card */
+    .glass-card{
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      backdrop-filter:blur(12px);
+      transition:all .25s ease;
+    }
+    .glass-card:hover{background:rgba(255,255,255,0.09);border-color:rgba(56,189,248,0.35);transform:translateY(-2px)}
+
+    /* Badge */
+    .badge-live{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:#7DD3FC}
+
+    /* Pulse */
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+    .pulse{animation:pulse-dot 2s ease-in-out infinite}
+
+    /* Number gradient */
+    .num{background:linear-gradient(135deg,#38BDF8,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+  </style>
+</head>
+<body class="bg-[#0F172A]">
+
+<!-- ── NAV (dark glass) ── -->
+<nav class="nav-dark fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg btn-cta flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/>
+          <circle cx="7" cy="7" r="2" fill="white" opacity=".6"/>
+        </svg>
+      </div>
+      <span class="font-bold text-white tracking-tight">GTM-OS</span>
+      <span class="text-xs badge-live px-2.5 py-0.5 rounded-full mono">Fairs &amp; Exhibitions</span>
+    </div>
+
+    <!-- Links -->
+    <div class="hidden md:flex items-center gap-8 text-sm text-slate-400">
+      <a href="#" class="hover:text-white transition-colors">Problem</a>
+      <a href="#" class="hover:text-white transition-colors">Exhibitor Acquisition</a>
+      <a href="#" class="hover:text-white transition-colors">Visitor Engagement</a>
+      <a href="#" class="hover:text-white transition-colors">Pipeline</a>
+      <a href="#" class="hover:text-white transition-colors">ROI</a>
+      <a href="#" class="text-sky-400 font-semibold hover:text-sky-300 transition-colors">Pricing</a>
+    </div>
+
+    <!-- CTAs -->
+    <div class="hidden md:flex items-center gap-3">
+      <a href="#" class="btn-outline text-sm px-4 py-2 rounded-lg">See a demo</a>
+      <a href="#" class="btn-cta text-sm px-5 py-2.5 rounded-lg font-semibold text-white">See pricing →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero-dark min-h-screen flex flex-col items-center justify-center pt-24 pb-20 px-6 relative">
+  <!-- Aurora blobs -->
+  <div class="aurora-1"></div>
+  <div class="aurora-2"></div>
+  <div class="aurora-3"></div>
+  <div class="hero-grid"></div>
+
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+
+    <!-- Live badge -->
+    <div class="inline-flex items-center gap-2.5 badge-live px-4 py-2 rounded-full mb-10">
+      <span class="pulse w-2 h-2 rounded-full bg-emerald-400 block"></span>
+      <span class="text-xs mono">Built for B2B trade show organisers · Open-source stack</span>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="text-5xl md:text-7xl font-black leading-[1.04] tracking-tight mb-7">
+      <span class="text-white">Fill your stands.</span><br/>
+      <span class="text-white">Engage your visitors.</span><br/>
+      <span class="gtext">On autopilot.</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
+      GTM-OS detects companies with an active exhibition budget before they sign with a competitor,
+      and engages the right decision-makers through a 7-gate AI pipeline — all on autopilot.
+    </p>
+
+    <!-- CTA row -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+      <a href="#" class="btn-cta px-8 py-4 rounded-xl font-semibold text-white text-base w-full sm:w-auto">
+        See a live demo →
+      </a>
+      <a href="#" class="btn-outline px-8 py-4 rounded-xl text-base w-full sm:w-auto">
+        See pricing
+      </a>
+    </div>
+
+    <!-- Glassmorphism stat cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num">3×</div>
+        <div class="text-xs text-slate-500 mt-1.5 leading-snug">More stands signed</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num">−70%</div>
+        <div class="text-xs text-slate-500 mt-1.5 leading-snug">Prospecting time saved</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num">+40%</div>
+        <div class="text-xs text-slate-500 mt-1.5 leading-snug">Average fill-rate improvement</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num">48h</div>
+        <div class="text-xs text-slate-500 mt-1.5 leading-snug">To launch an exhibitor campaign</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PLACEHOLDER: rest of page continues below ── -->
+<div class="bg-[#F8FAFC] py-12 text-center text-slate-400 text-sm mono">
+  ← Section body sections will be light (#F8FAFC / #FFFFFF) with white cards →
+</div>
+
+</body>
+</html>

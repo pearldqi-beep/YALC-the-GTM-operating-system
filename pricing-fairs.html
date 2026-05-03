@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTM-OS · Salons &amp; Expositions — Automatisez votre développement commercial et votre acquisition exposants</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(14,165,233,0.1) 0%, transparent 65%),
+                  radial-gradient(ellipse 50% 40% at 85% 40%, rgba(99,102,241,0.07) 0%, transparent 55%),
+                  #ffffff;
+    }
+    .section-alt   { background: #f8fafc; }
+    .section-white { background: #ffffff; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 60%, #7c3aed 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card { background: #ffffff; border: 1px solid #e4e4e7; transition: all 0.3s ease; }
+    .card:hover { border-color: rgba(14,165,233,0.4); box-shadow: 0 4px 24px rgba(14,165,233,0.08); transform: translateY(-2px); }
+    .card-blue   { background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); border: 1px solid #bfdbfe; }
+    .card-indigo { background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%); border: 1px solid #c7d2fe; }
+    .card-signal { background: #ffffff; border: 1px solid #e4e4e7; transition: all 0.2s ease; }
+    .card-signal:hover { border-color: #93c5fd; box-shadow: 0 2px 12px rgba(14,165,233,0.1); }
+
+    .nav-blur { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid #e4e4e7; }
+
+    .btn-primary { background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%); transition: all 0.3s ease; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(2,132,199,0.3); }
+    .btn-ghost { border: 1px solid #d4d4d8; background: #ffffff; transition: all 0.3s ease; }
+    .btn-ghost:hover { border-color: #60a5fa; background: #eff6ff; }
+
+    .pill-blue   { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+    .pill-indigo { background: #eef2ff; border: 1px solid #c7d2fe; color: #4338ca; }
+    .pill-violet { background: #f5f3ff; border: 1px solid #ddd6fe; color: #6d28d9; }
+    .pill-emerald { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+
+    .number-accent { background: linear-gradient(135deg, #0284c7, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .terminal { background: #18181b; border: 1px solid #3f3f46; }
+
+    .pricing-featured { background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%); padding: 2px; border-radius: 20px; }
+    .pricing-featured-inner { background: #ffffff; border-radius: 18px; }
+
+    .check-icon { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cross-icon { width: 18px; height: 18px; border-radius: 50%; background: #f4f4f5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    .toggle-track { background: #e4e4e7; transition: background 0.3s ease; }
+    .toggle-track.active { background: linear-gradient(135deg, #0284c7, #4f46e5); }
+    .toggle-thumb { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: transform 0.3s ease; }
+    .toggle-track.active .toggle-thumb { transform: translateX(20px); }
+
+    .faq-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-body.open { max-height: 400px; }
+    .faq-arrow { transition: transform 0.25s ease; }
+    .faq-arrow.open { transform: rotate(180deg); }
+
+    .grid-pattern {
+      background-image: linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .ticker-track { animation: ticker 35s linear infinite; }
+
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 overflow-x-hidden">
+
+<!-- ── NAV ── -->
+<nav class="nav-blur fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/><circle cx="7" cy="7" r="2" fill="white" opacity="0.6"/></svg>
+      </div>
+      <span class="font-bold text-zinc-900 tracking-tight">GTM-OS</span>
+      <span class="text-xs text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full">Salons &amp; Expositions</span>
+    </div>
+    <div class="hidden md:flex items-center gap-7 text-sm text-zinc-500">
+      <a href="#probleme"  class="hover:text-zinc-900 transition-colors">Problème</a>
+      <a href="#exposants" class="hover:text-zinc-900 transition-colors">Acquisition exposants</a>
+      <a href="#visiteurs" class="hover:text-zinc-900 transition-colors">Engagement visiteurs</a>
+      <a href="#pipeline"  class="hover:text-zinc-900 transition-colors">Pipeline</a>
+      <a href="#roi"       class="hover:text-zinc-900 transition-colors">ROI</a>
+      <a href="#tarifs"    class="text-sky-600 font-semibold hover:text-sky-700 transition-colors">Tarifs</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#contact" class="btn-ghost text-sm px-4 py-2 rounded-lg text-zinc-600 hidden md:block">Voir la démo</a>
+      <a href="#tarifs"  class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white">Voir les tarifs →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TICKER ── -->
+<div class="fixed top-16 w-full z-40 overflow-hidden border-b border-zinc-100" style="background:rgba(248,250,252,0.95)">
+  <div class="flex ticker-track py-2 gap-12 whitespace-nowrap">
+    <span class="text-xs text-zinc-400 mono flex gap-12">
+      <span>🎪 Détection exposants potentiels par signaux IA</span>
+      <span>📋 Brief de stand personnalisé en 60 secondes</span>
+      <span>💬 Séquences LinkedIn pour directeurs marketing</span>
+      <span>📊 Suivi remplissage salon en temps réel</span>
+      <span>🎯 Qualification 7 portes des prospects exposants</span>
+      <span>🔔 Alertes Slack sur chaque réponse d'exposant</span>
+      <span>📥 Import base exposants historiques CSV</span>
+      <span>🤖 Score d'adéquation exposant/salon 0–100</span>
+      <span>🔄 Relances automatiques DM1/DM2</span>
+      <span>🗂️ Synchronisation Notion (dossiers exposants)</span>
+      <span>🎪 Détection exposants potentiels par signaux IA</span>
+      <span>📋 Brief de stand personnalisé en 60 secondes</span>
+      <span>💬 Séquences LinkedIn pour directeurs marketing</span>
+      <span>📊 Suivi remplissage salon en temps réel</span>
+      <span>🎯 Qualification 7 portes des prospects exposants</span>
+      <span>🔔 Alertes Slack sur chaque réponse d'exposant</span>
+      <span>📥 Import base exposants historiques CSV</span>
+      <span>🤖 Score d'adéquation exposant/salon 0–100</span>
+      <span>🔄 Relances automatiques DM1/DM2</span>
+      <span>🗂️ Synchronisation Notion (dossiers exposants)</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero-gradient grid-pattern min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 relative">
+  <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(14,165,233,0.07), transparent 70%)"></div>
+  <div class="absolute top-1/2 right-1/4 w-64 h-64 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(99,102,241,0.06), transparent 70%)"></div>
+
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+    <div class="inline-flex items-center gap-2 bg-sky-50 border border-sky-200 px-4 py-2 rounded-full mb-8">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+      <span class="text-xs text-sky-700 mono">Conçu pour les organisateurs de salons B2B · Stack open-source</span>
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-6">
+      <span class="text-zinc-900">Remplissez vos stands.</span><br/>
+      <span class="text-zinc-900">Engagez vos visiteurs.</span><br/>
+      <span class="gradient-text">En automatique.</span>
+    </h1>
+
+    <p class="text-lg md:text-xl text-zinc-500 max-w-2xl mx-auto leading-relaxed mb-10">
+      GTM-OS détecte les entreprises qui ont un budget salon actif avant qu'elles ne signent chez un concurrent,
+      et engage les bonnes décisions via un pipeline IA à 7 portes — le tout en pilote automatique.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+      <a href="#contact" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base w-full sm:w-auto">
+        Voir une démonstration →
+      </a>
+      <a href="#tarifs" class="btn-ghost px-8 py-4 rounded-xl text-zinc-600 text-base w-full sm:w-auto">
+        Voir les tarifs
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">3×</div>
+        <div class="text-xs text-zinc-400 mt-1">Plus de stands signés</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">-70%</div>
+        <div class="text-xs text-zinc-400 mt-1">Temps de démarche commerciale</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">+40%</div>
+        <div class="text-xs text-zinc-400 mt-1">Taux de remplissage moyen</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">48h</div>
+        <div class="text-xs text-zinc-400 mt-1">Pour lancer une campagne exposant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLÈME ── -->
+<section id="probleme" class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Le problème</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Votre salon se remplit<br/><span class="gradient-text">trop lentement — et trop tard.</span>
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">📞</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Prospection exposants épuisante</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Vos équipes commerciales appellent des listes froides sans signal d'intention. Chaque RDV pris prend des dizaines de tentatives — pour un taux de conversion faible.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">📅</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Budgets salons déjà alloués</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Les entreprises allouent leurs budgets foires 6–12 mois à l'avance. Si vous n'approchez pas au bon moment, leur enveloppe est déjà réservée chez un concurrent.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">🎯</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Mauvaise qualification des prospects</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Approcher des entreprises hors secteur ou hors budget fait perdre du temps à tout le monde. Il manque un filtre intelligent pour prioriser les vrais prospects chauds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AXE 1 : ACQUISITION EXPOSANTS ── -->
+<section id="exposants" class="section-white py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+      <div>
+        <div class="inline-flex items-center gap-2 pill-blue px-3 py-1.5 rounded-full mb-5 text-xs font-semibold">
+          🏢 Axe 1 — Acquisition exposants
+        </div>
+        <h2 class="text-4xl font-black tracking-tight mb-5 text-zinc-900">
+          Identifiez les entreprises<br/><span class="gradient-text">avec un budget salon actif</span><br/>avant qu'elles ne choisissent.
+        </h2>
+        <p class="text-zinc-500 leading-relaxed mb-8">GTM-OS surveille en continu les signaux d'intention budgétaire et sectorielle, puis déclenche des séquences d'approche personnalisées vers les directeurs marketing, brand managers et responsables événementiels.</p>
+
+        <div class="space-y-3 mb-8">
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-sky-600 text-sm">💰</span></div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Levée de fonds ou budget marketing élargi</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Series A/B → plan go-to-market → présence salon prioritaire sous 6 mois. Approche immédiate sur le CMO ou Head of Events.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-indigo-600 text-sm">📈</span></div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Lancement produit ou nouvelle gamme détecté</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Firecrawl scrape les communiqués de presse et blogs. Un lancement produit = besoin de visibilité = stand salon.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-violet-600 text-sm">🏷️</span></div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Présence sur les salons concurrents</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Crustdata détecte les entreprises qui ont exposé lors d'éditions précédentes ou chez la concurrence — cible chaude par excellence.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-emerald-600 text-sm">🌍</span></div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Expansion géographique dans votre secteur</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Ouverture d'un bureau ou entrée sur un nouveau marché → besoin de notoriété locale → votre salon est le levier évident.</div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#contact" class="btn-primary inline-block px-6 py-3 rounded-xl font-semibold text-sm text-white">
+          Voir un exemple de campagne →
+        </a>
+      </div>
+
+      <div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="bg-sky-50 border-b border-sky-100 px-5 py-3">
+            <span class="text-xs font-semibold text-sky-700 mono">Pipeline exposants · Exemple "Lancement produit"</span>
+          </div>
+          <div class="p-5 space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center flex-shrink-0"><span class="text-sky-700 text-xs font-bold">1</span></div>
+              <div class="flex-1 text-sm"><span class="font-semibold text-zinc-800">Détection</span><span class="text-zinc-400 ml-2">Firecrawl scrape les communiqués de lancement</span></div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">~180 co/mois</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Filtres : secteur cible du salon, France/Benelux, 10–500 salariés</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center flex-shrink-0"><span class="text-indigo-700 text-xs font-bold">2</span></div>
+              <div class="flex-1 text-sm"><span class="font-semibold text-zinc-800">Qualification IA</span><span class="text-zinc-400 ml-2">Claude score l'adéquation exposant/salon</span></div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">~62 co</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Critères : secteur, taille, historique foires, budget marketing estimé</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-violet-100 border border-violet-200 flex items-center justify-center flex-shrink-0"><span class="text-violet-700 text-xs font-bold">3</span></div>
+              <div class="flex-1 text-sm"><span class="font-semibold text-zinc-800">Identification contact</span><span class="text-zinc-400 ml-2">CMO, Head of Events, Brand Manager</span></div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">FullEnrich</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Email professionnel vérifié + profil LinkedIn</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center flex-shrink-0"><span class="text-sky-700 text-xs font-bold">4</span></div>
+              <div class="flex-1 text-sm"><span class="font-semibold text-zinc-800">Séquence LinkedIn + email</span><span class="text-zinc-400 ml-2">Message ancré sur le lancement produit</span></div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">Unipile + Instantly</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400 italic">"Votre lancement [Produit X] s'aligne parfaitement avec notre audience de 8 000 acheteurs B2B. Un stand de 18m² est encore disponible."</div>
+            </div>
+            <div class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-emerald-800">Résultat moyen</span>
+                <span class="text-emerald-700 font-black text-lg">5–9 RDV / mois</span>
+              </div>
+              <div class="text-xs text-emerald-600 mt-1">Sur 62 prospects qualifiés → taux de réponse ~8–12%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AXE 2 : ENGAGEMENT VISITEURS ── -->
+<section id="visiteurs" class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+
+      <div class="order-2 md:order-1">
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="bg-violet-50 border-b border-violet-100 px-5 py-3 flex items-center justify-between">
+            <span class="text-xs font-semibold text-violet-700 mono">Pipeline visiteurs VIP · Qualification 7 portes</span>
+            <span class="text-xs text-violet-500 bg-violet-100 border border-violet-200 px-2 py-0.5 rounded mono">visitors:qualify</span>
+          </div>
+          <div class="p-5 space-y-2">
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-zinc-50 border border-zinc-200">
+              <div class="w-6 h-6 rounded-md bg-zinc-200 flex items-center justify-center flex-shrink-0"><span class="text-zinc-600 text-xs font-bold">0</span></div>
+              <div class="flex-1"><span class="font-semibold text-zinc-700 text-xs">Déduplication</span><span class="text-zinc-400 text-xs ml-2">Évite les doublons vs base invités historique</span></div>
+              <span class="text-xs text-zinc-400 mono">Gate 0</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-sky-50 border border-sky-100">
+              <div class="w-6 h-6 rounded-md bg-sky-200 flex items-center justify-center flex-shrink-0"><span class="text-sky-700 text-xs font-bold">1</span></div>
+              <div class="flex-1"><span class="font-semibold text-sky-800 text-xs">Pertinence sectorielle</span><span class="text-sky-600 text-xs ml-2">Titre / secteur correspondant aux thématiques du salon</span></div>
+              <span class="text-xs text-sky-500 mono">Gate 1</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-red-50 border border-red-100">
+              <div class="w-6 h-6 rounded-md bg-red-200 flex items-center justify-center flex-shrink-0"><span class="text-red-700 text-xs font-bold">2</span></div>
+              <div class="flex-1"><span class="font-semibold text-red-800 text-xs">Exclusion</span><span class="text-red-600 text-xs ml-2">Concurrents, presse non-qualifiée, démarcheurs</span></div>
+              <span class="text-xs text-red-400 mono">Gate 2</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-amber-50 border border-amber-100">
+              <div class="w-6 h-6 rounded-md bg-amber-200 flex items-center justify-center flex-shrink-0"><span class="text-amber-700 text-xs font-bold">3</span></div>
+              <div class="flex-1"><span class="font-semibold text-amber-800 text-xs">Pouvoir d'achat</span><span class="text-amber-600 text-xs ml-2">Décideur ou prescripteur avec budget</span></div>
+              <span class="text-xs text-amber-500 mono">Gate 3</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-indigo-50 border border-indigo-100">
+              <div class="w-6 h-6 rounded-md bg-indigo-200 flex items-center justify-center flex-shrink-0"><span class="text-indigo-700 text-xs font-bold">4</span></div>
+              <div class="flex-1"><span class="font-semibold text-indigo-800 text-xs">Enrichissement</span><span class="text-indigo-600 text-xs ml-2">Email + LinkedIn via FullEnrich / Unipile</span></div>
+              <span class="text-xs text-indigo-400 mono">FullEnrich</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-violet-50 border border-violet-200">
+              <div class="w-6 h-6 rounded-md bg-violet-300 flex items-center justify-center flex-shrink-0"><span class="text-violet-800 text-xs font-bold">5</span></div>
+              <div class="flex-1"><span class="font-semibold text-violet-800 text-xs">Score IA Claude</span><span class="text-violet-600 text-xs ml-2">Secteur 30 + Niveau décision 30 + Localisation 20 + Intérêt 20 = /100</span></div>
+              <span class="text-xs text-violet-500 mono">Claude</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-emerald-50 border border-emerald-200">
+              <div class="w-6 h-6 rounded-md bg-emerald-300 flex items-center justify-center flex-shrink-0"><span class="text-emerald-800 text-xs font-bold">6</span></div>
+              <div class="flex-1"><span class="font-semibold text-emerald-800 text-xs">Seuil</span><span class="text-emerald-600 text-xs ml-2">Passe si score ≥ 70 — paramétrable par édition</span></div>
+              <span class="text-xs text-emerald-600 mono font-bold">✓ VIP invité</span>
+            </div>
+            <div class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-emerald-800">Résultat moyen</span>
+                <span class="text-emerald-700 font-black text-lg">2–4 jours → liste VIP</span>
+              </div>
+              <div class="text-xs text-emerald-600 mt-1">Contre 2–3 semaines de tri manuel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-1 md:order-2">
+        <div class="inline-flex items-center gap-2 pill-violet px-3 py-1.5 rounded-full mb-5 text-xs font-semibold">
+          🎫 Axe 2 — Engagement visiteurs VIP
+        </div>
+        <h2 class="text-4xl font-black tracking-tight mb-5 text-zinc-900">
+          Attirez les <span class="gradient-text">acheteurs et décideurs</span><br/>avant vos concurrents.
+        </h2>
+        <p class="text-zinc-500 leading-relaxed mb-8">Les meilleurs visiteurs — directeurs achats, DSI, responsables innovation — ne s'inscrivent pas spontanément. GTM-OS les identifie, les qualifie par 7 portes IA, et les approche avec une invitation personnalisée à forte valeur perçue.</p>
+
+        <div class="space-y-4 mb-8">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Recherche par fonction + secteur + taille d'entreprise</div>
+              <div class="text-zinc-500 text-xs mt-1">700M+ profils Crustdata ou import CSV. Filtres granulaires : fonction, pouvoir d'achat estimé, géographie, secteur cible de l'édition.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0284c7" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Score d'adéquation visiteur/salon 0–100 par Claude</div>
+              <div class="text-zinc-500 text-xs mt-1">Chaque profil reçoit un score sur 4 dimensions : pertinence sectorielle, niveau décisionnel, localisation, signaux d'intérêt actifs.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#4338ca" stroke-width="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Invitation 100% personnalisée par Claude</div>
+              <div class="text-zinc-500 text-xs mt-1">Claude rédige un message unique par visiteur VIP — ancré sur leurs enjeux sectoriels spécifiques. Séquence : connexion LinkedIn → invitation personnalisée J+2 → rappel email J+5.</div>
+            </div>
+          </div>
+        </div>
+        <a href="#pipeline" class="btn-primary inline-block px-6 py-3 rounded-xl font-semibold text-sm text-white">
+          Voir le pipeline complet →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PIPELINE END-TO-END ── -->
+<section id="pipeline" class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-violet-600 mono text-sm mb-3 tracking-widest uppercase">End-to-end workflow</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        De la détection exposant<br/><span class="gradient-text">à la signature en 6 commandes.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">Un pipeline entièrement automatisé — de la définition de votre édition à l'alerte Slack quand un prospect demande un devis.</p>
+    </div>
+
+    <div class="space-y-6">
+
+      <!-- Step 1 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full btn-primary flex items-center justify-center text-white font-black text-sm z-10">1</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-blue-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div><span class="font-bold text-zinc-900">Créer le brief de l'édition</span><span class="text-zinc-400 text-sm ml-3">Définit la cible exposant pour tout le pipeline</span></div>
+            <span class="pill-blue text-xs px-3 py-1 rounded-full font-semibold mono">fair:brief</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-zinc-500"># Définir une édition salon en 60 secondes</span><br/>
+              <span class="text-emerald-400">fair:brief</span><span class="text-sky-300"> --name</span> <span class="text-yellow-300">"Salon Tech &amp; Innovation 2026"</span><span class="text-sky-300"> --sectors</span> <span class="text-yellow-300">"SaaS,Industrie 4.0,IoT"</span><br/>
+              <span class="text-sky-300">&nbsp;&nbsp;--date</span> <span class="text-yellow-300">"2026-09-15"</span><span class="text-sky-300"> --location</span> <span class="text-yellow-300">"Paris Nord Villepinte"</span><span class="text-sky-300"> --stands</span> <span class="text-yellow-300">120</span><br/><br/>
+              <span class="text-zinc-500">✓ Brief créé · ID: 4f2a9c11 · Seuil de qualification exposant : 70/100</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Le brief est la référence centrale de toute la campagne : scoring IA, génération de messages, suivi pipeline — tout en découle.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-sm z-10">2</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-indigo-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div><span class="font-bold text-zinc-900">Sourcer les exposants potentiels</span><span class="text-zinc-400 text-sm ml-3">Remplir le pipeline de prospects chauds</span></div>
+            <span class="pill-indigo text-xs px-3 py-1 rounded-full font-semibold mono">fair:source</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-zinc-500"># Sourcing automatique Crustdata par signaux d'intention</span><br/>
+              <span class="text-emerald-400">fair:source</span><span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span><span class="text-sky-300"> --signals</span> <span class="text-yellow-300">"funding,product_launch,job_board"</span><span class="text-sky-300"> --limit</span> <span class="text-yellow-300">500</span><br/><br/>
+              <span class="text-zinc-500">✓ 487 entreprises détectées · statut: Sourced</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Import CSV base historique ou sourcing automatique par signaux. Signaux supportés : levées, lancements produits, job boards saturés, expansion géo.</div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center text-white font-black text-sm z-10">3</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-violet-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div><span class="font-bold text-zinc-900">Qualification 7 portes</span><span class="text-zinc-400 text-sm ml-3">Filtre, enrichit, et score chaque prospect</span></div>
+            <span class="pill-violet text-xs px-3 py-1 rounded-full font-semibold mono">fair:qualify</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">fair:qualify</span><span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span><br/><br/>
+              <span class="text-zinc-500">{"gate":"Gate0:Dedup",      "in":487,"out":451,"rejected":36}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate1:Secteur",    "in":451,"out":312,"rejected":139}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate2:Exclusion",  "in":312,"out":298,"rejected":14}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate5:AIScore",    "in":298,"out":298,"durationMs":4120}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate6:Threshold",  "in":298,"out":187,"rejected":111}</span><br/><br/>
+              <span class="text-emerald-400">✓ 187 exposants potentiels qualifiés · Durée : 6.2s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-sky-600 flex items-center justify-center text-white font-black text-sm z-10">4</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-sky-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div><span class="font-bold text-zinc-900">Shortlist des prospects prioritaires</span><span class="text-zinc-400 text-sm ml-3">Top exposants triés par score et potentiel</span></div>
+            <span class="pill-blue text-xs px-3 py-1 rounded-full font-semibold mono">fair:shortlist</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">fair:shortlist</span><span class="text-sky-300"> --top-n</span> <span class="text-yellow-300">50</span><span class="text-sky-300"> --sync-notion</span><br/><br/>
+              <span class="text-zinc-300">&nbsp;&nbsp;#1 [94] Dataiku · Data & AI · 450 sal. · levée €60M</span><br/>
+              <span class="text-zinc-300">&nbsp;&nbsp;#2 [91] Contentsquare · SaaS Martech · 900 sal.</span><br/>
+              <span class="text-zinc-300">&nbsp;&nbsp;#3 [88] Pennylane · FinTech SaaS · 350 sal. · lancement produit</span><br/>
+              <span class="text-zinc-400">&nbsp;&nbsp;... 47 autres entreprises</span><br/><br/>
+              <span class="text-emerald-400">✓ 50 exposants prioritaires · Score moyen : 83 · Synchro Notion ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-black text-sm z-10">5</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-amber-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div><span class="font-bold text-zinc-900">Outreach personnalisée exposants</span><span class="text-zinc-400 text-sm ml-3">Propositions rédigées par Claude, envoyées via Unipile / Instantly</span></div>
+            <span class="text-xs bg-amber-50 border border-amber-200 text-amber-700 px-3 py-1 rounded-full font-semibold mono">fair:outreach</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">fair:outreach</span><span class="text-sky-300"> --channel</span> <span class="text-yellow-300">linkedin_dm</span><span class="text-sky-300"> --type</span> <span class="text-yellow-300">connect_note</span><span class="text-sky-300"> --send</span><br/><br/>
+              <span class="text-emerald-400">✓ 50 messages envoyés</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4">
+            <div class="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+              <div class="text-xs text-zinc-500 mb-2 font-semibold">Exemple de message généré par Claude :</div>
+              <div class="text-sm text-zinc-700 italic leading-relaxed">"Votre levée de €60M et l'accélération sur le marché Data Manufacturing collent parfaitement avec notre audience de 6 000 DSI industriels. Un stand 18m² reste disponible — je peux vous envoyer le dossier exposant cette semaine."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-black text-sm z-10">6</div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div><span class="font-bold text-zinc-900">Suivi pipeline automatique</span><span class="text-zinc-400 text-sm ml-3">Polling réponses · avancement statuts · alertes Slack</span></div>
+            <span class="pill-emerald text-xs px-3 py-1 rounded-full font-semibold mono">fair:track</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">fair:track</span><span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span><br/><br/>
+              <span class="text-emerald-400">Dataiku: Contacted → Interested ⭐ — demande dossier</span><br/>
+              <span class="text-zinc-400">Pennylane: Contacted → Replied — "à recontacter en juillet"</span><br/>
+              <span class="text-zinc-500">Auto-advanced 3 sequence steps (DM1/Email/DM2).</span><br/><br/>
+              <span class="text-emerald-400">✓ 8 réponses · 3 intéressés · Slack notifié</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Le tracker s'exécute en daily cron. Il détecte les réponses, classe les intentions (intéressé / à rappeler / pas intéressé) via Claude, avance les statuts, et déclenche la relance automatiquement si pas de réponse à J+3.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status flow -->
+    <div class="mt-12 card rounded-2xl p-6">
+      <div class="text-center mb-4"><span class="text-xs text-zinc-400 mono uppercase tracking-widest">Statuts du pipeline exposant</span></div>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="text-xs font-semibold bg-zinc-100 border border-zinc-200 text-zinc-600 px-3 py-1.5 rounded-full">Sourced</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-sky-50 border border-sky-200 text-sky-700 px-3 py-1.5 rounded-full">Contacted</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-full">Replied</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-violet-50 border border-violet-200 text-violet-700 px-3 py-1.5 rounded-full">Interested ⭐</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-amber-50 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-full">Devis envoyé</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-orange-50 border border-orange-200 text-orange-700 px-3 py-1.5 rounded-full">Négociation</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full">Stand signé 🎪</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROI ── -->
+<section id="roi" class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Retour sur investissement</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Les chiffres qui<br/><span class="gradient-text">parlent d'eux-mêmes.</span>
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="card-blue rounded-2xl p-7 text-center">
+        <div class="text-5xl font-black number-accent mb-2">+40%</div>
+        <div class="font-bold text-zinc-800 mb-1">Taux de remplissage</div>
+        <div class="text-zinc-500 text-sm">En approchant les bons exposants au bon moment, les salons utilisant GTM-OS remplissent leur surface 40% plus vite que la moyenne sectorielle.</div>
+      </div>
+      <div class="card-indigo rounded-2xl p-7 text-center">
+        <div class="text-5xl font-black number-accent mb-2">-70%</div>
+        <div class="font-bold text-zinc-800 mb-1">Temps de prospection</div>
+        <div class="text-zinc-500 text-sm">Vos commerciaux passent leur temps à closer, pas à prospecter à froid. GTM-OS livre des listes chaudes et qualifiées en 48h.</div>
+      </div>
+      <div class="card-blue rounded-2xl p-7 text-center">
+        <div class="text-5xl font-black number-accent mb-2">€80k+</div>
+        <div class="font-bold text-zinc-800 mb-1">CA additionnel / édition</div>
+        <div class="text-zinc-500 text-sm">8–12 stands additionnels signés × honoraires moyens €7 000–€10 000 = ROI 60–100× sur le coût de la stack GTM-OS.</div>
+      </div>
+    </div>
+
+    <div class="card rounded-2xl overflow-hidden">
+      <div class="grid md:grid-cols-2">
+        <div class="p-8 border-r border-zinc-100">
+          <h3 class="font-bold text-zinc-900 text-lg mb-5">Hypothèses de calcul</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100"><span class="text-zinc-500 text-sm">Exposants potentiels qualifiés / campagne</span><span class="font-bold text-zinc-800">~180</span></div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100"><span class="text-zinc-500 text-sm">Taux de réponse positive</span><span class="font-bold text-zinc-800">8–12%</span></div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100"><span class="text-zinc-500 text-sm">Taux de transformation RDV → stand signé</span><span class="font-bold text-zinc-800">40–50%</span></div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100"><span class="text-zinc-500 text-sm">Surface moyenne / stand</span><span class="font-bold text-zinc-800">18–36 m²</span></div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100"><span class="text-zinc-500 text-sm">Tarif moyen / m²</span><span class="font-bold text-zinc-800">€350 – €600</span></div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100"><span class="text-zinc-500 text-sm">Coût stack GTM-OS (mensuel)</span><span class="font-bold text-zinc-800">~€700 – €1 500</span></div>
+          </div>
+        </div>
+        <div class="p-8 flex flex-col justify-center bg-gradient-to-br from-sky-50 to-indigo-50">
+          <div class="text-center">
+            <div class="text-sm text-zinc-500 mb-2">CA additionnel estimé / édition</div>
+            <div class="text-6xl font-black number-accent mb-1">€80–150k</div>
+            <div class="text-zinc-400 text-sm mb-6">Pour 8–15 stands additionnels signés</div>
+            <div class="bg-white border border-emerald-200 rounded-xl p-4">
+              <div class="text-sm font-semibold text-emerald-800 mb-1">Retour sur investissement</div>
+              <div class="text-3xl font-black text-emerald-600">60× – 100×</div>
+              <div class="text-xs text-emerald-600 mt-1">Par rapport au coût de la stack</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STACK INTÉGRATIONS ── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Stack d'intégrations</p>
+      <h2 class="text-4xl font-black tracking-tight text-zinc-900">
+        Les meilleurs outils,<br/><span class="gradient-text">orchestrés ensemble.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto text-sm">GTM-OS connecte chaque service au bon moment dans le pipeline exposant. Vous configurez une fois par édition, il s'occupe du reste.</p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">🔍</div><div class="font-bold text-zinc-900 text-sm mb-1">Crustdata</div><div class="text-xs text-zinc-500">Détection exposants potentiels par signaux sectoriels et firmographiques</div><div class="mt-3 text-xs mono text-sky-600 bg-sky-50 border border-sky-100 px-2 py-1 rounded-lg">fair:source</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">🔥</div><div class="font-bold text-zinc-900 text-sm mb-1">Firecrawl</div><div class="text-xs text-zinc-500">Scraping job boards, communiqués, pages produits pour détecter les signaux d'intention</div><div class="mt-3 text-xs mono text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-lg">signal:detect</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">💼</div><div class="font-bold text-zinc-900 text-sm mb-1">Unipile</div><div class="text-xs text-zinc-500">LinkedIn DMs vers directeurs marketing, CMO, brand managers, responsables events</div><div class="mt-3 text-xs mono text-violet-600 bg-violet-50 border border-violet-100 px-2 py-1 rounded-lg">fair:outreach</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">📧</div><div class="font-bold text-zinc-900 text-sm mb-1">Instantly</div><div class="text-xs text-zinc-500">Séquences email personnalisées avec dossier exposant et plan du salon</div><div class="mt-3 text-xs mono text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg">channel: email</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">🤖</div><div class="font-bold text-zinc-900 text-sm mb-1">Claude</div><div class="text-xs text-zinc-500">Scoring 0–100, rédaction propositions exposant, analyse intent des réponses</div><div class="mt-3 text-xs mono text-zinc-600 bg-zinc-50 border border-zinc-200 px-2 py-1 rounded-lg">Gate 5 · Outreach</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">🗂️</div><div class="font-bold text-zinc-900 text-sm mb-1">Notion</div><div class="text-xs text-zinc-500">Dossiers exposants, suivi signatures, plan de stand dynamique par édition</div><div class="mt-3 text-xs mono text-zinc-600 bg-zinc-50 border border-zinc-200 px-2 py-1 rounded-lg">--sync-notion</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">🔔</div><div class="font-bold text-zinc-900 text-sm mb-1">Slack</div><div class="text-xs text-zinc-500">Alerte immédiate dès qu'un prospect demande un devis ou répond positivement</div><div class="mt-3 text-xs mono text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-lg">fair:track</div></div>
+      <div class="card rounded-2xl p-5 text-center"><div class="text-3xl mb-3">🏢</div><div class="font-bold text-zinc-900 text-sm mb-1">FullEnrich</div><div class="text-xs text-zinc-500">Email professionnel vérifié + enrichissement des contacts événementiels</div><div class="mt-3 text-xs mono text-sky-600 bg-sky-50 border border-sky-100 px-2 py-1 rounded-lg">Gate 4 · Enrich</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TÉMOIGNAGES ── -->
+<section class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Témoignages</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Ce que disent les organisateurs<br/><span class="gradient-text">qui l'utilisent.</span>
+      </h2>
+    </div>
+
+    <div class="card-blue rounded-2xl p-8 md:p-10 mb-6 relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="flex gap-1 mb-5"><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span></div>
+        <blockquote class="text-xl md:text-2xl font-semibold text-zinc-900 leading-relaxed mb-6 max-w-3xl">
+          "On passait 3 mois à prospecter à la main pour remplir 80 stands. Avec GTM-OS, on a qualifié 240 exposants potentiels en 4 jours et signé 14 stands supplémentaires avant même d'ouvrir les inscriptions officielles. Le ROI est sans appel."
+        </blockquote>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-lg font-bold text-white">A</div>
+          <div>
+            <div class="font-semibold text-zinc-900">Antoine Mercier</div>
+            <div class="text-sm text-zinc-500">Directeur commercial, ExpoTech Paris · Salon B2B tech · 8 000 visiteurs</div>
+          </div>
+          <div class="ml-auto hidden md:block bg-white border border-sky-200 px-4 py-2 rounded-xl">
+            <div class="text-xs text-zinc-400">Stands additionnels signés</div>
+            <div class="text-lg font-black number-accent">+14 stands</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"La détection des signaux produit a transformé notre approche. On approche les entreprises exactement quand elles ont besoin de visibilité — après un lancement ou une levée. Les messages sont ultra-pertinents et les taux de réponse ont doublé."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">L</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Laura Benhamou</div><div class="text-xs text-zinc-400">Event Manager, InnovateFair · Salon industrie · Lyon</div></div>
+        </div>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"Le pipeline exposant m'a sauvé pour l'édition de septembre. En 48h, j'avais une liste de 50 prospects chauds avec contact vérifié et message personnalisé prêt. Mes commerciaux ont eu leurs RDVs en 2 semaines."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">R</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Romain Séguier</div><div class="text-xs text-zinc-400">CEO, B2B Connect Events · Salons multisectoriels</div></div>
+        </div>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-zinc-300 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"Ce qui m'a le plus surpris, c'est la qualité du scoring. Claude réussit à distinguer une entreprise qui va vraiement exposer d'une qui répond juste à une invitation générique. On ne perd plus de temps avec les mauvais profils."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">N</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Nathalie Grosjean</div><div class="text-xs text-zinc-400">Directrice salons, FairGroup · Bordeaux</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CAS D'USAGE ── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">3 campagnes à lancer dès maintenant</p>
+      <h2 class="text-4xl font-black tracking-tight text-zinc-900">
+        Prêt à l'emploi pour<br/><span class="gradient-text">votre prochain salon.</span>
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center mb-4 text-xl">💰</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Campagne "Levées récentes"</h3>
+        <p class="text-zinc-500 text-sm mb-4">Ciblez les entreprises de votre secteur qui viennent de lever des fonds. Elles ont un budget go-to-market et cherchent de la visibilité — votre salon est la réponse évidente.</p>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Volume / mois</span><span class="font-medium text-zinc-700">~80–150 co</span></div>
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">RDV stands attendus</span><span class="font-medium text-emerald-600">4–7 / mois</span></div>
+        </div>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-xl">🚀</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Campagne "Lancement produit"</h3>
+        <p class="text-zinc-500 text-sm mb-4">Firecrawl détecte les lancements produits en temps réel. Une entreprise qui lance = besoin de présence physique face à ses acheteurs cibles. Approche sous 48h.</p>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Volume / mois</span><span class="font-medium text-zinc-700">~60–120 co</span></div>
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">RDV stands attendus</span><span class="font-medium text-emerald-600">3–6 / mois</span></div>
+        </div>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center mb-4 text-xl">🔄</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Campagne "Ré-engagement exposants"</h3>
+        <p class="text-zinc-500 text-sm mb-4">Réactivez votre base d'anciens exposants avec un message personnalisé ancré sur les nouveautés de l'édition actuelle. Taux de re-signature 30–40% plus élevé.</p>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Base traitée</span><span class="font-medium text-zinc-700">Votre historique CSV</span></div>
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Taux de re-signature</span><span class="font-medium text-emerald-600">+30–40% vs relance standard</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TARIFS ══ -->
+<section id="tarifs" class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Tarifs</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Un prix transparent.<br/><span class="gradient-text">Un ROI évident.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">Choisissez le plan adapté à la taille de votre organisation. Pas de frais cachés, pas d'engagement annuel forcé.</p>
+
+      <div class="inline-flex items-center gap-4 bg-white border border-zinc-200 rounded-2xl px-5 py-3 shadow-sm mt-8">
+        <span class="text-sm font-semibold text-sky-600" id="label-monthly">Mensuel</span>
+        <button id="billing-toggle" onclick="toggleBilling()" class="relative w-11 h-6 toggle-track rounded-full flex items-center px-0.5 cursor-pointer">
+          <span class="toggle-thumb w-5 h-5 rounded-full block"></span>
+        </button>
+        <span class="text-sm font-medium text-zinc-500" id="label-annual">Annuel</span>
+        <span class="pill-emerald text-xs px-2 py-1 rounded-full font-semibold">−20%</span>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 items-stretch">
+
+      <!-- SOLO -->
+      <div class="card rounded-2xl flex flex-col overflow-hidden">
+        <div class="p-7 flex-1 flex flex-col">
+          <div class="inline-flex items-center gap-2 pill-blue px-3 py-1.5 rounded-full mb-5 text-xs font-semibold w-fit">🎪 Starter</div>
+          <h3 class="text-xl font-black text-zinc-900 mb-1">Organisateur indépendant</h3>
+          <p class="text-zinc-500 text-sm leading-relaxed mb-6">Pour les organisateurs de petits salons ou événements B2B ponctuels qui veulent automatiser leur prospection exposant.</p>
+          <div class="mb-6">
+            <div class="flex items-end gap-2"><span class="text-5xl font-black number-accent" id="price-solo">€399</span><span class="text-zinc-400 text-sm mb-2">/mois</span></div>
+            <p class="text-xs text-zinc-400 mt-1" id="price-solo-sub">Facturation mensuelle · sans engagement</p>
+          </div>
+          <a href="#contact" class="btn-ghost px-6 py-3 rounded-xl font-semibold text-zinc-700 text-sm text-center mb-7">Démarrer →</a>
+          <div class="space-y-2.5 flex-1">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Inclus</p>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">1 édition / campagne active simultanée</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">30 connexions LinkedIn / jour (1 compte)</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Import CSV base exposants historique</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Pipeline 7 portes — Qualification IA exposants</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Score Claude 0–100 par prospect exposant</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Propositions LinkedIn générées par Claude</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Synchronisation Notion (dossiers exposants)</span></div>
+            <div class="flex items-start gap-3"><div class="cross-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="text-sm text-zinc-400">Sourcing Crustdata / signaux Firecrawl</span></div>
+            <div class="flex items-start gap-3"><div class="cross-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="text-sm text-zinc-400">Alertes Slack · Email Instantly</span></div>
+          </div>
+        </div>
+        <div class="px-7 pb-6"><div class="card-signal rounded-xl p-3 text-center"><span class="text-xs text-zinc-500">Support <span class="font-semibold text-zinc-700">email</span> · Réponse sous 48h</span></div></div>
+      </div>
+
+      <!-- PRO (featured) -->
+      <div class="pricing-featured flex flex-col">
+        <div class="pricing-featured-inner flex flex-col flex-1 overflow-hidden">
+          <div class="btn-primary px-4 py-2 text-center"><span class="text-xs font-bold text-white tracking-widest uppercase">⭐ Le plus populaire</span></div>
+          <div class="p-7 flex-1 flex flex-col">
+            <div class="inline-flex items-center gap-2 pill-indigo px-3 py-1.5 rounded-full mb-5 text-xs font-semibold w-fit">🏛️ Organisateur Pro</div>
+            <h3 class="text-xl font-black text-zinc-900 mb-1">Salon professionnel actif</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-6">L'ensemble du pipeline end-to-end pour un salon annuel ou semestriel avec plusieurs centaines d'exposants cibles.</p>
+            <div class="mb-6">
+              <div class="flex items-end gap-2"><span class="text-5xl font-black number-accent" id="price-cabinet">€990</span><span class="text-zinc-400 text-sm mb-2">/mois</span></div>
+              <p class="text-xs text-zinc-400 mt-1" id="price-cabinet-sub">Facturation mensuelle · sans engagement</p>
+            </div>
+            <a href="#contact" class="btn-primary px-6 py-3 rounded-xl font-semibold text-white text-sm text-center mb-7">Démarrer Pro →</a>
+            <div class="space-y-2.5 flex-1">
+              <p class="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Tout Starter, plus :</p>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">3 éditions / campagnes actives simultanées</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">30 connexions / jour × 3 comptes LinkedIn</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">Sourcing Crustdata — 700M+ entreprises</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">Détection signaux Firecrawl (lancements, levées)</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">Séquences email Instantly (propositions exposant)</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">Alertes Slack dès qu'un prospect répond</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">Enrichissement FullEnrich (emails vérifiés)</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">A/B testing messages exposant (p &lt; 0.05)</span></div>
+              <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700 font-medium">Pipeline visiteurs VIP (axe 2)</span></div>
+            </div>
+          </div>
+          <div class="px-7 pb-6"><div class="bg-sky-50 border border-sky-100 rounded-xl p-3 text-center"><span class="text-xs text-sky-700">Support <span class="font-semibold">prioritaire</span> · 24h · Onboarding inclus</span></div></div>
+        </div>
+      </div>
+
+      <!-- SCALE -->
+      <div class="card rounded-2xl flex flex-col overflow-hidden">
+        <div class="p-7 flex-1 flex flex-col">
+          <div class="inline-flex items-center gap-2 pill-violet px-3 py-1.5 rounded-full mb-5 text-xs font-semibold w-fit">🏗️ Multi-salon</div>
+          <h3 class="text-xl font-black text-zinc-900 mb-1">Groupe ou portefeuille de salons</h3>
+          <p class="text-zinc-500 text-sm leading-relaxed mb-6">Pour les groupes événementiels, agences ou organisateurs qui gèrent plusieurs salons en parallèle sur plusieurs marchés.</p>
+          <div class="mb-6">
+            <div class="flex items-end gap-2"><span class="text-5xl font-black number-accent" id="price-scale">€2 490</span><span class="text-zinc-400 text-sm mb-2">/mois</span></div>
+            <p class="text-xs text-zinc-400 mt-1" id="price-scale-sub">Facturation mensuelle · sans engagement</p>
+          </div>
+          <a href="#contact" class="btn-ghost px-6 py-3 rounded-xl font-semibold text-zinc-700 text-sm text-center mb-7">Nous contacter →</a>
+          <div class="space-y-2.5 flex-1">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Tout Pro, plus :</p>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Éditions / campagnes <span class="font-semibold text-zinc-800">illimitées</span></span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Multi-tenant — jusqu'à <span class="font-semibold text-zinc-800">10 salons</span></span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">White-label &amp; branding par salon</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Comptes LinkedIn <span class="font-semibold text-zinc-800">illimités</span></span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Onboarding dédié (4h de setup guidé)</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">SLA 99,5% — support Slack dédié · 4h</span></div>
+            <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-600">Développements spécifiques sur devis</span></div>
+          </div>
+        </div>
+        <div class="px-7 pb-6"><div class="card-signal rounded-xl p-3 text-center"><span class="text-xs text-zinc-500">Support <span class="font-semibold text-zinc-700">Slack dédié</span> · Réponse sous 4h ouvrées</span></div></div>
+      </div>
+    </div>
+
+    <!-- Guarantees -->
+    <div class="mt-8 card rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-center gap-6 text-center sm:text-left">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0"><span class="text-lg">🔒</span></div>
+        <div><div class="font-semibold text-zinc-800 text-sm">Sans engagement</div><div class="text-xs text-zinc-500">Résiliable à tout moment, sans pénalité</div></div>
+      </div>
+      <div class="hidden sm:block w-px h-10 bg-zinc-200"></div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0"><span class="text-lg">🚀</span></div>
+        <div><div class="font-semibold text-zinc-800 text-sm">Déployable en 48h</div><div class="text-xs text-zinc-500">Première campagne exposant lancée sous 2 jours</div></div>
+      </div>
+      <div class="hidden sm:block w-px h-10 bg-zinc-200"></div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0"><span class="text-lg">🤝</span></div>
+        <div><div class="font-semibold text-zinc-800 text-sm">ROI garanti en 1 édition</div><div class="text-xs text-zinc-500">8–12 stands additionnels ou on analyse ensemble pourquoi</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="section-white py-20 px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-12">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Questions fréquentes</p>
+      <h2 class="text-4xl font-black tracking-tight text-zinc-900">
+        Tout ce que vous<br/><span class="gradient-text">voulez savoir.</span>
+      </h2>
+    </div>
+    <div class="space-y-3">
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-semibold text-zinc-800">Est-ce que GTM-OS s'adapte à tous les types de salons ?</span>
+          <svg class="faq-arrow w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body px-6">
+          <p class="text-zinc-500 text-sm leading-relaxed pb-5">Oui. GTM-OS est configurable par secteur, géographie, taille d'exposant cible et type de signal (levées, lancements produits, job boards, expansion géo). Que vous organisiez un salon B2B tech, industriel, médical ou retail, le pipeline s'adapte à votre ICP exposant via le brief d'édition.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-semibold text-zinc-800">Les coûts des APIs tierces sont-ils inclus dans le plan ?</span>
+          <svg class="faq-arrow w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body px-6">
+          <p class="text-zinc-500 text-sm leading-relaxed pb-5">Non. GTM-OS orchestre les services tiers — vous payez leurs APIs directement. Coûts indicatifs : Unipile ~€50/mois, Crustdata à partir de ~€200/mois, Instantly ~€100/mois, Firecrawl ~€50/mois. La stack complète revient à ~€700 – €1 500/mois selon l'usage, pour un ROI moyen de 60–100× sur le CA généré.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-semibold text-zinc-800">Combien de temps avant le salon faut-il lancer la campagne ?</span>
+          <svg class="faq-arrow w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body px-6">
+          <p class="text-zinc-500 text-sm leading-relaxed pb-5">Idéalement 4–6 mois avant la date d'ouverture pour toucher les budgets en cours d'allocation. GTM-OS peut cependant générer des résultats dès 6 semaines avant — le pipeline de qualification et l'outreach se déploient en 48h. Plus tôt vous démarrez, plus le taux de remplissage est élevé.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-semibold text-zinc-800">Puis-je utiliser GTM-OS pour l'acquisition exposants ET la gestion visiteurs VIP simultanément ?</span>
+          <svg class="faq-arrow w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body px-6">
+          <p class="text-zinc-500 text-sm leading-relaxed pb-5">Oui, c'est exactement l'usage prévu. Sur le plan Pro, vous pouvez avoir 3 campagnes actives en parallèle — par exemple 1 campagne exposants "Levées récentes", 1 campagne exposants "Lancement produit", et 1 campagne visiteurs VIP pour la même édition. Chaque campagne a son propre pipeline, ses propres séquences et son propre tracking.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-semibold text-zinc-800">Comment GTM-OS respecte-t-il le RGPD pour les données exposants ?</span>
+          <svg class="faq-arrow w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body px-6">
+          <p class="text-zinc-500 text-sm leading-relaxed pb-5">GTM-OS traite uniquement des données professionnelles B2B (contacts de direction, emails professionnels). Les séquences incluent un mécanisme de désinscription conforme au RGPD. Les données sont stockées dans votre propre instance SQLite ou Turso, sous votre contrôle total. Aucune donnée n'est transmise à des tiers en dehors des APIs que vous avez configurées.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-semibold text-zinc-800">Y a-t-il une démo disponible avant de s'engager ?</span>
+          <svg class="faq-arrow w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body px-6">
+          <p class="text-zinc-500 text-sm leading-relaxed pb-5">Oui. Réservez un appel de 30 minutes — on audite votre pipeline exposant actuel et on vous montre en live quelles campagnes lancer en premier sur votre secteur et votre prochaine édition. Aucun engagement. Les premiers résultats sont visibles en 2 semaines.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA FINAL ── -->
+<section id="contact" class="section-alt py-24 px-6">
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="card-blue rounded-3xl p-12">
+      <div class="inline-flex items-center gap-2 bg-white border border-sky-200 px-4 py-2 rounded-full mb-6">
+        <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+        <span class="text-xs text-sky-700 mono">Stack open-source · Déployable en 48h · ROI dès la 1ère édition</span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-zinc-900">
+        Prêt à remplir votre prochain salon<br/><span class="gradient-text">en automatique ?</span>
+      </h2>
+      <p class="text-zinc-500 leading-relaxed mb-3">Réservez un appel de 30 minutes. On audite votre motion commerciale exposant actuelle et on vous montre exactement quelles campagnes lancer en premier pour votre prochaine édition.</p>
+      <p class="text-zinc-400 text-sm mb-8">Aucun engagement. Résultats visibles sous 2 semaines.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Salons &amp; Foires - Démo" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base">
+          Prendre rendez-vous →
+        </a>
+        <a href="#tarifs" class="btn-ghost px-8 py-4 rounded-xl text-zinc-700 text-base">
+          Revoir les tarifs
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="border-t border-zinc-100 py-10 px-6 bg-white">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-md btn-primary flex items-center justify-center">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/></svg>
+      </div>
+      <span class="font-bold text-sm text-zinc-800">GTM-OS · Salons &amp; Foires</span>
+    </div>
+    <div class="flex gap-6 text-sm text-zinc-400">
+      <a href="#exposants" class="hover:text-zinc-700 transition-colors">Acquisition exposants</a>
+      <a href="#visiteurs" class="hover:text-zinc-700 transition-colors">Visiteurs VIP</a>
+      <a href="#pipeline"  class="hover:text-zinc-700 transition-colors">Pipeline</a>
+      <a href="#roi"       class="hover:text-zinc-700 transition-colors">ROI</a>
+      <a href="#tarifs"    class="hover:text-zinc-700 transition-colors">Tarifs</a>
+      <a href="mailto:abdellah.ramli@gmail.com" class="hover:text-zinc-700 transition-colors">Contact</a>
+    </div>
+    <div class="mono text-xs text-zinc-400">GTM-OS · Open Source · 2026</div>
+  </div>
+</footer>
+
+<script>
+  let isAnnual = false;
+  const prices = {
+    monthly: { solo: '€399',   cabinet: '€990',   scale: '€2 490' },
+    annual:  { solo: '€319',   cabinet: '€792',   scale: '€1 992' },
+    subM: { solo: 'Facturation mensuelle · sans engagement', cabinet: 'Facturation mensuelle · sans engagement', scale: 'Facturation mensuelle · sans engagement' },
+    subA: { solo: 'Facturé €3 828/an · économisez €960', cabinet: 'Facturé €9 504/an · économisez €2 376', scale: 'Facturé €23 904/an · économisez €5 976' },
+  };
+
+  function toggleBilling() {
+    isAnnual = !isAnnual;
+    document.getElementById('billing-toggle').classList.toggle('active', isAnnual);
+    const p = isAnnual ? prices.annual : prices.monthly;
+    const s = isAnnual ? prices.subA   : prices.subM;
+    document.getElementById('price-solo').textContent    = p.solo;
+    document.getElementById('price-cabinet').textContent = p.cabinet;
+    document.getElementById('price-scale').textContent   = p.scale;
+    document.getElementById('price-solo-sub').textContent    = s.solo;
+    document.getElementById('price-cabinet-sub').textContent = s.cabinet;
+    document.getElementById('price-scale-sub').textContent   = s.scale;
+    const lm = document.getElementById('label-monthly');
+    const la = document.getElementById('label-annual');
+    lm.style.fontWeight = isAnnual ? '500' : '600'; lm.style.color = isAnnual ? '#71717a' : '#0284c7';
+    la.style.fontWeight = isAnnual ? '600' : '500'; la.style.color = isAnnual ? '#0284c7' : '#71717a';
+  }
+
+  function toggleFaq(btn) {
+    const body = btn.nextElementSibling;
+    const arrow = btn.querySelector('.faq-arrow');
+    const isOpen = body.classList.contains('open');
+    document.querySelectorAll('.faq-body').forEach(b => b.classList.remove('open'));
+    document.querySelectorAll('.faq-arrow').forEach(a => a.classList.remove('open'));
+    if (!isOpen) { body.classList.add('open'); arrow.classList.add('open'); }
+  }
+</script>
+
+</body>
+</html>

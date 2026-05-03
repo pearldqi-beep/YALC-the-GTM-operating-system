@@ -984,7 +984,7 @@ program
   .option('--result-set <id>', 'Existing result set ID to qualify')
   .option('--dry-run', 'Preview qualification without writing results')
   .option('--no-dedup', 'Skip dedup gate entirely')
-  .option('--slack-confirm', 'Enable Slack confirmation for ambiguous dedup matches')
+  .option('--slack-confirm', 'Create Notion review pages for ambiguous dedup matches (requires notion.dedup_review_db or notion.notifications_db)')
   .action(withDiagnostics(async (opts) => {
     const config = loadConfig(program.opts().config.replace('~', homedir()))
     const { runQualify } = await import('../lib/qualification/pipeline')
@@ -1018,7 +1018,7 @@ program
   .description('Deduplicate a result set against campaigns, CRM, replied leads, and blocklist')
   .requiredOption('--result-set <id>', 'Result set ID to deduplicate')
   .option('--strategy <type>', 'Matcher strategy: exact, fuzzy, or all', 'all')
-  .option('--slack-confirm', 'Send Slack confirmations for ambiguous matches')
+  .option('--slack-confirm', 'Create Notion review pages for ambiguous matches (requires notion.dedup_review_db or notion.notifications_db)')
   .action(withDiagnostics(async (opts) => {
     const config = loadConfig(program.opts().config.replace('~', homedir()))
     const { DedupEngine } = await import('../lib/dedup/engine')
@@ -1063,10 +1063,17 @@ program
       }
     }
 
-    if (result.pendingReview.length > 0 && opts.slackConfirm && config.slack?.webhook_url) {
-      console.log(`\nSending Slack confirmations for ${result.pendingReview.length} ambiguous matches...`)
-      for (const { lead, match } of result.pendingReview) {
-        await sendConfirmation(lead, match, { webhookUrl: config.slack.webhook_url })
+    if (result.pendingReview.length > 0 && opts.slackConfirm) {
+      const reviewDb = config.notion?.dedup_review_db ?? config.notion?.notifications_db
+      if (reviewDb) {
+        const { setDedupReviewDb } = await import('../lib/dedup/slack-confirm')
+        setDedupReviewDb(reviewDb)
+        console.log(`\nCreating Notion review pages for ${result.pendingReview.length} ambiguous matches...`)
+        for (const { lead, match } of result.pendingReview) {
+          await sendConfirmation(lead, match, {})
+        }
+      } else {
+        console.log(`\nSkipping review pages — configure notion.dedup_review_db or notion.notifications_db to enable.`)
       }
     }
   }))

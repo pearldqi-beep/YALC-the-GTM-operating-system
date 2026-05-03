@@ -1,0 +1,72 @@
+name: recruitment-candidate-sourcing
+description: >-
+  Track 1 — Candidate Sourcing. Find professionals matching an open role mandate,
+  enrich their LinkedIn profiles, qualify against the candidate ICP, and push
+  qualified candidates into a personalised LinkedIn outreach sequence.
+version: "1.0"
+tenant: recruitment
+
+# Configure per open role mandate before running
+params:
+  role_title: ""               # e.g. "Senior Software Engineer"
+  role_sector: ""              # e.g. "SaaS / Fintech"
+  role_location: ""            # e.g. "London" or "Remote - Europe"
+  seniority_min: ""            # e.g. "5 years experience" or "Senior"
+  seniority_max: ""            # e.g. "Director level" (avoid overqualified)
+  skills_required: []          # e.g. ["Python", "AWS", "microservices"]
+  skills_bonus: []             # e.g. ["Kafka", "Kubernetes"]
+  comp_range: ""               # e.g. "£90k–£110k" (used in messaging only)
+  remote_policy: ""            # e.g. "Hybrid 2 days London"
+  target_company_types: []     # e.g. ["SaaS startup", "scale-up", "fintech"]
+  qualification_score_min: 80
+
+steps:
+  - id: find-candidates
+    skill: find-people
+    input:
+      roles: ["{{role_title}}"]
+      keywords: "{{skills_required}}"
+      location: "{{role_location}}"
+      industries: ["{{role_sector}}"]
+      max_results: 100
+    output: candidates
+
+  - id: enrich-candidates
+    skill: enrich-leads
+    from: candidates
+    condition: "linkedin_url exists"
+    input:
+      types: [linkedin]
+    output: enriched
+
+  - id: qualify-candidates
+    skill: qualify-leads
+    from: enriched
+    condition: "count > 0"
+    input:
+      segment: seg-candidates
+      context:
+        role_title: "{{role_title}}"
+        role_sector: "{{role_sector}}"
+        role_location: "{{role_location}}"
+        seniority_min: "{{seniority_min}}"
+        seniority_max: "{{seniority_max}}"
+        skills_required: "{{skills_required}}"
+        skills_bonus: "{{skills_bonus}}"
+    output: qualified
+
+  - id: export-to-campaign
+    skill: export-data
+    from: qualified
+    condition: "score >= {{qualification_score_min}}"
+    input:
+      format: json
+      destination: campaign
+      campaign_track: candidate-sourcing
+      sequence:
+        connect_note: >-
+          Hi {{first_name}}, your background in {{top_skill}} stood out —
+          working on a {{role_title}} search in {{role_sector}}.
+          Worth a quick chat?
+        dm1_template: candidate-dm1
+        dm2_template: candidate-dm2

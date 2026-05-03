@@ -10,7 +10,7 @@ import { notionService } from '../services/notion'
 import { runImport } from './importers'
 import { DedupEngine } from '../dedup/engine'
 import { buildSuppressionSet } from '../dedup/live-sync'
-import { sendConfirmation } from '../dedup/slack-confirm'
+import { sendConfirmation, setDedupReviewDb } from '../dedup/slack-confirm'
 import type { GTMOSConfig } from '../config/types'
 import type { LeadRecord, DedupConfig } from '../dedup/types'
 
@@ -104,22 +104,22 @@ export async function runQualify(opts: QualifyOptions): Promise<QualifyResult> {
       console.log(`[qualify]   DUP (${match.confidence}%): ${lead.first_name ?? ''} ${lead.last_name ?? ''} matched via ${match.matcher} -> ${match.matchedSource}`)
     }
 
-    // Handle pending review — send Slack confirmations if enabled
-    if (dedupResult.pendingReview.length > 0 && opts.slackConfirm && opts.config.slack?.webhook_url) {
-      console.log(`[qualify]   ${dedupResult.pendingReview.length} leads pending Slack review`)
+    // Handle pending review — create Notion review pages if enabled
+    if (dedupResult.pendingReview.length > 0 && opts.slackConfirm) {
+      const reviewDb = opts.config.notion?.dedup_review_db ?? opts.config.notion?.notifications_db
+      if (reviewDb) setDedupReviewDb(reviewDb)
+      console.log(`[qualify]   ${dedupResult.pendingReview.length} leads pending Notion review`)
       for (const { lead, match } of dedupResult.pendingReview) {
-        await sendConfirmation(lead, match, {
-          webhookUrl: opts.config.slack.webhook_url,
-        })
+        await sendConfirmation(lead, match, {})
         // Mark as pending — they'll proceed as unique for now (safe default)
         ;(lead as Record<string, unknown>).dedup_status = 'pending_review'
       }
       // Pending review leads are included in the pipeline (safe default: keep both)
       dedupResult.unique.push(...dedupResult.pendingReview.map(pr => pr.lead))
     } else if (dedupResult.pendingReview.length > 0) {
-      // No Slack confirm — treat as unique (safe default)
+      // No Notion confirm — treat as unique (safe default)
       dedupResult.unique.push(...dedupResult.pendingReview.map(pr => pr.lead))
-      console.log(`[qualify]   ${dedupResult.pendingReview.length} ambiguous matches kept (no Slack confirm)`)
+      console.log(`[qualify]   ${dedupResult.pendingReview.length} ambiguous matches kept (no Notion review configured)`)
     }
 
     pipeline = dedupResult.unique as Record<string, unknown>[]

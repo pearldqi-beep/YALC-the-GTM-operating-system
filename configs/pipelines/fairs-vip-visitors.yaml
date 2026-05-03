@@ -1,0 +1,85 @@
+name: fairs-vip-visitors
+description: >-
+  Track 2 — VIP Visitor Engagement. Find senior buyers and procurement
+  decision-makers in the show's target buyer industries, qualify them against
+  the VIP visitor ICP, and push qualified leads into LinkedIn VIP invitation
+  sequence.
+version: "1.0"
+tenant: fairs
+
+# Configure these per show edition before running
+params:
+  show_name: ""                  # e.g. "Anuga 2025"
+  show_sector: ""                # e.g. "food and beverage"
+  buyer_industries: []           # e.g. ["retail", "food service", "distribution"]
+  show_geography: ""             # e.g. "Europe"
+  show_date: ""                  # e.g. "2025-10-04"
+  show_location: ""              # e.g. "Cologne, Germany"
+  target_company_size_min: 50
+  qualification_score_min: 70
+  featured_exhibitor: ""         # one exhibitor to name-drop for personalisation
+
+steps:
+  - id: find-buyer-companies
+    skill: find-companies
+    input:
+      query: "{{buyer_industries}} buyer OR retailer OR distributor OR operator {{show_geography}}"
+      max_results: 100
+      filters:
+        employee_count_min: "{{target_company_size_min}}"
+    output: buyer_companies
+
+  - id: find-procurement-contacts
+    skill: find-people
+    from: buyer_companies
+    condition: "domain exists"
+    input:
+      roles:
+        - Chief Procurement Officer
+        - Procurement Director
+        - Head of Sourcing
+        - Category Manager
+        - Buying Director
+        - Head of Purchasing
+        - Supply Chain Director
+        - COO
+      limit_per_company: 1
+    output: contacts
+
+  - id: enrich-contacts
+    skill: enrich-leads
+    from: contacts
+    condition: "linkedin_url exists OR email exists"
+    input:
+      types: [linkedin, email]
+    output: enriched
+
+  - id: qualify-vip-visitors
+    skill: qualify-leads
+    from: enriched
+    condition: "count > 0"
+    input:
+      segment: seg-vip-visitors
+      context:
+        show_name: "{{show_name}}"
+        show_sector: "{{show_sector}}"
+        show_date: "{{show_date}}"
+        show_location: "{{show_location}}"
+        featured_exhibitor: "{{featured_exhibitor}}"
+    output: qualified
+
+  - id: export-to-campaign
+    skill: export-data
+    from: qualified
+    condition: "score >= {{qualification_score_min}}"
+    input:
+      format: json
+      destination: campaign
+      campaign_track: vip-visitor-engagement
+      sequence:
+        connect_note: >-
+          Hi {{first_name}}, we're curating a VIP buyer program for {{show_name}}
+          in {{show_location}} — {{show_sector}} suppliers presenting to senior buyers.
+          Reserved a complimentary badge for you.
+        dm1_template: vip-dm1
+        dm2_template: vip-dm2

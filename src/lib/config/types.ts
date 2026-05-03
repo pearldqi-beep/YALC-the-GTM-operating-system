@@ -3,6 +3,10 @@ export interface NotionConfig {
   leads_ds: string
   variants_ds: string
   parent_page: string
+  /** Optional: database ID for the Activity Log / notifications feed. */
+  notifications_db?: string
+  /** Optional: database ID for dedup review pages. Falls back to notifications_db if omitted. */
+  dedup_review_db?: string
 }
 
 export interface UnipileConfig {
@@ -40,9 +44,10 @@ export interface FullEnrichConfig {
   poll_timeout_ms: number
 }
 
+/** @deprecated Slack has been replaced by Notion Activity Log notifications. */
 export interface SlackConfig {
   webhook_url: string
-  notify_on: string[] // ['reply', 'demo_booked', 'deal_created', 'winner_declared', 'campaign_completed']
+  notify_on: string[]
 }
 
 export interface GTMOSConfig {
@@ -51,6 +56,7 @@ export interface GTMOSConfig {
   qualification: QualificationConfig
   crustdata?: CrustdataConfig
   fullenrich?: FullEnrichConfig
+  /** @deprecated Use notion.notifications_db instead. Retained for config backward compatibility. */
   slack?: SlackConfig
   /** Outbound email channel selection (registry provider id). */
   email?: EmailConfig

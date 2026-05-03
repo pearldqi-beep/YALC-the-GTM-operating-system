@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTM-OS · AI-Powered Business Development Automation — Any Sector</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── HERO DARK ── */
+    .hero-dark{background:#0F172A;position:relative;overflow:hidden}
+    .aurora-1{position:absolute;top:-20%;left:-10%;width:70%;height:70%;border-radius:50%;background:radial-gradient(circle,rgba(3,105,161,.35) 0%,transparent 65%);filter:blur(80px);pointer-events:none}
+    .aurora-2{position:absolute;top:10%;right:-15%;width:60%;height:60%;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.25) 0%,transparent 65%);filter:blur(80px);pointer-events:none}
+    .aurora-3{position:absolute;bottom:-10%;left:30%;width:50%;height:50%;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 60%);filter:blur(80px);pointer-events:none}
+    .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+
+    .section-alt   { background: #f8fafc; }
+    .section-white { background: #ffffff; }
+
+    /* ── GRADIENT TEXT ── */
+    .gradient-text{background:linear-gradient(135deg,#0284c7 0%,#4f46e5 60%,#7c3aed 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .gtext{background:linear-gradient(135deg,#38BDF8 0%,#818CF8 55%,#A78BFA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    .card { background: #ffffff; border: 1px solid #e4e4e7; transition: all 0.3s ease; }
+    .card:hover { border-color: rgba(14,165,233,0.4); box-shadow: 0 4px 24px rgba(14,165,233,0.08); transform: translateY(-2px); }
+    .card-blue   { background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); border: 1px solid #bfdbfe; }
+    .card-signal { background: #ffffff; border: 1px solid #e4e4e7; transition: all 0.2s ease; }
+    .card-signal:hover { border-color: #93c5fd; box-shadow: 0 2px 12px rgba(14,165,233,0.1); }
+    .glass-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);transition:all .25s ease}
+    .glass-card:hover{background:rgba(255,255,255,.09);border-color:rgba(56,189,248,.35);transform:translateY(-2px)}
+
+    /* ── NAV ── */
+    .nav-dark{background:rgba(15,23,42,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.07);transition:all .3s ease}
+    .nav-light{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-bottom:1px solid #e4e4e7}
+
+    .btn-primary { background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%); transition: all 0.3s ease; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(2,132,199,0.3); }
+    .btn-ghost { border: 1px solid #d4d4d8; background: #ffffff; transition: all 0.3s ease; }
+    .btn-ghost:hover { border-color: #60a5fa; background: #eff6ff; }
+    .btn-outline-dark{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#CBD5E1;transition:all .2s ease}
+    .btn-outline-dark:hover{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.08);color:#fff}
+
+    /* ── BADGES ── */
+    .badge-live{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:#7DD3FC}
+
+    /* ── NUMBERS ── */
+    .num{background:linear-gradient(135deg,#38BDF8,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    .pill-blue    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+    .pill-indigo  { background: #eef2ff; border: 1px solid #c7d2fe; color: #4338ca; }
+    .pill-violet  { background: #f5f3ff; border: 1px solid #ddd6fe; color: #6d28d9; }
+    .pill-emerald { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .pill-amber   { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .pill-rose    { background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; }
+    .pill-slate   { background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; }
+
+    .number-accent { background: linear-gradient(135deg, #0284c7, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .terminal { background: #18181b; border: 1px solid #3f3f46; }
+
+    .check-icon { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    .sector-card { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px; transition: all 0.3s ease; }
+    .sector-card:hover { border-color: rgba(14,165,233,0.5); box-shadow: 0 8px 32px rgba(14,165,233,0.1); transform: translateY(-3px); }
+    .sector-card.dimmed { opacity: 0.7; }
+    .sector-card.dimmed:hover { opacity: 1; }
+
+    .step-connector { border-left: 2px dashed #e4e4e7; margin-left: 19px; height: 32px; }
+
+    .grid-pattern {
+      background-image: linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .ticker-track { animation: ticker 40s linear infinite; }
+
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    .faq-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-body.open { max-height: 300px; }
+    .faq-arrow { transition: transform 0.25s ease; }
+    .faq-arrow.open { transform: rotate(180deg); }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 overflow-x-hidden">
+
+<!-- ── NAV ── -->
+<nav id="main-nav" class="nav-dark fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/><circle cx="7" cy="7" r="2" fill="white" opacity="0.6"/></svg>
+      </div>
+      <span class="font-bold text-white tracking-tight" id="nav-brand">GTM-OS</span>
+      <span class="text-xs badge-live px-2.5 py-0.5 rounded-full mono">by Orbit</span>
+    </div>
+    <div class="hidden md:flex items-center gap-7 text-sm text-slate-400" id="nav-links">
+      <a href="#problem"  class="hover:text-white transition-colors">Problem</a>
+      <a href="#how"      class="hover:text-white transition-colors">How it works</a>
+      <a href="#sectors"  class="hover:text-white transition-colors">Sectors</a>
+      <a href="#service"  class="hover:text-white transition-colors">Service model</a>
+      <a href="#contact"  class="text-sky-400 font-semibold hover:text-sky-300 transition-colors">Book a call</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#how" id="nav-demo" class="btn-outline-dark text-sm px-4 py-2 rounded-lg hidden md:block">See how it works</a>
+      <a href="#contact" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white">Book a call →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TICKER ── -->
+<div class="fixed top-16 w-full z-40 overflow-hidden" style="background:rgba(15,23,42,.92);border-bottom:1px solid rgba(255,255,255,.07)">
+  <div class="flex ticker-track py-2 gap-12 whitespace-nowrap">
+    <span class="text-xs text-slate-500 mono flex gap-12">
+      <span>— Intent signal detection — funding, hiring, product launches</span>
+      <span>— AI qualification across 7 gates — 0–100 prospect score</span>
+      <span>— Personalised LinkedIn &amp; email sequences on autopilot</span>
+      <span>— Live pipeline tracking with Slack alerts on every reply</span>
+      <span>— ICP-matched outreach — right person, right moment</span>
+      <span>— From cold list to qualified meetings in 48–72h</span>
+      <span>— Integrated stack: Crustdata · Unipile · Claude · Instantly</span>
+      <span>— Intent signal detection — funding, hiring, product launches</span>
+      <span>— AI qualification across 7 gates — 0–100 prospect score</span>
+      <span>— Personalised LinkedIn &amp; email sequences on autopilot</span>
+      <span>— Live pipeline tracking with Slack alerts on every reply</span>
+      <span>— ICP-matched outreach — right person, right moment</span>
+      <span>— From cold list to qualified meetings in 48–72h</span>
+      <span>— Integrated stack: Crustdata · Unipile · Claude · Instantly</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero-dark min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 relative">
+  <div class="aurora-1"></div>
+  <div class="aurora-2"></div>
+  <div class="aurora-3"></div>
+  <div class="hero-grid"></div>
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+    <div class="inline-flex items-center gap-2.5 badge-live px-4 py-2 rounded-full mb-10">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400 block"></span>
+      <span class="text-xs mono">AI-powered GTM automation · Delivered as a service</span>
+    </div>
+    <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-[1.04] mb-7">
+      <span class="text-white">Your growth pipeline.</span><br/>
+      <span class="gtext">Built and run for you.</span>
+    </h1>
+    <p class="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto mb-10">
+      GTM-OS is an AI automation platform we deploy on your behalf — detecting intent signals, qualifying prospects at scale, and running personalised outreach across every channel. No software to learn. Just pipeline.
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+      <a href="#contact" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base">Book a 30-min call →</a>
+      <a href="#sectors" class="btn-outline-dark px-8 py-4 rounded-xl text-base">See your sector</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num mb-1">48h</div>
+        <div class="text-xs text-slate-500 leading-snug">From brief to first outreach</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num mb-1">700M+</div>
+        <div class="text-xs text-slate-500 leading-snug">Qualified profiles sourced</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num mb-1">40–80×</div>
+        <div class="text-xs text-slate-500 leading-snug">Typical ROI on service cost</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-3xl font-black num mb-1">−75%</div>
+        <div class="text-xs text-slate-500 leading-snug">Prospecting time saved</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLEM ── -->
+<section id="problem" class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">The problem</p>
+      <h2 class="text-3xl md:text-4xl font-black tracking-tight">Manual prospecting doesn't scale.</h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">Every B2B growth team hits the same wall — regardless of sector.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">⏳</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Too slow to compete</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Researching, qualifying, and reaching the right contact by hand takes weeks. Your window of opportunity closes while you're building a spreadsheet.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">🎯</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Wrong targets, wasted effort</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Generic lists waste sales cycles on out-of-ICP prospects. Without intelligent filtering, most outreach goes to people who will never buy.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">📉</div>
+        <h3 class="font-bold text-zinc-900 mb-2">No signal, no timing</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">The best moment to reach a prospect is when they have an active need — a funding round, a hire, a launch. Manual processes miss these windows entirely.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how" class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">How it works</p>
+      <h2 class="text-3xl md:text-4xl font-black tracking-tight">Four steps. Fully automated.</h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">We configure the pipeline for your sector and ICP, then run it continuously on your behalf.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+      <!-- Steps -->
+      <div class="space-y-0">
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="pb-8">
+            <h3 class="font-bold text-zinc-900 mb-1">Detect intent signals</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">We monitor funding rounds, product launches, job postings, contract awards, and 20+ other signals specific to your sector — in real time.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">2</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="pb-8">
+            <h3 class="font-bold text-zinc-900 mb-1">Qualify at scale</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">Every prospect passes a 7-gate AI pipeline — dedup, role filter, company fit, enrichment, and a Claude 0–100 score aligned to your ICP. Only the top fits reach outreach.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">3</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="pb-8">
+            <h3 class="font-bold text-zinc-900 mb-1">Reach with personalised sequences</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">AI-drafted messages anchored to the detected signal — LinkedIn DM + email follow-up — sent at the right cadence, automatically. Every message feels hand-written.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">4</div>
+          </div>
+          <div>
+            <h3 class="font-bold text-zinc-900 mb-1">Track and optimise</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">You get a Slack alert the moment a prospect replies positively. A/B testing, reply-rate tracking, and weekly reports let us continuously improve your pipeline performance.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Terminal -->
+      <div class="terminal rounded-2xl p-5 text-sm mono">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-3 h-3 rounded-full bg-red-500 opacity-70"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500 opacity-70"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500 opacity-70"></div>
+          <span class="text-zinc-500 text-xs ml-2">gtm-os pipeline</span>
+        </div>
+        <div class="space-y-1 text-xs leading-relaxed">
+          <p class="text-zinc-500"># Step 1 — Signal detection</p>
+          <p><span class="text-emerald-400">gtm</span><span class="text-sky-300"> signals:scan</span> <span class="text-yellow-300">--sector energy</span></p>
+          <p class="text-zinc-400 pl-2">✓ 14 funding events · 8 contract awards · 3 product launches</p>
+          <br/>
+          <p class="text-zinc-500"># Step 2 — 7-gate qualification</p>
+          <p><span class="text-emerald-400">gtm</span><span class="text-sky-300"> qualify</span> <span class="text-yellow-300">--limit 500 --min-score 72</span></p>
+          <p class="text-zinc-400 pl-2">✓ 500 in → 87 qualified (gate 6 avg score: 81/100)</p>
+          <br/>
+          <p class="text-zinc-500"># Step 3 — Personalised outreach</p>
+          <p><span class="text-emerald-400">gtm</span><span class="text-sky-300"> campaign:launch</span> <span class="text-yellow-300">--channel linkedin,email</span></p>
+          <p class="text-zinc-400 pl-2">✓ 87 sequences active · 30 connects/day rate-limited</p>
+          <br/>
+          <p class="text-zinc-500"># Step 4 — Live tracking</p>
+          <p><span class="text-emerald-400">gtm</span><span class="text-sky-300"> track</span> <span class="text-yellow-300">--notify slack</span></p>
+          <p class="text-zinc-400 pl-2">🔔 New reply: <span class="text-emerald-400">J. Martin · Head of Procurement</span></p>
+          <p class="text-zinc-400 pl-2">→ "Interested, let's talk next week."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTORS ── -->
+<section id="sectors" class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Sectors</p>
+      <h2 class="text-3xl md:text-4xl font-black tracking-tight">One engine. Every market.</h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">The pipeline adapts to your sector's specific signals, decision-makers, and outreach patterns. We've built dedicated playbooks for these markets.</p>
+    </div>
+
+    <!-- Active sectors -->
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+
+      <!-- Energy & Infra -->
+      <div class="sector-card p-6 flex flex-col">
+        <div class="text-3xl mb-4">⚡</div>
+        <div class="inline-flex w-fit pill-amber px-2 py-0.5 rounded-full text-xs font-semibold mb-3">Live playbook</div>
+        <h3 class="font-bold text-zinc-900 text-lg mb-2">Energy & Infrastructure</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">Contract award detection, FEED/EPC monitoring, OJEU notices. Reach project owners and procurement teams before the shortlist closes.</p>
+        <div class="space-y-1.5 mb-6">
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Contract award & FEED signal detection</div>
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>72h from award to qualified shortlist</div>
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>EPC, Oil & Gas, Civil, Public sector</div>
+        </div>
+        <a href="landing-energy-infra.html" class="btn-primary px-4 py-2.5 rounded-xl font-semibold text-white text-sm text-center">Full playbook →</a>
+      </div>
+
+      <!-- Recruitment -->
+      <div class="sector-card p-6 flex flex-col">
+        <div class="text-3xl mb-4">🤝</div>
+        <div class="inline-flex w-fit pill-emerald px-2 py-0.5 rounded-full text-xs font-semibold mb-3">Live playbook</div>
+        <h3 class="font-bold text-zinc-900 text-lg mb-2">Recruitment & Staffing</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">Win new clients before they post a job. Source passive candidates from 700M+ profiles. Automate both tracks simultaneously for specialist recruiters.</p>
+        <div class="space-y-1.5 mb-6">
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Client acquisition + candidate sourcing in parallel</div>
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Funding & headcount growth signals</div>
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>3–5 qualified meetings/week typical output</div>
+        </div>
+        <a href="landing-recruitment.html" class="btn-primary px-4 py-2.5 rounded-xl font-semibold text-white text-sm text-center">Full playbook →</a>
+      </div>
+
+      <!-- Fairs -->
+      <div class="sector-card p-6 flex flex-col">
+        <div class="text-3xl mb-4">🎪</div>
+        <div class="inline-flex w-fit pill-indigo px-2 py-0.5 rounded-full text-xs font-semibold mb-3">Live playbook</div>
+        <h3 class="font-bold text-zinc-900 text-lg mb-2">Fairs & Exhibitions</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">Fill exhibition stands and engage VIP visitors through AI-powered exhibitor acquisition campaigns and personalised invitation sequences.</p>
+        <div class="space-y-1.5 mb-6">
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Exhibitor & VIP visitor acquisition</div>
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Product launch & funding signal targeting</div>
+          <div class="flex items-center gap-2 text-xs text-zinc-500"><div class="check-icon flex-shrink-0"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>40% fill-rate improvement on average</div>
+        </div>
+        <a href="landing-fairs.html" class="btn-primary px-4 py-2.5 rounded-xl font-semibold text-white text-sm text-center">Full playbook →</a>
+      </div>
+    </div>
+
+    <!-- On-request sectors -->
+    <p class="text-center text-xs text-zinc-400 uppercase tracking-widest font-semibold mb-6">More sectors — available on request</p>
+    <div class="grid md:grid-cols-5 gap-4">
+
+      <div class="sector-card dimmed p-5 flex flex-col items-start">
+        <div class="text-2xl mb-3">🏢</div>
+        <div class="inline-flex w-fit pill-slate px-2 py-0.5 rounded-full text-xs font-semibold mb-2">On request</div>
+        <h3 class="font-semibold text-zinc-800 text-sm mb-1">Real Estate & PropTech</h3>
+        <p class="text-zinc-500 text-xs leading-relaxed flex-1 mb-4">Target investors, developers, and asset managers at the right point in the deal cycle.</p>
+        <a href="#contact" class="text-sky-600 text-xs font-semibold hover:underline">Get in touch →</a>
+      </div>
+
+      <div class="sector-card dimmed p-5 flex flex-col items-start">
+        <div class="text-2xl mb-3">⚙️</div>
+        <div class="inline-flex w-fit pill-slate px-2 py-0.5 rounded-full text-xs font-semibold mb-2">On request</div>
+        <h3 class="font-semibold text-zinc-800 text-sm mb-1">Manufacturing & Industry</h3>
+        <p class="text-zinc-500 text-xs leading-relaxed flex-1 mb-4">Automate distributor, partner, and key account acquisition across industrial supply chains.</p>
+        <a href="#contact" class="text-sky-600 text-xs font-semibold hover:underline">Get in touch →</a>
+      </div>
+
+      <div class="sector-card dimmed p-5 flex flex-col items-start">
+        <div class="text-2xl mb-3">💼</div>
+        <div class="inline-flex w-fit pill-slate px-2 py-0.5 rounded-full text-xs font-semibold mb-2">On request</div>
+        <h3 class="font-semibold text-zinc-800 text-sm mb-1">Professional Services</h3>
+        <p class="text-zinc-500 text-xs leading-relaxed flex-1 mb-4">Business development for consulting, legal, and accounting firms — without relying on referrals alone.</p>
+        <a href="#contact" class="text-sky-600 text-xs font-semibold hover:underline">Get in touch →</a>
+      </div>
+
+      <div class="sector-card dimmed p-5 flex flex-col items-start">
+        <div class="text-2xl mb-3">🏥</div>
+        <div class="inline-flex w-fit pill-slate px-2 py-0.5 rounded-full text-xs font-semibold mb-2">On request</div>
+        <h3 class="font-semibold text-zinc-800 text-sm mb-1">Healthcare & MedTech</h3>
+        <p class="text-zinc-500 text-xs leading-relaxed flex-1 mb-4">Reach hospital procurement teams, clinic groups, and health system decision-makers at scale.</p>
+        <a href="#contact" class="text-sky-600 text-xs font-semibold hover:underline">Get in touch →</a>
+      </div>
+
+      <div class="sector-card dimmed p-5 flex flex-col items-start">
+        <div class="text-2xl mb-3">💻</div>
+        <div class="inline-flex w-fit pill-slate px-2 py-0.5 rounded-full text-xs font-semibold mb-2">On request</div>
+        <h3 class="font-semibold text-zinc-800 text-sm mb-1">SaaS & Tech</h3>
+        <p class="text-zinc-500 text-xs leading-relaxed flex-1 mb-4">Outbound B2B pipeline for software companies — intent-driven, ICP-filtered, personalised at scale.</p>
+        <a href="#contact" class="text-sky-600 text-xs font-semibold hover:underline">Get in touch →</a>
+      </div>
+    </div>
+
+    <p class="text-center text-sm text-zinc-400 mt-8">Your sector not listed? <a href="#contact" class="text-sky-600 font-semibold hover:underline">Talk to us</a> — the pipeline adapts to any B2B market.</p>
+  </div>
+</section>
+
+<!-- ── SERVICE MODEL ── -->
+<section id="service" class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Service model</p>
+      <h2 class="text-3xl md:text-4xl font-black tracking-tight">We run it. You close it.</h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">GTM-OS is not software you buy and figure out. It's a managed automation service — we configure, operate, and optimise the pipeline for you.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <div class="space-y-6">
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-lg flex-shrink-0">🗓️</div>
+          <div>
+            <h3 class="font-bold text-zinc-900 mb-1">30-min onboarding call</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">We audit your current pipeline, define your ICP, and select the right signal mix for your sector. No lengthy discovery process.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-lg flex-shrink-0">⚙️</div>
+          <div>
+            <h3 class="font-bold text-zinc-900 mb-1">We configure and launch in 48h</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">Our team sets up your pipeline — signals, qualification gates, message templates, outreach sequences. You approve before anything goes live.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-lg flex-shrink-0">📊</div>
+          <div>
+            <h3 class="font-bold text-zinc-900 mb-1">Continuous operation and reporting</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">The pipeline runs daily. You receive weekly performance reports and real-time Slack alerts when prospects engage. We A/B test and optimise continuously.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-lg flex-shrink-0">🤝</div>
+          <div>
+            <h3 class="font-bold text-zinc-900 mb-1">You own the conversations</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">When a prospect replies positively, the conversation moves to you. We deliver warm leads — your team closes. No black box, full visibility.</p>
+          </div>
+        </div>
+      </div>
+      <!-- What's included box -->
+      <div class="card-blue rounded-2xl p-7">
+        <p class="text-xs font-semibold text-sky-700 uppercase tracking-widest mb-5">What's included in the service</p>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">ICP definition and signal selection</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">Pipeline configuration and launch</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">Daily signal detection and prospect sourcing</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">7-gate AI qualification (0–100 score)</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">AI-drafted personalised message sequences</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">LinkedIn + email outreach execution</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">Real-time Slack alerts on positive replies</span></div>
+          <div class="flex items-start gap-3"><div class="check-icon mt-0.5"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-sm text-zinc-700">Weekly performance reports & A/B optimisation</span></div>
+        </div>
+        <div class="mt-6 border-t border-sky-200 pt-5 text-xs text-sky-800 bg-sky-50 rounded-xl p-3">
+          💡 The underlying APIs (Crustdata, Unipile, Instantly, etc.) are billed separately at cost — typically €700–€1,500/month depending on volume. We provide full transparency on third-party costs.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TECH STACK ── -->
+<section class="section-alt py-16 px-6">
+  <div class="max-w-5xl mx-auto">
+    <p class="text-center text-xs text-zinc-400 uppercase tracking-widest font-semibold mb-8">Powered by best-in-class tools</p>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+      <div class="card rounded-2xl p-4 text-center"><div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center mx-auto mb-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="font-bold text-zinc-900 text-xs mb-1">Crustdata</div><div class="text-xs text-zinc-400">700M+ profiles</div></div>
+      <div class="card rounded-2xl p-4 text-center"><div class="w-8 h-8 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center mx-auto mb-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="font-bold text-zinc-900 text-xs mb-1">Claude AI</div><div class="text-xs text-zinc-400">Scoring &amp; drafting</div></div>
+      <div class="card rounded-2xl p-4 text-center"><div class="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center mx-auto mb-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="font-bold text-zinc-900 text-xs mb-1">Unipile</div><div class="text-xs text-zinc-400">LinkedIn automation</div></div>
+      <div class="card rounded-2xl p-4 text-center"><div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center mx-auto mb-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="font-bold text-zinc-900 text-xs mb-1">Instantly</div><div class="text-xs text-zinc-400">Email sequences</div></div>
+      <div class="card rounded-2xl p-4 text-center"><div class="w-8 h-8 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center mx-auto mb-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="font-bold text-zinc-900 text-xs mb-1">Firecrawl</div><div class="text-xs text-zinc-400">Signal detection</div></div>
+      <div class="card rounded-2xl p-4 text-center"><div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="font-bold text-zinc-900 text-xs mb-1">Slack</div><div class="text-xs text-zinc-400">Real-time alerts</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-12">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">FAQ</p>
+      <h2 class="text-3xl font-black tracking-tight">Common questions</h2>
+    </div>
+    <div class="space-y-3" id="faq">
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button class="faq-btn w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+          <span class="font-semibold text-zinc-900 text-sm">Is this software I need to set up myself?</span>
+          <svg class="faq-arrow w-4 h-4 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-5 text-sm text-zinc-500 leading-relaxed">No. GTM-OS is a fully managed service. You don't install anything or learn a new tool. We configure and operate the pipeline on your behalf — you get the qualified leads and meeting invites.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button class="faq-btn w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+          <span class="font-semibold text-zinc-900 text-sm">How quickly can we get started?</span>
+          <svg class="faq-arrow w-4 h-4 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-5 text-sm text-zinc-500 leading-relaxed">After a 30-minute onboarding call we configure your pipeline and launch within 48 hours. First signals are detected and first prospects qualified within the first week. Most clients see qualified replies within 2 weeks.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button class="faq-btn w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+          <span class="font-semibold text-zinc-900 text-sm">Does it work for my specific sector?</span>
+          <svg class="faq-arrow w-4 h-4 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-5 text-sm text-zinc-500 leading-relaxed">We have live playbooks for Energy & Infrastructure, Recruitment, and Fairs & Exhibitions. Additional sectors — Real Estate, Manufacturing, Professional Services, Healthcare, and SaaS — are available on request. If your sector isn't listed, book a call and we'll assess fit in 30 minutes.</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl overflow-hidden">
+        <button class="faq-btn w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+          <span class="font-semibold text-zinc-900 text-sm">What does it actually cost?</span>
+          <svg class="faq-arrow w-4 h-4 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-body">
+          <p class="px-6 pb-5 text-sm text-zinc-500 leading-relaxed">Pricing depends on sector, signal volume, and outreach scale. The underlying API stack (Crustdata, Unipile, Instantly, etc.) typically costs €700–€1,500/month and is billed at cost. Our service fee is on top of that. Book a call for a tailored quote — we'll show you the expected ROI upfront.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA / CONTACT ── -->
+<section id="contact" class="hero-dark py-24 px-6 relative overflow-hidden">
+  <div class="aurora-1" style="opacity:.6"></div>
+  <div class="aurora-2" style="opacity:.5"></div>
+  <div class="hero-grid"></div>
+  <div class="max-w-2xl mx-auto text-center relative z-10">
+    <div class="inline-flex items-center gap-2 badge-live px-4 py-2 rounded-full mb-8">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400 block"></span>
+      <span class="text-xs mono">Live in 48h · No lock-in · Full cost transparency</span>
+    </div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-5 text-white">
+      Ready to build your<br/><span class="gtext">automated pipeline?</span>
+    </h2>
+    <p class="text-slate-400 leading-relaxed mb-8 max-w-lg mx-auto">Book a 30-minute call. We'll audit your current GTM motion, identify the right signals for your sector, and show you exactly what a live pipeline looks like for your use case. No commitment.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="mailto:hello@orbit-gtm.com" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base">Book a call → hello@orbit-gtm.com</a>
+    </div>
+    <p class="text-xs text-slate-600 mt-6">First results visible within 2 weeks · No annual lock-in · Full transparency on costs</p>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="bg-[#0F172A] border-t border-white/10 py-10 px-6">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-6 h-6 rounded-md btn-primary flex items-center justify-center">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/></svg>
+      </div>
+      <span class="font-bold text-white text-sm tracking-tight">GTM-OS</span>
+      <span class="text-slate-600">·</span>
+      <span class="text-xs text-slate-500">AI-powered GTM automation service</span>
+    </div>
+    <div class="flex items-center gap-6 text-xs text-slate-500">
+      <a href="landing-energy-infra.html" class="hover:text-slate-200 transition-colors">Energy &amp; Infra</a>
+      <a href="landing-recruitment.html"  class="hover:text-slate-200 transition-colors">Recruitment</a>
+      <a href="landing-fairs.html"        class="hover:text-slate-200 transition-colors">Fairs &amp; Exhibitions</a>
+      <a href="mailto:hello@orbit-gtm.com" class="hover:text-slate-200 transition-colors">Contact</a>
+    </div>
+    <p class="text-xs text-slate-600">© 2026 GTM-OS · Open-source AI GTM platform</p>
+  </div>
+</footer>
+
+<script>
+  // Nav: dark on hero, light when scrolled into body
+  const nav=document.getElementById('main-nav');
+  const brand=document.getElementById('nav-brand');
+  const navLinks=document.getElementById('nav-links');
+  const demo=document.getElementById('nav-demo');
+  window.addEventListener('scroll',()=>{
+    const past=window.scrollY>(window.innerHeight-80);
+    nav.className='fixed top-0 w-full z-50 '+(past?'nav-light':'nav-dark');
+    brand.style.color=past?'#0f172a':'#fff';
+    if(navLinks) navLinks.querySelectorAll('a').forEach(a=>{if(!a.classList.contains('text-sky-400'))a.style.color=past?'#52525b':''});
+    if(demo) demo.className=past?'btn-ghost text-sm px-4 py-2 rounded-lg hidden md:block text-zinc-600':'btn-outline-dark text-sm px-4 py-2 rounded-lg hidden md:block';
+  },{passive:true});
+
+  function toggleFaq(btn) {
+    const body = btn.nextElementSibling;
+    const arrow = btn.querySelector('.faq-arrow');
+    const isOpen = body.classList.contains('open');
+    document.querySelectorAll('.faq-body').forEach(b => b.classList.remove('open'));
+    document.querySelectorAll('.faq-arrow').forEach(a => a.classList.remove('open'));
+    if (!isOpen) { body.classList.add('open'); arrow.classList.add('open'); }
+  }
+</script>
+
+</body>
+</html>

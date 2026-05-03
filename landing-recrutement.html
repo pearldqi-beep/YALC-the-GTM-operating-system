@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTM-OS pour Cabinets de Recrutement — Automatisez votre développement commercial et votre sourcing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(14,165,233,0.1) 0%, transparent 65%),
+                  radial-gradient(ellipse 50% 40% at 85% 40%, rgba(99,102,241,0.07) 0%, transparent 55%),
+                  #ffffff;
+    }
+    .section-alt { background: #f8fafc; }
+    .section-white { background: #ffffff; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 60%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-text-warm {
+      background: linear-gradient(135deg, #0369a1 0%, #4f46e5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(14,165,233,0.4);
+      box-shadow: 0 4px 24px rgba(14,165,233,0.08);
+      transform: translateY(-2px);
+    }
+    .card-blue {
+      background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%);
+      border: 1px solid #bfdbfe;
+    }
+    .card-indigo {
+      background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+      border: 1px solid #c7d2fe;
+    }
+    .card-signal {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      transition: all 0.2s ease;
+    }
+    .card-signal:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 2px 12px rgba(14,165,233,0.1);
+    }
+
+    .nav-blur {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid #e4e4e7;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(2,132,199,0.3);
+    }
+    .btn-ghost {
+      border: 1px solid #d4d4d8;
+      background: #ffffff;
+      transition: all 0.3s ease;
+    }
+    .btn-ghost:hover {
+      border-color: #60a5fa;
+      background: #eff6ff;
+    }
+
+    .pill-blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+    .pill-indigo { background: #eef2ff; border: 1px solid #c7d2fe; color: #4338ca; }
+    .pill-violet { background: #f5f3ff; border: 1px solid #ddd6fe; color: #6d28d9; }
+    .pill-emerald { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+
+    .number-accent {
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .code-tag { background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; }
+    .terminal { background: #18181b; border: 1px solid #3f3f46; }
+
+    .divider-arrow {
+      width: 0; height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 12px solid #e4e4e7;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track { animation: ticker 35s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    .grid-pattern {
+      background-image: linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .step-line::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 44px;
+      bottom: -24px;
+      width: 2px;
+      background: linear-gradient(to bottom, #bfdbfe, #e4e4e7);
+    }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 overflow-x-hidden">
+
+<!-- ── NAV ──────────────────────────────────────────────── -->
+<nav class="nav-blur fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/>
+          <circle cx="7" cy="7" r="2" fill="white" opacity="0.6"/>
+        </svg>
+      </div>
+      <span class="font-bold text-zinc-900 tracking-tight">GTM-OS</span>
+      <span class="text-xs text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full">Cabinet de recrutement</span>
+    </div>
+    <div class="hidden md:flex items-center gap-7 text-sm text-zinc-500">
+      <a href="#probleme" class="hover:text-zinc-900 transition-colors">Problème</a>
+      <a href="#clients" class="hover:text-zinc-900 transition-colors">Acquisition clients</a>
+      <a href="#candidats" class="hover:text-zinc-900 transition-colors">Sourcing candidats</a>
+      <a href="#pipeline" class="hover:text-zinc-900 transition-colors">Pipeline complet</a>
+      <a href="#roi" class="hover:text-zinc-900 transition-colors">ROI</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#contact" class="btn-ghost text-sm px-4 py-2 rounded-lg text-zinc-600 hidden md:block">Voir la démo</a>
+      <a href="#contact" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white">Prendre RDV →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TICKER ────────────────────────────────────────────── -->
+<div class="fixed top-16 w-full z-40 overflow-hidden border-b border-zinc-100" style="background:rgba(248,250,252,0.95)">
+  <div class="flex ticker-track py-2 gap-12 whitespace-nowrap">
+    <span class="text-xs text-zinc-400 mono flex gap-12">
+      <span>🔍 Sourcing passif automatisé</span>
+      <span>🚦 7 gates de qualification IA</span>
+      <span>📋 Brief de mission en 60 secondes</span>
+      <span>🎯 Shortlist 10 profils scorés en 3 jours</span>
+      <span>💬 DMs LinkedIn personnalisés par Claude</span>
+      <span>📊 Suivi pipeline temps réel</span>
+      <span>🗂️ Intégration Notion</span>
+      <span>🔔 Alertes Slack sur chaque réponse</span>
+      <span>📥 Import CSV candidats</span>
+      <span>🤖 Qualification multicritère</span>
+      <span>🔄 Séquences DM1/DM2 automatiques</span>
+      <span>💯 Score d'adéquation 0–100</span>
+      <span>🔍 Sourcing passif automatisé</span>
+      <span>🚦 7 gates de qualification IA</span>
+      <span>📋 Brief de mission en 60 secondes</span>
+      <span>🎯 Shortlist 10 profils scorés en 3 jours</span>
+      <span>💬 DMs LinkedIn personnalisés par Claude</span>
+      <span>📊 Suivi pipeline temps réel</span>
+      <span>🗂️ Intégration Notion</span>
+      <span>🔔 Alertes Slack sur chaque réponse</span>
+      <span>📥 Import CSV candidats</span>
+      <span>🤖 Qualification multicritère</span>
+      <span>🔄 Séquences DM1/DM2 automatiques</span>
+      <span>💯 Score d'adéquation 0–100</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero-gradient grid-pattern min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 relative">
+  <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(14,165,233,0.07), transparent 70%)"></div>
+  <div class="absolute top-1/2 right-1/4 w-64 h-64 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(99,102,241,0.06), transparent 70%)"></div>
+
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+    <div class="inline-flex items-center gap-2 bg-sky-50 border border-sky-200 px-4 py-2 rounded-full mb-8">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+      <span class="text-xs text-sky-700 mono">Conçu pour les cabinets de recrutement B2B · Stack open-source</span>
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-6">
+      <span class="text-zinc-900">Trouvez des clients.</span><br/>
+      <span class="text-zinc-900">Sourcez des candidats.</span><br/>
+      <span class="gradient-text">En automatique.</span>
+    </h1>
+
+    <p class="text-lg md:text-xl text-zinc-500 max-w-2xl mx-auto leading-relaxed mb-10">
+      GTM-OS détecte les entreprises qui vont recruter avant qu'elles ne publient leurs offres,
+      et identifie les candidats passifs idéaux via un pipeline IA à 7 portes — le tout en pilote automatique.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+      <a href="#contact" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base w-full sm:w-auto">
+        Voir une démonstration →
+      </a>
+      <a href="#pipeline" class="btn-ghost px-8 py-4 rounded-xl text-zinc-600 text-base w-full sm:w-auto">
+        Voir le pipeline complet
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">3×</div>
+        <div class="text-xs text-zinc-400 mt-1">Plus de missions signées</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">700M+</div>
+        <div class="text-xs text-zinc-400 mt-1">Profils LinkedIn accessibles</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">-80%</div>
+        <div class="text-xs text-zinc-400 mt-1">Temps de prospection</div>
+      </div>
+      <div class="card rounded-xl p-4 text-center">
+        <div class="text-3xl font-black number-accent">48h</div>
+        <div class="text-xs text-zinc-400 mt-1">Pour lancer une campagne</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLÈME ───────────────────────────────────────────── -->
+<section id="probleme" class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Le problème</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Votre cabinet perd du temps<br/><span class="gradient-text">là où il ne le devrait pas</span>
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">📞</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Prospection manuelle épuisante</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Vos consultants passent des heures sur LinkedIn à chercher les bons interlocuteurs — DRH, Talent Acquisition, CEO — sans outil pour qualifier ni automatiser le suivi.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">🎲</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Mauvais timing commercial</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Vous approchez des entreprises sans signal de recrutement actif. Résultat : "pas pour l'instant". GTM-OS détecte les signaux d'intention avant que le besoin soit exprimé.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="text-3xl mb-4">🔎</div>
+        <h3 class="text-lg font-bold mb-2 text-zinc-900">Sourcing candidats trop lent</h3>
+        <p class="text-zinc-500 text-sm leading-relaxed">Trouver les bons profils passifs prend 3–5 jours. Vos concurrents qui automatisent déjà le sourcing vous contactent avant vous.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AXE 1 : ACQUISITION CLIENTS ───────────────────────── -->
+<section id="clients" class="section-white py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+      <div>
+        <div class="inline-flex items-center gap-2 pill-blue px-3 py-1.5 rounded-full mb-5 text-xs font-semibold">
+          🏢 Axe 1 — Acquisition clients
+        </div>
+        <h2 class="text-4xl font-black tracking-tight mb-5 text-zinc-900">
+          Identifiez les entreprises<br/><span class="gradient-text">qui vont recruter</span><br/>avant qu'elles le sachent.
+        </h2>
+        <p class="text-zinc-500 leading-relaxed mb-8">GTM-OS surveille en continu les signaux d'intention de recrutement et déclenche des séquences d'approche personnalisées au bon moment.</p>
+
+        <div class="space-y-3 mb-8">
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-sky-600 text-sm">💰</span>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Levée de fonds détectée</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Series A/B/C → recrutement massif sous 3–6 mois. Approche immédiate sur le DRH ou le CEO.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-indigo-600 text-sm">📈</span>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Croissance headcount +20%</div>
+              <div class="text-zinc-500 text-xs mt-0.5">L'entreprise embauche déjà. Si elle cherche des profils rares sur votre niche, vous êtes au bon endroit.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-violet-600 text-sm">📋</span>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">5+ offres d'emploi ouvertes</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Firecrawl scrape leurs job boards. Si plusieurs postes similaires sont ouverts, ils sont débordés — c'est votre moment.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 card-signal rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-emerald-600 text-sm">🌍</span>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Nouvelle expansion géographique</div>
+              <div class="text-zinc-500 text-xs mt-0.5">Ouverture d'un bureau → recrutement local urgent. Idéal pour les cabinets avec expertise sectorielle régionale.</div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#contact" class="btn-primary inline-block px-6 py-3 rounded-xl font-semibold text-sm text-white">
+          Voir un exemple de campagne →
+        </a>
+      </div>
+
+      <!-- Pipeline visuel -->
+      <div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="bg-sky-50 border-b border-sky-100 px-5 py-3">
+            <span class="text-xs font-semibold text-sky-700 mono">Pipeline acquisition · Exemple "Levées récentes"</span>
+          </div>
+          <div class="p-5 space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-sky-700 text-xs font-bold">1</span>
+              </div>
+              <div class="flex-1 text-sm">
+                <span class="font-semibold text-zinc-800">Détection</span>
+                <span class="text-zinc-400 ml-2">Crustdata filtre les levées ≥ €500k / 90 jours</span>
+              </div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">~340 co/mois</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Filtres : secteur tech/SaaS, 20–200 salariés, France</div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-indigo-700 text-xs font-bold">2</span>
+              </div>
+              <div class="flex-1 text-sm">
+                <span class="font-semibold text-zinc-800">Qualification IA</span>
+                <span class="text-zinc-400 ml-2">Claude score le besoin probable de recrutement</span>
+              </div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">~89 co</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Critères : tech stack, domaine RH, profils recherchés actifs</div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-violet-100 border border-violet-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-violet-700 text-xs font-bold">3</span>
+              </div>
+              <div class="flex-1 text-sm">
+                <span class="font-semibold text-zinc-800">Identification contact</span>
+                <span class="text-zinc-400 ml-2">DRH, Head of Talent ou CEO selon taille</span>
+              </div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">FullEnrich</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Email professionnel vérifié + profil LinkedIn</div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-sky-700 text-xs font-bold">4</span>
+              </div>
+              <div class="flex-1 text-sm">
+                <span class="font-semibold text-zinc-800">Séquence LinkedIn</span>
+                <span class="text-zinc-400 ml-2">Connect + DM mentionnant la levée</span>
+              </div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">Unipile</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400 italic">"Félicitations pour votre levée. On accompagne des scale-ups comme [X] sur leurs recrutements tech. 15 min ?"</div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-emerald-700 text-xs font-bold">5</span>
+              </div>
+              <div class="flex-1 text-sm">
+                <span class="font-semibold text-zinc-800">Follow-up email</span>
+                <span class="text-zinc-400 ml-2">J+3 si pas de réponse LinkedIn</span>
+              </div>
+              <span class="text-xs mono text-zinc-400 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">Instantly</span>
+            </div>
+            <div class="ml-3 border-l-2 border-dashed border-zinc-200 pl-6 py-1">
+              <div class="text-xs text-zinc-400">Email personnalisé avec profils exemple du secteur</div>
+            </div>
+
+            <div class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-emerald-800">Résultat moyen</span>
+                <span class="text-emerald-700 font-black text-lg">6–8 RDV / mois</span>
+              </div>
+              <div class="text-xs text-emerald-600 mt-1">Sur 89 prospects qualifiés → taux de conversion ~8%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AXE 2 : SOURCING CANDIDATS ─────────────────────────── -->
+<section id="candidats" class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+      <!-- Pipeline visuel candidats — 7 gates -->
+      <div class="order-2 md:order-1">
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="bg-violet-50 border-b border-violet-100 px-5 py-3 flex items-center justify-between">
+            <span class="text-xs font-semibold text-violet-700 mono">Pipeline 7 portes · Qualification candidats</span>
+            <span class="text-xs text-violet-500 bg-violet-100 border border-violet-200 px-2 py-0.5 rounded mono">candidates:qualify</span>
+          </div>
+          <div class="p-5 space-y-2">
+
+            <!-- Gate 0 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-zinc-50 border border-zinc-200">
+              <div class="w-6 h-6 rounded-md bg-zinc-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-zinc-600 text-xs font-bold">0</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-zinc-700 text-xs">Déduplication</span>
+                <span class="text-zinc-400 text-xs ml-2">Évite les doublons dans la DB</span>
+              </div>
+              <span class="text-xs text-zinc-400 mono">Gate 0</span>
+            </div>
+
+            <!-- Gate 1 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-sky-50 border border-sky-100">
+              <div class="w-6 h-6 rounded-md bg-sky-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-sky-700 text-xs font-bold">1</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-sky-800 text-xs">Headline</span>
+                <span class="text-sky-600 text-xs ml-2">Filtre "open to work", rejette "not open"</span>
+              </div>
+              <span class="text-xs text-sky-500 mono">Gate 1</span>
+            </div>
+
+            <!-- Gate 2 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-red-50 border border-red-100">
+              <div class="w-6 h-6 rounded-md bg-red-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-red-700 text-xs font-bold">2</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-red-800 text-xs">Exclusion</span>
+                <span class="text-red-600 text-xs ml-2">Blocklist + concurrents clients</span>
+              </div>
+              <span class="text-xs text-red-400 mono">Gate 2</span>
+            </div>
+
+            <!-- Gate 3 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-amber-50 border border-amber-100">
+              <div class="w-6 h-6 rounded-md bg-amber-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-amber-700 text-xs font-bold">3</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-amber-800 text-xs">Entreprise</span>
+                <span class="text-amber-600 text-xs ml-2">Vérification données société disponibles</span>
+              </div>
+              <span class="text-xs text-amber-500 mono">Gate 3</span>
+            </div>
+
+            <!-- Gate 4 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-indigo-50 border border-indigo-100">
+              <div class="w-6 h-6 rounded-md bg-indigo-200 flex items-center justify-center flex-shrink-0">
+                <span class="text-indigo-700 text-xs font-bold">4</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-indigo-800 text-xs">Enrichissement</span>
+                <span class="text-indigo-600 text-xs ml-2">Profil Unipile si données manquantes</span>
+              </div>
+              <span class="text-xs text-indigo-400 mono">Unipile</span>
+            </div>
+
+            <!-- Gate 5 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-violet-50 border border-violet-200">
+              <div class="w-6 h-6 rounded-md bg-violet-300 flex items-center justify-center flex-shrink-0">
+                <span class="text-violet-800 text-xs font-bold">5</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-violet-800 text-xs">Score IA Claude</span>
+                <span class="text-violet-600 text-xs ml-2">Skills 25 + Séniorité 25 + Localisation 25 + Ouverture 25 = /100</span>
+              </div>
+              <span class="text-xs text-violet-500 mono">Claude</span>
+            </div>
+
+            <!-- Gate 6 -->
+            <div class="flex items-center gap-3 rounded-lg p-3 bg-emerald-50 border border-emerald-200">
+              <div class="w-6 h-6 rounded-md bg-emerald-300 flex items-center justify-center flex-shrink-0">
+                <span class="text-emerald-800 text-xs font-bold">6</span>
+              </div>
+              <div class="flex-1">
+                <span class="font-semibold text-emerald-800 text-xs">Seuil</span>
+                <span class="text-emerald-600 text-xs ml-2">Passe si score ≥ 65 — paramétrable</span>
+              </div>
+              <span class="text-xs text-emerald-600 mono font-bold">✓ Shortlist</span>
+            </div>
+
+            <div class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-emerald-800">Résultat moyen</span>
+                <span class="text-emerald-700 font-black text-lg">3–5 jours → shortlist</span>
+              </div>
+              <div class="text-xs text-emerald-600 mt-1">Contre 2–3 semaines en sourcing manuel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-1 md:order-2">
+        <div class="inline-flex items-center gap-2 pill-violet px-3 py-1.5 rounded-full mb-5 text-xs font-semibold">
+          👤 Axe 2 — Sourcing candidats
+        </div>
+        <h2 class="text-4xl font-black tracking-tight mb-5 text-zinc-900">
+          Trouvez les <span class="gradient-text">candidats passifs</span><br/>avant vos concurrents.
+        </h2>
+        <p class="text-zinc-500 leading-relaxed mb-8">Les meilleurs profils ne postulent jamais. GTM-OS les identifie, les fait passer par 7 portes de qualification IA, et les approche avec un message calibré pour déclencher une conversation.</p>
+
+        <div class="space-y-4 mb-8">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Recherche par titre + ancienneté + stack</div>
+              <div class="text-zinc-500 text-xs mt-1">700M+ profils Crustdata ou import CSV. Filtres granulaires : séniorité, stack technique, secteur, localisation, taille d'entreprise.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0284c7" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Score d'adéquation 0–100 par Claude</div>
+              <div class="text-zinc-500 text-xs mt-1">Chaque profil reçoit un score sur 4 dimensions : compétences techniques, séniorité, localisation, signaux d'ouverture. Seuls ceux au-dessus du seuil passent.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#4338ca" stroke-width="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Approche 100% personnalisée par Claude</div>
+              <div class="text-zinc-500 text-xs mt-1">Claude rédige un message unique par candidat — ancré sur leur parcours spécifique. Jamais "j'ai vu votre profil". Séquence auto : connexion → DM J+2 → DM J+5.</div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#pipeline" class="btn-primary inline-block px-6 py-3 rounded-xl font-semibold text-sm text-white">
+          Voir le pipeline complet →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PIPELINE COMPLET END-TO-END ────────────────────────── -->
+<section id="pipeline" class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-violet-600 mono text-sm mb-3 tracking-widest uppercase">End-to-end workflow</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        De la mission au placement<br/><span class="gradient-text">en 6 commandes.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto">Un pipeline entièrement automatisé. Chaque étape s'enchaîne naturellement — de la définition du brief à l'alerte Slack quand un candidat répond.</p>
+    </div>
+
+    <div class="space-y-6">
+
+      <!-- Step 1 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full btn-primary flex items-center justify-center text-white font-black text-sm flex-shrink-0 z-10">1</div>
+        <div class="absolute left-5 top-10 bottom-0 w-px bg-gradient-to-b from-blue-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-zinc-900">Créer le brief de mission</span>
+              <span class="text-zinc-400 text-sm ml-3">Définit la cible pour tout le pipeline</span>
+            </div>
+            <span class="pill-blue text-xs px-3 py-1 rounded-full font-semibold mono">candidates:brief</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-zinc-500"># Créer un brief de poste en 60 secondes</span><br/>
+              <span class="text-emerald-400">candidates:brief</span>
+              <span class="text-sky-300"> --title</span> <span class="text-yellow-300">"Senior Backend Engineer"</span>
+              <span class="text-sky-300"> --seniority</span> <span class="text-yellow-300">senior</span><br/>
+              <span class="text-sky-300">&nbsp;&nbsp;--skills</span> <span class="text-yellow-300">"TypeScript,Node.js,PostgreSQL"</span>
+              <span class="text-sky-300"> --location</span> <span class="text-yellow-300">"Paris, France"</span>
+              <span class="text-sky-300"> --remote</span> <span class="text-yellow-300">hybrid</span><br/><br/>
+              <span class="text-zinc-500">✓ Brief créé · ID: 890d2e66-5d0b-4107-a99b-3da0602a9d61</span><br/>
+              <span class="text-zinc-500">  Seuil de shortlist : 65/100</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Le brief est la référence centrale : scoring IA, génération de messages, suivi pipeline — tout en découle.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0 z-10">2</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-indigo-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-zinc-900">Importer ou sourcer les candidats</span>
+              <span class="text-zinc-400 text-sm ml-3">Remplir la pool de candidats bruts</span>
+            </div>
+            <span class="pill-indigo text-xs px-3 py-1 rounded-full font-semibold mono">candidates:import / source</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-zinc-500"># Option A : Import CSV (LinkedIn, ATS, etc.)</span><br/>
+              <span class="text-emerald-400">candidates:import</span>
+              <span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span>
+              <span class="text-sky-300"> --file</span> <span class="text-yellow-300">profils.csv</span><br/><br/>
+              <span class="text-zinc-500"># Option B : Sourcing automatique Crustdata (700M+ profils)</span><br/>
+              <span class="text-emerald-400">candidates:source</span>
+              <span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span>
+              <span class="text-sky-300"> --limit</span> <span class="text-yellow-300">300</span><br/><br/>
+              <span class="text-zinc-500">✓ 12 candidats importés · statut: Sourced</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Le CSV accepte : first_name, last_name, linkedin_url, email, current_title, current_company, location. Le sourcing Crustdata nécessite une clé API.</div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0 z-10">3</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-violet-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-zinc-900">Qualification 7 portes</span>
+              <span class="text-zinc-400 text-sm ml-3">Filtre, enrichit, et score chaque profil</span>
+            </div>
+            <span class="pill-violet text-xs px-3 py-1 rounded-full font-semibold mono">candidates:qualify</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">candidates:qualify</span>
+              <span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span><br/><br/>
+              <span class="text-zinc-500">{"gate":"Gate0:Dedup",  "in":12,"out":12,"rejected":0}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate1:Headline","in":12,"out":12,"rejected":0}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate2:Exclusion","in":12,"out":12,"rejected":0}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate3:Company","in":12,"out":12,"rejected":0}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate4:Enrichment","in":12,"out":12,"enriched":3}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate5:AIScore","in":12,"out":12,"durationMs":2675}</span><br/>
+              <span class="text-zinc-500">{"gate":"Gate6:Threshold","in":12,"out":10,"rejected":2}</span><br/><br/>
+              <span class="text-emerald-400">✓ 10 candidats passent le seuil · Durée : 3.8s</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Les 2 candidats rejetés (score &lt; 65) sont tagués avec la raison. Le seuil est paramétrable. Le pipeline est réexécutable à tout moment.</div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-sky-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0 z-10">4</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-sky-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-zinc-900">Shortlist rankée</span>
+              <span class="text-zinc-400 text-sm ml-3">Top 10 profils, livrables client</span>
+            </div>
+            <span class="pill-blue text-xs px-3 py-1 rounded-full font-semibold mono">candidates:shortlist</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">candidates:shortlist</span>
+              <span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span>
+              <span class="text-sky-300"> --top-n</span> <span class="text-yellow-300">10</span>
+              <span class="text-sky-300"> --sync-notion</span><br/><br/>
+              <span class="text-zinc-400">── Shortlist ──</span><br/>
+              <span class="text-zinc-300">&nbsp;&nbsp;#1 [91] Nicolas Petit · Staff Engineer @ Doctolib</span><br/>
+              <span class="text-zinc-300">&nbsp;&nbsp;#2 [86] Kevin Dupont · Senior Backend @ Criteo</span><br/>
+              <span class="text-zinc-300">&nbsp;&nbsp;#3 [85] Alexandre Dubois · Senior Backend @ Dataiku</span><br/>
+              <span class="text-zinc-400">&nbsp;&nbsp;... 7 autres profils</span><br/><br/>
+              <span class="text-emerald-400">✓ 10 shortlistés · Score moyen : 81 · Synchro Notion ✓</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">La shortlist est écrite en DB et synchronisée dans Notion si configuré. Chaque profil inclut le score détaillé et le raisonnement de Claude.</div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0 z-10">5</div>
+        <div class="absolute left-5 top-10 w-px bg-gradient-to-b from-amber-300 to-zinc-200" style="height:calc(100% + 24px)"></div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-zinc-900">Outreach personnalisée</span>
+              <span class="text-zinc-400 text-sm ml-3">Messages rédigés par Claude, envoyés via Unipile / Instantly</span>
+            </div>
+            <span class="text-xs bg-amber-50 border border-amber-200 text-amber-700 px-3 py-1 rounded-full font-semibold mono">candidates:outreach</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-zinc-500"># Étape 1 — Note de connexion LinkedIn (max 300 car.)</span><br/>
+              <span class="text-emerald-400">candidates:outreach</span>
+              <span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span>
+              <span class="text-sky-300"> --channel</span> <span class="text-yellow-300">linkedin_dm</span>
+              <span class="text-sky-300"> --type</span> <span class="text-yellow-300">connect_note</span>
+              <span class="text-sky-300"> --send</span><br/><br/>
+              <span class="text-zinc-500"># Étape 2 — Email de suivi via Instantly (J+2)</span><br/>
+              <span class="text-emerald-400">candidates:outreach</span>
+              <span class="text-sky-300"> --channel</span> <span class="text-yellow-300">email</span>
+              <span class="text-sky-300"> --type</span> <span class="text-yellow-300">email1</span>
+              <span class="text-sky-300"> --send</span><br/><br/>
+              <span class="text-emerald-400">✓ 10 drafts créés · 10 envoyés</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4">
+            <div class="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+              <div class="text-xs text-zinc-500 mb-2 font-semibold">Exemple de message généré par Claude :</div>
+              <div class="text-sm text-zinc-700 italic leading-relaxed">"Votre passage de Qonto à du backend distribué sur PostgreSQL est assez rare dans l'écosystème fintech parisien. J'accompagne une scale-up sur un profil similaire — sérieux, pas de pitch. Échangeable cette semaine ?"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="relative pl-14">
+        <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0 z-10">6</div>
+        <div class="card rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-zinc-900">Suivi pipeline automatique</span>
+              <span class="text-zinc-400 text-sm ml-3">Polling Unipile · avancement de statut · alertes Slack</span>
+            </div>
+            <span class="pill-emerald text-xs px-3 py-1 rounded-full font-semibold mono">candidates:track</span>
+          </div>
+          <div class="terminal p-4 m-4 rounded-xl">
+            <div class="text-xs mono leading-relaxed">
+              <span class="text-emerald-400">candidates:track</span>
+              <span class="text-sky-300"> --brief-id</span> <span class="text-yellow-300">&lt;id&gt;</span><br/><br/>
+              <span class="text-zinc-500">Found 10 candidates in Contacted state.</span><br/>
+              <span class="text-zinc-500">Polling Unipile inbox for replies...</span><br/>
+              <span class="text-emerald-400">Nicolas Petit: Contacted → Interested ⭐</span><br/>
+              <span class="text-zinc-400">Romain Simon: Contacted → Replied</span><br/>
+              <span class="text-zinc-500">Auto-advanced 2 sequence steps (DM1/DM2).</span><br/><br/>
+              <span class="text-emerald-400">✓ 2 réponses · 1 intéressé · Slack notifié</span>
+            </div>
+          </div>
+          <div class="px-6 pb-4 text-zinc-500 text-sm">Le tracker s'exécute en daily cron. Il détecte les réponses, classe les sentiments (intéressé / pas intéressé via Claude), avance les statuts, et envoie DM2 automatiquement si pas de réponse au bout de 3 jours.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline status flow -->
+    <div class="mt-12 card rounded-2xl p-6">
+      <div class="text-center mb-4">
+        <span class="text-xs text-zinc-400 mono uppercase tracking-widest">Statuts du pipeline candidat</span>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="text-xs font-semibold bg-zinc-100 border border-zinc-200 text-zinc-600 px-3 py-1.5 rounded-full">Sourced</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-sky-50 border border-sky-200 text-sky-700 px-3 py-1.5 rounded-full">Contacted</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-full">Replied</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-violet-50 border border-violet-200 text-violet-700 px-3 py-1.5 rounded-full">Interested ⭐</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-amber-50 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-full">Shortlisted</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-orange-50 border border-orange-200 text-orange-700 px-3 py-1.5 rounded-full">Interviewing</span>
+        <span class="text-zinc-300 text-sm">→</span>
+        <span class="text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full">Placed 🎯</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROI ────────────────────────────────────────────────── -->
+<section id="roi" class="section-alt py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Retour sur investissement</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Les chiffres qui<br/><span class="gradient-text">parlent d'eux-mêmes.</span>
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="card-blue rounded-2xl p-7 text-center">
+        <div class="text-5xl font-black number-accent mb-2">8–12</div>
+        <div class="font-bold text-zinc-800 mb-1">RDV commerciaux / mois</div>
+        <div class="text-zinc-500 text-sm">Générés automatiquement via les campagnes "signaux d'intention" sur 250–350 prospects qualifiés</div>
+      </div>
+      <div class="card-indigo rounded-2xl p-7 text-center">
+        <div class="text-5xl font-black number-accent mb-2">3–5j</div>
+        <div class="font-bold text-zinc-800 mb-1">Pour livrer une shortlist</div>
+        <div class="text-zinc-500 text-sm">Contre 2–3 semaines en mode manuel. 10 profils scorés IA livrés au client en moins d'une semaine.</div>
+      </div>
+      <div class="card-blue rounded-2xl p-7 text-center">
+        <div class="text-5xl font-black number-accent mb-2">€30k+</div>
+        <div class="font-bold text-zinc-800 mb-1">CA mensuel additionnel</div>
+        <div class="text-zinc-500 text-sm">2–3 missions placées/mois × honoraires moyens €10–15k = ROI 40–60× sur le coût de la stack</div>
+      </div>
+    </div>
+
+    <div class="card rounded-2xl overflow-hidden">
+      <div class="grid md:grid-cols-2">
+        <div class="p-8 border-r border-zinc-100">
+          <h3 class="font-bold text-zinc-900 text-lg mb-5">Hypothèses de calcul</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100">
+              <span class="text-zinc-500 text-sm">Prospects qualifiés / mois</span>
+              <span class="font-bold text-zinc-800">~300</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100">
+              <span class="text-zinc-500 text-sm">Taux de RDV obtenu</span>
+              <span class="font-bold text-zinc-800">3–4%</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100">
+              <span class="text-zinc-500 text-sm">Taux de transformation RDV → mission</span>
+              <span class="font-bold text-zinc-800">25–30%</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100">
+              <span class="text-zinc-500 text-sm">Honoraires moyens / mission</span>
+              <span class="font-bold text-zinc-800">€10 000 – €20 000</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-zinc-100">
+              <span class="text-zinc-500 text-sm">Coût stack GTM-OS (mensuel)</span>
+              <span class="font-bold text-zinc-800">~€700 – €1 200</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-8 flex flex-col justify-center bg-gradient-to-br from-sky-50 to-indigo-50">
+          <div class="text-center">
+            <div class="text-sm text-zinc-500 mb-2">CA additionnel estimé / mois</div>
+            <div class="text-6xl font-black number-accent mb-1">€30–60k</div>
+            <div class="text-zinc-400 text-sm mb-6">Pour 2–4 missions signées</div>
+            <div class="bg-white border border-emerald-200 rounded-xl p-4">
+              <div class="text-sm font-semibold text-emerald-800 mb-1">Retour sur investissement</div>
+              <div class="text-3xl font-black text-emerald-600">40× – 80×</div>
+              <div class="text-xs text-emerald-600 mt-1">Par rapport au coût de la stack</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STACK D'INTÉGRATIONS ───────────────────────────────── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Stack d'intégrations</p>
+      <h2 class="text-4xl font-black tracking-tight text-zinc-900">
+        Les meilleurs outils,<br/><span class="gradient-text">orchestrés ensemble.</span>
+      </h2>
+      <p class="text-zinc-500 mt-4 max-w-xl mx-auto text-sm">GTM-OS connecte chaque service au bon moment dans le pipeline. Vous configurez une fois, il s'occupe du reste.</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">🔍</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">Crustdata</div>
+        <div class="text-xs text-zinc-500">Sourcing 700M+ profils LinkedIn avec filtres granulaires</div>
+        <div class="mt-3 text-xs mono text-sky-600 bg-sky-50 border border-sky-100 px-2 py-1 rounded-lg">candidates:source</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">💼</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">Unipile</div>
+        <div class="text-xs text-zinc-500">LinkedIn DMs, connexions, polling inbox, profil enrichment</div>
+        <div class="mt-3 text-xs mono text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-lg">candidates:outreach</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">📧</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">Instantly</div>
+        <div class="text-xs text-zinc-500">Email outreach séquencé, campagnes personnalisées</div>
+        <div class="mt-3 text-xs mono text-violet-600 bg-violet-50 border border-violet-100 px-2 py-1 rounded-lg">channel: email</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">🤖</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">Claude</div>
+        <div class="text-xs text-zinc-500">Scoring 0–100, rédaction messages, analyse sentiment</div>
+        <div class="mt-3 text-xs mono text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg">Gate 5 · Outreach</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">🗂️</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">Notion</div>
+        <div class="text-xs text-zinc-500">Synchronisation shortlist client, suivi missions</div>
+        <div class="mt-3 text-xs mono text-zinc-600 bg-zinc-50 border border-zinc-200 px-2 py-1 rounded-lg">--sync-notion</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">🔔</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">Slack</div>
+        <div class="text-xs text-zinc-500">Alertes temps réel sur chaque candidat "Intéressé"</div>
+        <div class="mt-3 text-xs mono text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-lg">candidates:track</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">🏢</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">FullEnrich</div>
+        <div class="text-xs text-zinc-500">Email professionnel vérifié + enrichissement contacts</div>
+        <div class="mt-3 text-xs mono text-sky-600 bg-sky-50 border border-sky-100 px-2 py-1 rounded-lg">Gate 4 · Enrich</div>
+      </div>
+      <div class="card rounded-2xl p-5 text-center">
+        <div class="text-3xl mb-3">🗄️</div>
+        <div class="font-bold text-zinc-900 text-sm mb-1">SQLite / Turso</div>
+        <div class="text-xs text-zinc-500">DB locale ou cloud, schema versionné, migrations auto</div>
+        <div class="mt-3 text-xs mono text-zinc-600 bg-zinc-50 border border-zinc-200 px-2 py-1 rounded-lg">open-source</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TÉMOIGNAGES ────────────────────────────────────────── -->
+<section class="section-alt py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">Témoignages</p>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+        Ce que disent<br/><span class="gradient-text">les cabinets qui l'utilisent.</span>
+      </h2>
+    </div>
+
+    <div class="card-blue rounded-2xl p-8 md:p-10 mb-6 relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="flex gap-1 mb-5">
+          <span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span><span class="text-yellow-400">★</span>
+        </div>
+        <blockquote class="text-xl md:text-2xl font-semibold text-zinc-900 leading-relaxed mb-6 max-w-3xl">
+          "On faisait 2–3 missions par mois en prospectant à la main. Avec GTM-OS, on détecte les levées de fonds en temps réel et on approche le DRH sous 24h. On est passés à 7 missions placées en 6 semaines. Le ROI est évident."
+        </blockquote>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-lg font-bold text-white">T</div>
+          <div>
+            <div class="font-semibold text-zinc-900">Thomas Perrier</div>
+            <div class="text-sm text-zinc-500">Fondateur, Talent Bridge · Cabinet tech · Paris</div>
+          </div>
+          <div class="ml-auto hidden md:block bg-white border border-sky-200 px-4 py-2 rounded-xl">
+            <div class="text-xs text-zinc-400">Missions en 6 semaines</div>
+            <div class="text-lg font-black number-accent">+7 placements</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"Le sourcing candidats m'a bluffé. On a lancé une recherche pour un VP Engineering — GTM-OS nous a livré 18 profils scorés en 4 jours. Le client avait sa shortlist avant qu'on finisse notre brief."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">C</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Claire Fontaine</div><div class="text-xs text-zinc-400">Directrice, ExecSearch Partners · Lyon</div></div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"On avait peur que les messages automatisés sonnent faux. Mais Claude génère des approches vraiment personnalisées — il mentionne la levée, le secteur, la taille d'équipe. Les DRH nous répondent parce que ça semble fait main."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">M</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Mehdi Aïssa</div><div class="text-xs text-zinc-400">Partner, Scalers RH · Bordeaux</div></div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="flex gap-1 mb-4"><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-yellow-400 text-sm">★</span><span class="text-zinc-300 text-sm">★</span></div>
+        <blockquote class="text-zinc-600 text-sm leading-relaxed mb-5">"Ce qui change tout, c'est la détection des offres d'emploi en masse. Quand une boîte ouvre 8 postes similaires, GTM-OS nous alerte et lance la séquence. On arrive en premier, avec la bonne proposition."</blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">S</div>
+          <div><div class="font-semibold text-zinc-800 text-sm">Sophie Renard</div><div class="text-xs text-zinc-400">CEO, MatchHR · Lille</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CAS D'USAGE ────────────────────────────────────────── -->
+<section class="section-white py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="text-sky-600 mono text-sm mb-3 tracking-widest uppercase">3 campagnes à lancer dès maintenant</p>
+      <h2 class="text-4xl font-black tracking-tight text-zinc-900">
+        Prêt à l'emploi pour<br/><span class="gradient-text">votre cabinet.</span>
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center mb-4 text-xl">💰</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Campagne "Levées récentes"</h3>
+        <p class="text-zinc-500 text-sm mb-4">Ciblez chaque entreprise de votre secteur qui lève des fonds. Message : "votre croissance va nécessiter des recrutements — on peut vous aider."</p>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Volume</span><span class="font-medium text-zinc-700">~80–150 co/mois</span></div>
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">RDV attendus</span><span class="font-medium text-emerald-600">4–8 / mois</span></div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-xl">📋</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Campagne "Job boards saturés"</h3>
+        <p class="text-zinc-500 text-sm mb-4">Firecrawl scrape les entreprises avec 5+ postes ouverts sur les mêmes profils. Elles sont débordées et prêtes à externaliser.</p>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Volume</span><span class="font-medium text-zinc-700">~50–100 co/mois</span></div>
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">RDV attendus</span><span class="font-medium text-emerald-600">3–6 / mois</span></div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center mb-4 text-xl">👤</div>
+        <h3 class="font-bold text-zinc-900 mb-2">Campagne "Candidats passifs"</h3>
+        <p class="text-zinc-500 text-sm mb-4">Pour chaque nouvelle mission, lancez un sourcing automatique sur les profils passifs correspondants. Shortlist livrée en 3–5 jours via le pipeline 7 portes.</p>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Profils analysés</span><span class="font-medium text-zinc-700">300–500 / mission</span></div>
+          <div class="flex justify-between text-xs"><span class="text-zinc-400">Shortlist qualifiée</span><span class="font-medium text-emerald-600">10–15 profils scorés</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA FINAL ─────────────────────────────────────────── -->
+<section id="contact" class="section-alt py-24 px-6">
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="card-blue rounded-3xl p-12">
+      <div class="inline-flex items-center gap-2 bg-white border border-sky-200 px-4 py-2 rounded-full mb-6">
+        <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+        <span class="text-xs text-sky-700 mono">Stack open-source · Déployable en 48h</span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-zinc-900">
+        Prêt à automatiser<br/><span class="gradient-text">votre cabinet ?</span>
+      </h2>
+      <p class="text-zinc-500 leading-relaxed mb-3">Réservez un appel de 30 minutes. On audite votre motion commerciale actuelle et on vous montre exactement quelles campagnes lancer en premier.</p>
+      <p class="text-zinc-400 text-sm mb-8">Aucun engagement. Résultats visibles sous 2 semaines.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Cabinet Recrutement - Démo" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base">
+          Prendre rendez-vous →
+        </a>
+        <a href="landing.html" class="btn-ghost px-8 py-4 rounded-xl text-zinc-700 text-base">
+          Voir la version complète
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────── -->
+<footer class="border-t border-zinc-100 py-10 px-6 bg-white">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-md btn-primary flex items-center justify-center">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/></svg>
+      </div>
+      <span class="font-bold text-sm text-zinc-800">GTM-OS · Recrutement</span>
+    </div>
+    <div class="flex gap-6 text-sm text-zinc-400">
+      <a href="#clients" class="hover:text-zinc-700 transition-colors">Acquisition clients</a>
+      <a href="#candidats" class="hover:text-zinc-700 transition-colors">Sourcing</a>
+      <a href="#pipeline" class="hover:text-zinc-700 transition-colors">Pipeline</a>
+      <a href="#roi" class="hover:text-zinc-700 transition-colors">ROI</a>
+      <a href="mailto:abdellah.ramli@gmail.com" class="hover:text-zinc-700 transition-colors">Contact</a>
+    </div>
+    <div class="mono text-xs text-zinc-400">GTM-OS · Open Source · 2026</div>
+  </div>
+</footer>
+
+</body>
+</html>

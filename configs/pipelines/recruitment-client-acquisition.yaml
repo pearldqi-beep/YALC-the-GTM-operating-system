@@ -1,0 +1,83 @@
+name: recruitment-client-acquisition
+description: >-
+  Track 2 — Employer Client Acquisition. Find companies with active hiring needs
+  in the agency's specialist sector, identify HR and TA decision-makers, qualify
+  them against the employer client ICP, and push qualified contacts into a
+  LinkedIn outreach sequence to win a mandate or PSL slot.
+version: "1.0"
+tenant: recruitment
+
+# Configure per agency specialisation before running
+params:
+  agency_sector: ""            # e.g. "SaaS & Fintech"
+  agency_role_types: []        # e.g. ["engineering", "product", "data"]
+  target_geography: ""         # e.g. "United Kingdom"
+  target_company_size_min: 20
+  target_company_size_max: 1000
+  qualification_score_min: 75
+  proof_placement: ""          # e.g. "Head of Engineering at a Series B SaaS" (for messaging)
+
+steps:
+  - id: find-hiring-companies
+    skill: find-companies
+    input:
+      query: "{{agency_sector}} company hiring {{agency_role_types}} {{target_geography}}"
+      max_results: 100
+      filters:
+        employee_count_min: "{{target_company_size_min}}"
+        employee_count_max: "{{target_company_size_max}}"
+        has_job_postings: true
+    output: companies
+
+  - id: find-hr-contacts
+    skill: find-people
+    from: companies
+    condition: "domain exists"
+    input:
+      roles:
+        - HR Director
+        - Head of HR
+        - Head of Talent Acquisition
+        - Chief People Officer
+        - Head of People
+        - CEO
+        - CTO
+        - VP Engineering
+      limit_per_company: 2
+    output: contacts
+
+  - id: enrich-contacts
+    skill: enrich-leads
+    from: contacts
+    condition: "linkedin_url exists OR email exists"
+    input:
+      types: [linkedin, email]
+    output: enriched
+
+  - id: qualify-employer-clients
+    skill: qualify-leads
+    from: enriched
+    condition: "count > 0"
+    input:
+      segment: seg-employer-clients
+      context:
+        agency_sector: "{{agency_sector}}"
+        agency_role_types: "{{agency_role_types}}"
+        proof_placement: "{{proof_placement}}"
+    output: qualified
+
+  - id: export-to-campaign
+    skill: export-data
+    from: qualified
+    condition: "score >= {{qualification_score_min}}"
+    input:
+      format: json
+      destination: campaign
+      campaign_track: employer-client-acquisition
+      sequence:
+        connect_note: >-
+          Hi {{first_name}}, noticed {{company_name}} is hiring in
+          {{agency_sector}} — we specialise in this space.
+          Happy to share how we approach these searches.
+        dm1_template: employer-dm1
+        dm2_template: employer-dm2
