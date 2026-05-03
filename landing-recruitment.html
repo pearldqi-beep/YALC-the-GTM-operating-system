@@ -144,6 +144,7 @@
       <span class="text-xs text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full">Recruitment firms</span>
     </div>
     <div class="hidden md:flex items-center gap-8 text-sm text-zinc-500">
+      <a href="index.html" class="hover:text-zinc-900 transition-colors">← Home</a>
       <a href="#probleme" class="hover:text-zinc-900 transition-colors">Problem</a>
       <a href="#clients" class="hover:text-zinc-900 transition-colors">Client acquisition</a>
       <a href="#candidats" class="hover:text-zinc-900 transition-colors">Candidate sourcing</a>
@@ -151,10 +152,25 @@
     </div>
     <div class="flex items-center gap-3">
       <a href="#contact" class="btn-ghost text-sm px-4 py-2 rounded-lg text-zinc-600 hidden md:block">See the demo</a>
-      <a href="#contact" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white">Book a call →</a>
+      <a href="#contact" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white hidden md:block">Book a call →</a>
+      <button id="menu-btn" onclick="toggleMenu()" class="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer" aria-label="Open menu">
+        <span class="block w-5 h-0.5 bg-zinc-600 transition-all duration-200" id="bar1"></span>
+        <span class="block w-5 h-0.5 bg-zinc-600 transition-all duration-200" id="bar2"></span>
+        <span class="block w-5 h-0.5 bg-zinc-600 transition-all duration-200" id="bar3"></span>
+      </button>
     </div>
   </div>
 </nav>
+<div id="mobile-menu" style="display:none;position:fixed;top:64px;width:100%;z-index:40;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid #e4e4e7;padding:16px 24px;">
+  <a href="index.html"   class="block py-3 text-sm font-semibold text-sky-600 border-b border-zinc-100">← Home</a>
+  <a href="#probleme"    onclick="toggleMenu()" class="block py-3 text-sm text-zinc-500 hover:text-zinc-900 border-b border-zinc-100 cursor-pointer">Problem</a>
+  <a href="#clients"     onclick="toggleMenu()" class="block py-3 text-sm text-zinc-500 hover:text-zinc-900 border-b border-zinc-100 cursor-pointer">Client acquisition</a>
+  <a href="#candidats"   onclick="toggleMenu()" class="block py-3 text-sm text-zinc-500 hover:text-zinc-900 border-b border-zinc-100 cursor-pointer">Candidate sourcing</a>
+  <a href="#roi"         onclick="toggleMenu()" class="block py-3 text-sm text-zinc-500 hover:text-zinc-900 border-b border-zinc-100 cursor-pointer">ROI</a>
+  <div class="pt-3">
+    <a href="#contact" onclick="toggleMenu()" class="block w-full text-center btn-primary text-sm px-4 py-3 rounded-lg font-medium text-white cursor-pointer">Book a call →</a>
+  </div>
+</div>
 
 <!-- ── TICKER ────────────────────────────────────────────── -->
 <div class="fixed top-16 w-full z-40 overflow-hidden border-b border-zinc-100" style="background:rgba(248,250,252,0.95)">
@@ -771,5 +787,16 @@
   </div>
 </footer>
 
+<script>
+  function toggleMenu(){
+    const m=document.getElementById('mobile-menu');
+    const open=m.style.display==='block';
+    m.style.display=open?'none':'block';
+    const b1=document.getElementById('bar1'),b2=document.getElementById('bar2'),b3=document.getElementById('bar3');
+    if(b1)b1.style.transform=open?'':'translateY(8px) rotate(45deg)';
+    if(b2)b2.style.opacity=open?'1':'0';
+    if(b3)b3.style.transform=open?'':'translateY(-8px) rotate(-45deg)';
+  }
+</script>
 </body>
 </html>
