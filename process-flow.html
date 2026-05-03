@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GTM-OS · Process Flow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *{font-family:'Plus Jakarta Sans',sans-serif}
+    .mono{font-family:'JetBrains Mono',monospace}
+    body{background:#080f1e;color:#e2e8f0;min-height:100vh}
+
+    /* ── GRADIENT TEXT ── */
+    .gtext{background:linear-gradient(135deg,#38BDF8,#818CF8 55%,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    /* ── ANIMATED FLOW LINE ── */
+    @keyframes flow{0%{stroke-dashoffset:200}100%{stroke-dashoffset:0}}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes particle{0%{opacity:0;transform:translate(0,0) scale(0)}30%{opacity:1}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1.5)}}
+    @keyframes scanline{0%{top:0}100%{top:100%}}
+
+    .flow-arrow svg .flow-path{stroke-dasharray:8 4;animation:flow 1.2s linear infinite}
+    .pulse{animation:pulse-dot 2s ease-in-out infinite}
+    .float{animation:float 3s ease-in-out infinite}
+    .fade-up{animation:fadeInUp .6s ease both}
+
+    /* ── STAGE CARDS ── */
+    .stage-card{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      transition:all .25s ease;
+      cursor:default;
+      position:relative;
+      overflow:hidden;
+    }
+    .stage-card::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,transparent 60%);
+      pointer-events:none;
+    }
+    .stage-card:hover{
+      border-color:rgba(56,189,248,.35);
+      background:rgba(56,189,248,.04);
+      transform:translateY(-2px);
+      box-shadow:0 8px 32px rgba(56,189,248,.08);
+    }
+
+    /* ── TOOL BADGE ── */
+    .tool-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      padding:3px 10px;border-radius:20px;font-size:11px;
+      font-family:'JetBrains Mono',monospace;font-weight:500;
+      border:1px solid;transition:all .2s;
+    }
+    .tool-badge:hover{transform:scale(1.05)}
+
+    /* ── GATE ROW ── */
+    .gate-row{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;border-radius:10px;
+      transition:all .2s;
+      border:1px solid transparent;
+    }
+    .gate-row:hover{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(255,255,255,.08);
+    }
+    .gate-num{
+      width:28px;height:28px;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;flex-shrink:0;
+      font-family:'JetBrains Mono',monospace;
+    }
+
+    /* ── CONNECTOR ── */
+    .connector{
+      display:flex;align-items:center;justify-content:center;
+      height:40px;position:relative;
+    }
+    .connector::before{
+      content:'';position:absolute;left:50%;top:0;bottom:0;
+      width:1px;background:linear-gradient(to bottom,rgba(56,189,248,.3),rgba(129,140,248,.3));
+      transform:translateX(-50%);
+    }
+    .connector-dot{
+      width:8px;height:8px;border-radius:50%;
+      background:linear-gradient(135deg,#38BDF8,#818CF8);
+      z-index:1;flex-shrink:0;
+      box-shadow:0 0 8px rgba(56,189,248,.6);
+    }
+
+    /* ── FUNNEL BAR ── */
+    .funnel-bar{
+      height:6px;border-radius:3px;
+      transition:width .8s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── STATUS PILL ── */
+    .status-pill{
+      padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
+      border:1px solid;white-space:nowrap;
+    }
+
+    /* ── SEQUENCE STEP ── */
+    .seq-step{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;padding:14px 16px;
+      transition:all .25s;
+      position:relative;
+    }
+    .seq-step:hover{
+      background:rgba(255,255,255,.07);
+      border-color:rgba(255,255,255,.15);
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-header{
+      display:flex;align-items:center;gap-10px;
+      padding:6px 14px;border-radius:8px;
+      font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      margin-bottom:16px;display:inline-flex;
+    }
+
+    /* ── CHANNEL TAG ── */
+    .ch-tag{
+      display:inline-flex;align-items:center;gap:4px;
+      padding:2px 8px;border-radius:6px;
+      font-size:10px;font-weight:600;
+      font-family:'JetBrains Mono',monospace;
+    }
+
+    /* ── LEGEND ── */
+    .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+    /* ── MINI SPARKLINE ── */
+    .spark-fill{transition:width 1s ease}
+
+    /* ── NAV ── */
+    .nav-pill{
+      padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;
+      cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.04);color:#94a3b8;
+    }
+    .nav-pill.active{
+      background:linear-gradient(135deg,#0369a1,#4f46e5);
+      border-color:transparent;color:#fff;
+    }
+    .nav-pill:hover:not(.active){background:rgba(255,255,255,.08);color:#e2e8f0}
+
+    /* scrollbar */
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- ── HEADER ── -->
+<div style="background:rgba(15,23,42,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07)" class="fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+        <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Home
+      </a>
+      <span class="text-slate-700">/</span>
+      <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background:linear-gradient(135deg,#0369a1,#4f46e5)">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/><circle cx="7" cy="7" r="2" fill="white" opacity=".6"/></svg>
+      </div>
+      <span class="font-bold text-white text-sm">GTM-OS</span>
+      <span class="text-slate-600 text-xs mono">·</span>
+      <span class="text-slate-400 text-xs">Process Flow</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pulse w-2 h-2 rounded-full bg-emerald-400 block"></span>
+      <span class="text-xs text-slate-400 mono">7-gate AI pipeline</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── HERO TITLE ── -->
+<div class="pt-24 pb-10 px-6 text-center max-w-4xl mx-auto">
+  <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs mono" style="background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);color:#7dd3fc">
+    <span class="pulse w-1.5 h-1.5 rounded-full bg-sky-400 block"></span>
+    End-to-end GTM automation · From signal to signed deal
+  </div>
+  <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4">
+    <span class="text-white">How GTM-OS turns</span><br/>
+    <span class="gtext">a signal into a closed deal</span>
+  </h1>
+  <p class="text-slate-400 text-lg max-w-2xl mx-auto">From raw data sources through the 7-gate qualification pipeline to personalised outreach sequences — every connection, every tool, every decision point.</p>
+</div>
+
+<!-- ── MAIN FLOW ── -->
+<div class="max-w-6xl mx-auto px-6 pb-20">
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- STAGE 1 — SIGNAL DETECTION                  -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="fade-up" style="animation-delay:.05s">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="section-header" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);color:#38bdf8">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Stage 1 — Signal Detection
+      </div>
+      <div class="flex-1 h-px" style="background:linear-gradient(to right,rgba(56,189,248,.3),transparent)"></div>
+      <span class="text-xs text-slate-500 mono">entry point</span>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-2">
+      <!-- Crustdata -->
+      <div class="stage-card p-4" style="border-color:rgba(56,189,248,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(56,189,248,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">Crustdata</div>
+        <div class="text-xs text-slate-400 leading-relaxed mb-3">700M+ company profiles — hiring surge, funding, expansion signals</div>
+        <div class="space-y-1">
+          <div class="ch-tag" style="background:rgba(56,189,248,.1);color:#7dd3fc">hiring_surge</div>
+          <div class="ch-tag" style="background:rgba(56,189,248,.1);color:#7dd3fc">funding_round</div>
+          <div class="ch-tag" style="background:rgba(56,189,248,.1);color:#7dd3fc">geo_expansion</div>
+        </div>
+      </div>
+
+      <!-- Firecrawl -->
+      <div class="stage-card p-4" style="border-color:rgba(251,146,60,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(251,146,60,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fb923c" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">Firecrawl</div>
+        <div class="text-xs text-slate-400 leading-relaxed mb-3">Scrapes job boards, press, LinkedIn for relocation & life-event signals</div>
+        <div class="space-y-1">
+          <div class="ch-tag" style="background:rgba(251,146,60,.1);color:#fdba74">relocation</div>
+          <div class="ch-tag" style="background:rgba(251,146,60,.1);color:#fdba74">life_event</div>
+          <div class="ch-tag" style="background:rgba(251,146,60,.1);color:#fdba74">press_release</div>
+        </div>
+      </div>
+
+      <!-- LinkedIn -->
+      <div class="stage-card p-4" style="border-color:rgba(99,102,241,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(99,102,241,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">LinkedIn</div>
+        <div class="text-xs text-slate-400 leading-relaxed mb-3">Profile visitors & post engagers scraped via Unipile</div>
+        <div class="space-y-1">
+          <div class="ch-tag" style="background:rgba(99,102,241,.1);color:#a5b4fc">visitors</div>
+          <div class="ch-tag" style="background:rgba(99,102,241,.1);color:#a5b4fc">engagers</div>
+        </div>
+      </div>
+
+      <!-- CSV / CRM -->
+      <div class="stage-card p-4" style="border-color:rgba(52,211,153,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(52,211,153,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">CSV / CRM</div>
+        <div class="text-xs text-slate-400 leading-relaxed mb-3">Manual import or sync from HubSpot, Salesforce, Pipedrive</div>
+        <div class="space-y-1">
+          <div class="ch-tag" style="background:rgba(52,211,153,.1);color:#6ee7b7">csv_import</div>
+          <div class="ch-tag" style="background:rgba(52,211,153,.1);color:#6ee7b7">crm_sync</div>
+        </div>
+      </div>
+
+      <!-- Notion -->
+      <div class="stage-card p-4" style="border-color:rgba(167,139,250,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(167,139,250,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">Notion DB</div>
+        <div class="text-xs text-slate-400 leading-relaxed mb-3">Existing knowledge base, ICP, and prospect lists as source</div>
+        <div class="space-y-1">
+          <div class="ch-tag" style="background:rgba(167,139,250,.1);color:#c4b5fd">notion_db</div>
+          <div class="ch-tag" style="background:rgba(167,139,250,.1);color:#c4b5fd">json_feed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Volume indicator -->
+    <div class="flex items-center justify-between px-2 mb-1">
+      <span class="text-xs text-slate-500 mono">Raw prospects entering pipeline</span>
+      <span class="text-xs font-bold mono" style="color:#38bdf8">~500 / run</span>
+    </div>
+    <div class="w-full h-1.5 rounded-full mb-1" style="background:rgba(255,255,255,.06)">
+      <div class="h-1.5 rounded-full spark-fill" style="width:100%;background:linear-gradient(to right,#38bdf8,#818cf8)"></div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector my-2">
+    <div class="connector-dot"></div>
+  </div>
+  <div class="flow-arrow flex items-center justify-center mb-2">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path class="flow-path" d="M12 4v16M6 16l6 6 6-6" stroke="url(#grad1)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/>
+      <defs><linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#818CF8"/></linearGradient></defs>
+    </svg>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- STAGE 2 — 7-GATE QUALIFICATION              -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="fade-up" style="animation-delay:.15s">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="section-header" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Stage 2 — 7-Gate Qualification Pipeline
+      </div>
+      <div class="flex-1 h-px" style="background:linear-gradient(to right,rgba(99,102,241,.3),transparent)"></div>
+      <span class="text-xs text-slate-500 mono">leads:qualify</span>
+    </div>
+
+    <div class="stage-card p-5" style="border-color:rgba(99,102,241,.2)">
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Gates -->
+        <div class="space-y-1">
+          <!-- Gate 0 -->
+          <div class="gate-row">
+            <div class="gate-num" style="background:rgba(113,113,122,.15);color:#a1a1aa">G0</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-white">Deduplication</span>
+                <span class="text-xs mono text-slate-500">–5%</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Cross-checks existing leads & campaigns. Flags ambiguous for Notion review.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-zinc-500 flex-shrink-0"></div>
+          </div>
+
+          <!-- Gate 1 -->
+          <div class="gate-row">
+            <div class="gate-num" style="background:rgba(56,189,248,.12);color:#38bdf8">G1</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-white">Headline Pre-qual</span>
+                <span class="text-xs mono text-slate-500">–30%</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Filters by job title / role keywords from ICP rules file.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0"></div>
+          </div>
+
+          <!-- Gate 2 -->
+          <div class="gate-row">
+            <div class="gate-num" style="background:rgba(239,68,68,.12);color:#f87171">G2</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-white">Exclusion List</span>
+                <span class="text-xs mono text-slate-500">–5%</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Removes blacklisted names, companies, domains, URLs.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-red-400 flex-shrink-0"></div>
+          </div>
+
+          <!-- Gate 3 -->
+          <div class="gate-row">
+            <div class="gate-num" style="background:rgba(245,158,11,.12);color:#fbbf24">G3</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-white">Company Disqualifiers</span>
+                <span class="text-xs mono text-slate-500">–5%</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Blocks excluded companies, wrong industries, competitors.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></div>
+          </div>
+
+          <!-- Gate 4 -->
+          <div class="gate-row">
+            <div class="gate-num" style="background:rgba(99,102,241,.15);color:#818cf8">G4</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-white">Enrichment</span>
+                <span class="text-xs mono" style="color:#818cf8">FullEnrich · Unipile</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Adds missing email, LinkedIn, company data. LinkedIn sources via Unipile.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-indigo-400 flex-shrink-0"></div>
+          </div>
+
+          <!-- Gate 5 -->
+          <div class="gate-row" style="background:rgba(167,139,250,.05);border-color:rgba(167,139,250,.15);border-radius:10px">
+            <div class="gate-num" style="background:rgba(167,139,250,.2);color:#c4b5fd">G5</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-bold text-white">AI Qualification</span>
+                <span class="text-xs font-bold mono" style="color:#a78bfa">Claude Opus</span>
+              </div>
+              <div class="text-xs text-slate-300 mt-0.5">Scores lead against ICP 0–100. Injects top validated intelligence insights.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-violet-400 flex-shrink-0 pulse"></div>
+          </div>
+
+          <!-- Gate 6 -->
+          <div class="gate-row">
+            <div class="gate-num" style="background:rgba(52,211,153,.12);color:#34d399">G6</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-white">Score Threshold</span>
+                <span class="text-xs mono text-slate-500">–40%</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Keeps leads with score ≥ 50/100. Configurable per tenant.</div>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></div>
+          </div>
+        </div>
+
+        <!-- Funnel visualisation -->
+        <div class="flex flex-col justify-center gap-2.5 pl-4 border-l border-white/5">
+          <div class="text-xs text-slate-500 mono mb-1 uppercase tracking-widest">Funnel reduction</div>
+
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">Raw input</span><span class="mono text-slate-300">500</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:100%;background:#38bdf8"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">After Dedup</span><span class="mono text-slate-300">475</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:95%;background:#60a5fa"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">After Headline</span><span class="mono text-slate-300">330</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:66%;background:#818cf8"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">After Exclusion + Company</span><span class="mono text-slate-300">300</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:60%;background:#a78bfa"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">After Enrichment</span><span class="mono text-slate-300">300</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:60%;background:#c084fc"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">After AI Score</span><span class="mono text-slate-300">300</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:60%;background:#e879f9"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-slate-400"><strong class="text-white">Qualified output</strong></span><span class="mono font-bold" style="color:#34d399">~175</span></div>
+            <div class="w-full h-2 rounded-full" style="background:rgba(255,255,255,.06)">
+              <div class="h-2 rounded-full funnel-bar" style="width:35%;background:#34d399"></div>
+            </div>
+          </div>
+
+          <!-- Output stat -->
+          <div class="mt-4 rounded-xl p-4 text-center" style="background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2)">
+            <div class="text-3xl font-black" style="color:#34d399">35%</div>
+            <div class="text-xs text-slate-400 mt-1">pass rate · avg score <strong class="text-white">74/100</strong></div>
+            <div class="text-xs text-slate-500 mt-0.5 mono">Duration: ~6s / 500 leads</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector my-2"><div class="connector-dot"></div></div>
+  <div class="flow-arrow flex items-center justify-center mb-2">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path class="flow-path" d="M12 4v16M6 16l6 6 6-6" stroke="url(#grad2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/>
+      <defs><linearGradient id="grad2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818CF8"/><stop offset="100%" stop-color="#A78BFA"/></linearGradient></defs>
+    </svg>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- STAGE 3 — MESSAGE GENERATION                -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="fade-up" style="animation-delay:.25s">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="section-header" style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:#a78bfa">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Stage 3 — Message Generation & Validation
+      </div>
+      <div class="flex-1 h-px" style="background:linear-gradient(to right,rgba(167,139,250,.3),transparent)"></div>
+      <span class="text-xs text-slate-500 mono">dev:outreach</span>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- Claude generation -->
+      <div class="stage-card p-5" style="border-color:rgba(167,139,250,.25)">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(167,139,250,.15)">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div>
+            <div class="font-bold text-white text-sm">Claude generates the message</div>
+            <div class="text-xs text-slate-400">1 unique message per prospect</div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-start gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 flex-shrink-0"></div>
+            <div class="text-xs text-slate-300">Reads lead's signal, score, and ICP profile</div>
+          </div>
+          <div class="flex items-start gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 flex-shrink-0"></div>
+            <div class="text-xs text-slate-300">Injects top 5 proven + 3 validated intelligence insights</div>
+          </div>
+          <div class="flex items-start gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 flex-shrink-0"></div>
+            <div class="text-xs text-slate-300">Matches tone of voice from <span class="mono text-violet-300">voice/tone-of-voice.md</span></div>
+          </div>
+          <div class="flex items-start gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 flex-shrink-0"></div>
+            <div class="text-xs text-slate-300">Generates connect note (LinkedIn) + email variant</div>
+          </div>
+        </div>
+        <div class="mt-4 p-3 rounded-xl text-xs italic text-slate-300 leading-relaxed" style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.15)">
+          "Congratulations on your new role — we have a 3-bed apartment ready Q1 2027 in your target neighbourhood that matches your profile exactly. Worth a private viewing before it goes to public listing?"
+        </div>
+      </div>
+
+      <!-- 8-rule validation -->
+      <div class="stage-card p-5" style="border-color:rgba(245,158,11,.2)">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(245,158,11,.1)">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="1.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div>
+            <div class="font-bold text-white text-sm">8-rule validation</div>
+            <div class="text-xs text-slate-400">Hard rules — no exceptions</div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">No word "signal" in copy</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">Never start with "I"</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">No disclaimers or filler phrases</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">No dash punctuation</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">No "nice to connect" filler</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">Start with "Hello"</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">No company TLDs (anti-spam)</div></div>
+          <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></div><div class="text-xs text-slate-300">Specific actionable CTA required</div></div>
+        </div>
+        <div class="mt-4 flex items-center gap-2 p-3 rounded-xl" style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2)">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          <div class="text-xs text-red-300">Fails validation → regenerated, not sent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector my-2"><div class="connector-dot"></div></div>
+  <div class="flow-arrow flex items-center justify-center mb-2">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path class="flow-path" d="M12 4v16M6 16l6 6 6-6" stroke="url(#grad3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/>
+      <defs><linearGradient id="grad3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#FCD34D"/></linearGradient></defs>
+    </svg>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- STAGE 4 — OUTREACH SEQUENCE                 -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="fade-up" style="animation-delay:.35s">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="section-header" style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);color:#fbbf24">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Stage 4 — Outreach Sequence
+      </div>
+      <div class="flex-1 h-px" style="background:linear-gradient(to right,rgba(251,191,36,.3),transparent)"></div>
+      <span class="text-xs text-slate-500 mono">30 LinkedIn connects / day</span>
+    </div>
+
+    <!-- Timeline -->
+    <div class="stage-card p-5" style="border-color:rgba(251,191,36,.2)">
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- LinkedIn sequence -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            <span class="text-sm font-semibold text-white">LinkedIn</span>
+            <span class="text-xs mono text-slate-400">via Unipile</span>
+          </div>
+          <div class="relative pl-6">
+            <div class="absolute left-2 top-0 bottom-0 w-px" style="background:linear-gradient(to bottom,rgba(99,102,241,.4),transparent)"></div>
+
+            <div class="seq-step mb-3">
+              <div class="absolute -left-4 top-4 w-3 h-3 rounded-full border-2 flex-shrink-0" style="background:#0f172a;border-color:#818cf8"></div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs mono font-bold" style="color:#818cf8">D+0</span>
+                <span class="text-sm font-semibold text-white">Connect request</span>
+                <span class="ch-tag ml-auto" style="background:rgba(99,102,241,.1);color:#a5b4fc">connect_note</span>
+              </div>
+              <div class="text-xs text-slate-400">Personalised note anchored on the lead's signal. Max 300 chars.</div>
+            </div>
+
+            <div class="seq-step mb-3">
+              <div class="absolute -left-4 top-4 w-3 h-3 rounded-full border-2 flex-shrink-0" style="background:#0f172a;border-color:#60a5fa"></div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs mono font-bold" style="color:#60a5fa">D+2</span>
+                <span class="text-sm font-semibold text-white">DM1 — Value open</span>
+                <span class="ch-tag ml-auto" style="background:rgba(56,189,248,.1);color:#7dd3fc">linkedin_dm</span>
+              </div>
+              <div class="text-xs text-slate-400">First direct message after connection accepted. Leads with the value, ends with soft CTA.</div>
+            </div>
+
+            <div class="seq-step">
+              <div class="absolute -left-4 top-4 w-3 h-3 rounded-full border-2 flex-shrink-0" style="background:#0f172a;border-color:#34d399"></div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs mono font-bold" style="color:#34d399">D+5</span>
+                <span class="text-sm font-semibold text-white">DM2 — Follow-up</span>
+                <span class="ch-tag ml-auto" style="background:rgba(52,211,153,.1);color:#6ee7b7">linkedin_dm</span>
+              </div>
+              <div class="text-xs text-slate-400">Final touch if no reply. Different angle. Auto-stops if reply detected at any step.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email sequence -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span class="text-sm font-semibold text-white">Email</span>
+            <span class="text-xs mono text-slate-400">via Instantly / Brevo / SendGrid</span>
+          </div>
+          <div class="relative pl-6">
+            <div class="absolute left-2 top-0 bottom-0 w-px" style="background:linear-gradient(to bottom,rgba(251,191,36,.4),transparent)"></div>
+
+            <div class="seq-step mb-3">
+              <div class="absolute -left-4 top-4 w-3 h-3 rounded-full border-2 flex-shrink-0" style="background:#0f172a;border-color:#fbbf24"></div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs mono font-bold" style="color:#fbbf24">D+0</span>
+                <span class="text-sm font-semibold text-white">Email 1 — Brief</span>
+                <span class="ch-tag ml-auto" style="background:rgba(251,191,36,.1);color:#fde68a">email</span>
+              </div>
+              <div class="text-xs text-slate-400">Personalised property / opportunity brief. Includes assets and CTA link.</div>
+            </div>
+
+            <div class="seq-step mb-3">
+              <div class="absolute -left-4 top-4 w-3 h-3 rounded-full border-2 flex-shrink-0" style="background:#0f172a;border-color:#f97316"></div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs mono font-bold" style="color:#f97316">D+3</span>
+                <span class="text-sm font-semibold text-white">Email 2 — Social proof</span>
+                <span class="ch-tag ml-auto" style="background:rgba(249,115,22,.1);color:#fdba74">email</span>
+              </div>
+              <div class="text-xs text-slate-400">Different angle, adds social proof or urgency signal. Skipped if email bounces.</div>
+            </div>
+
+            <div class="p-3 rounded-xl mt-2" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15)">
+              <div class="flex items-center gap-2">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span class="text-xs text-red-300">Bounce detected → email steps skipped, LinkedIn continues</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rate limits -->
+      <div class="mt-5 pt-4 border-t border-white/5 flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <div class="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+          <span>30 LinkedIn connects / day (rate limiter token bucket)</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <div class="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+          <span>Sequence stops immediately on any reply</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <div class="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+          <span>Never DM if prospect already replied</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector my-2"><div class="connector-dot"></div></div>
+  <div class="flow-arrow flex items-center justify-center mb-2">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path class="flow-path" d="M12 4v16M6 16l6 6 6-6" stroke="url(#grad4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/>
+      <defs><linearGradient id="grad4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#34D399"/></linearGradient></defs>
+    </svg>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- STAGE 5 — TRACKING & INTELLIGENCE           -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="fade-up" style="animation-delay:.45s">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="section-header" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:#34d399">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Stage 5 — Tracking, Intelligence & Iteration
+      </div>
+      <div class="flex-1 h-px" style="background:linear-gradient(to right,rgba(52,211,153,.3),transparent)"></div>
+      <span class="text-xs text-slate-500 mono">dev:track · daily cron</span>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 mb-4">
+      <!-- Reply tracking -->
+      <div class="stage-card p-5" style="border-color:rgba(52,211,153,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(52,211,153,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-2">Reply Detection</div>
+        <div class="space-y-2">
+          <div class="text-xs text-slate-400">Polls Unipile + Instantly every 24h. Classifies intent via Claude:</div>
+          <div class="flex items-center gap-2">
+            <div class="ch-tag" style="background:rgba(52,211,153,.1);color:#6ee7b7">interested</div>
+            <div class="ch-tag" style="background:rgba(239,68,68,.1);color:#fca5a5">not_interested</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="ch-tag" style="background:rgba(251,191,36,.1);color:#fde68a">needs_info</div>
+            <div class="ch-tag" style="background:rgba(99,102,241,.1);color:#a5b4fc">forwarded</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status advancement -->
+      <div class="stage-card p-5" style="border-color:rgba(56,189,248,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(56,189,248,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-2">Auto Status Advance</div>
+        <div class="space-y-1.5">
+          <div class="text-xs text-slate-400 mb-2">Pipeline moves automatically:</div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="status-pill" style="background:rgba(113,113,122,.12);border-color:rgba(113,113,122,.3);color:#a1a1aa">Sourced</span>
+            <svg width="10" height="10" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#4b5563" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="status-pill" style="background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.3);color:#7dd3fc">Contacted</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <svg width="10" height="10" fill="none" viewBox="0 0 16 16"><path d="M8 3v10M4 9l4 4 4-4" stroke="#4b5563" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="status-pill" style="background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.3);color:#a5b4fc">Replied</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <svg width="10" height="10" fill="none" viewBox="0 0 16 16"><path d="M8 3v10M4 9l4 4 4-4" stroke="#4b5563" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="status-pill" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#c4b5fd">Viewing booked</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <svg width="10" height="10" fill="none" viewBox="0 0 16 16"><path d="M8 3v10M4 9l4 4 4-4" stroke="#4b5563" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="status-pill" style="background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:#6ee7b7">Sale completed ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts & sync -->
+      <div class="stage-card p-5" style="border-color:rgba(167,139,250,.2)">
+        <div class="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style="background:rgba(167,139,250,.1)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <div class="font-bold text-white text-sm mb-2">Alerts & Sync</div>
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(52,211,153,.12)">
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+            </div>
+            <div class="text-xs text-slate-300">Slack alert on every reply or viewing booked</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(113,113,122,.12)">
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            </div>
+            <div class="text-xs text-slate-300">Notion sync — deal folder per prospect</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(167,139,250,.12)">
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div class="text-xs text-slate-300">A/B test results — chi-squared p&lt;0.05</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(56,189,248,.12)">
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            </div>
+            <div class="text-xs text-slate-300">Intelligence store updated from replies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dream cycle -->
+    <div class="stage-card p-5 flex items-start gap-5" style="border-color:rgba(251,191,36,.15)">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(251,191,36,.1)">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </div>
+      <div class="flex-1">
+        <div class="font-bold text-white text-sm mb-1">Dream Cycle — nightly intelligence loop</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Every night, the memory store processes all replies and engagement data. It promotes hypotheses to validated insights, retires outdated ones, and updates the scoring context injected into Gate 5 for the next run. The pipeline gets smarter with every campaign.</div>
+      </div>
+      <div class="text-xs mono text-amber-400 flex-shrink-0">nightly cron</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TOOL LEGEND                                 -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="mt-12 fade-up" style="animation-delay:.55s">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="section-header" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#94a3b8">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Full integration stack
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(56,189,248,.1)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Crustdata</div><div class="text-xs text-slate-500">Signal detection</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(251,146,60,.1)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fb923c" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Firecrawl</div><div class="text-xs text-slate-500">Web signal scraping</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(99,102,241,.1)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">FullEnrich</div><div class="text-xs text-slate-500">Email + LinkedIn enrich</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(167,139,250,.12)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Claude (Opus)</div><div class="text-xs text-slate-500">Scoring + message gen</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(99,102,241,.1)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Unipile</div><div class="text-xs text-slate-500">LinkedIn outreach</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(251,191,36,.1)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Instantly</div><div class="text-xs text-slate-500">Email sequences</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(52,211,153,.1)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Slack</div><div class="text-xs text-slate-500">Real-time alerts</div></div>
+      </div>
+      <div class="stage-card p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(113,113,122,.12)"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
+        <div><div class="text-sm font-semibold text-white">Notion</div><div class="text-xs text-slate-500">Pipeline sync + folders</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end max-w -->
+
+<!-- ── FOOTER ── -->
+<div class="border-t mt-8 py-6 px-6 text-center" style="border-color:rgba(255,255,255,.07)">
+  <div class="flex items-center justify-center gap-4">
+    <a href="index.html" class="text-xs text-slate-500 hover:text-slate-300 transition-colors">← Back to home</a>
+    <span class="text-slate-700">·</span>
+    <span class="text-xs text-slate-500 mono">GTM-OS · Open Source · 2026</span>
+  </div>
+</div>
+
+</body>
+</html>
