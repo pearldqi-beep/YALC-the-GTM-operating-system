@@ -26,14 +26,14 @@ steps:
   - day: 2
     channel: linkedin
     action: connect
-    template: "Hey {{first_name}}, saw {{company}} is growing the team. I work with similar companies on outbound, thought it'd be worth connecting."
+    template: "Hello {{first_name}}, saw {{company}} is growing the team. I work with similar companies on outbound, thought it'd be worth connecting."
 
   # Day 3: First cold email
   - day: 3
     channel: email
     action: send
     subject: "quick question"
-    template: "Hey {{first_name}}, saw {{company}} is scaling right now.\n\nI help companies in your space build pipeline without adding headcount. One of them added 40 meetings last month from cold email alone, team of 2.\n\nI put together a quick breakdown for {{company}}. Took me 10 minutes, yours to keep either way.\n\nWant me to send it over?"
+    template: "Hello {{first_name}}, saw {{company}} is scaling right now.\n\nI help companies in your space build pipeline without adding headcount. One of them added 40 meetings last month from cold email alone, team of 2.\n\nI put together a quick breakdown for {{company}}. Took me 10 minutes, yours to keep either way.\n\nWant me to send it over?"
 
   # Day 5: Email follow-up (only if they opened but didn't reply, and didn't reply on LinkedIn)
   - day: 5
@@ -48,7 +48,7 @@ steps:
     channel: linkedin
     action: dm
     condition: "connected_linkedin AND !replied_any"
-    template: "Hey {{first_name}}, thanks for connecting. I sent you an email a few days ago about outbound for {{company}}. Did it land?"
+    template: "Hello {{first_name}}, thanks for connecting. I sent you an email a few days ago about outbound for {{company}}. Did it land?"
 
   # Day 14: New email thread, different angle (only if no reply and email didn't bounce)
   - day: 14
@@ -56,11 +56,11 @@ steps:
     action: send
     subject: "{{company}} + outbound"
     condition: "!replied_any AND !bounced_email"
-    template: "Hey {{first_name}}, different angle here.\n\nMost teams I talk to spend $15-20K/month per SDR when you factor in salary, tools, and ramp time. The ones cutting that in half run cold email in parallel, not instead of, their existing motion.\n\nWorth a 10-min look at what that could look like for {{company}}?"
+    template: "Hello {{first_name}}, different angle here.\n\nMost teams I talk to spend $15-20K/month per SDR when you factor in salary, tools, and ramp time. The ones cutting that in half run cold email in parallel, not instead of, their existing motion.\n\nWorth a 10-min look at what that could look like for {{company}}?"
 
   # Day 21: Final LinkedIn DM (only if connected, no reply, last chance)
   - day: 21
     channel: linkedin
     action: dm
     condition: "connected_linkedin AND !replied_any AND !dm_sent_linkedin"
-    template: "Hey {{first_name}}, last one from me. If outbound isn't a priority right now, totally get it. But if it ever becomes one, happy to share what's working for companies like {{company}}. No hard feelings either way."
+    template: "Hello {{first_name}}, last one from me. If outbound isn't a priority right now, totally get it. But if it ever becomes one, happy to share what's working for companies like {{company}}. No hard feelings either way."

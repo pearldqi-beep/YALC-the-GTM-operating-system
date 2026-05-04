@@ -112,6 +112,7 @@ Rotate through: Save time, Save money, Make money.
 - No buzzwords: "synergy", "leverage", "innovative", "cutting-edge", "revolutionize"
 - Short sentences. Casual. Slightly imperfect.
 - No em dashes
+- Greetings MUST start with "Hello" — never "Hey", "Hi", "Dear", or "Good morning"
 
 ## QA Rules:
 - 50-90 words per email

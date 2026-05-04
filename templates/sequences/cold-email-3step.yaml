@@ -6,7 +6,7 @@
 steps:
   - subject: "quick question"
     body: |
-      Hey {{first_name}}, saw {{company}} is scaling the team right now.
+      Hello {{first_name}}, saw {{company}} is scaling the team right now.
 
       I help companies in your space build pipeline without adding headcount. One of them added 40 meetings last month from cold email alone, team of 2.
 
@@ -23,7 +23,7 @@ steps:
 
   - subject: "{{company}} + outbound"
     body: |
-      Hey {{first_name}}, different angle here.
+      Hello {{first_name}}, different angle here.
 
       Most teams I talk to spend $15-20K/month per SDR when you factor in salary, tools, and ramp time. The ones cutting that in half run cold email in parallel, not instead of, their existing motion.
 
