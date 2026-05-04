@@ -629,6 +629,115 @@
     .faq-body.open { max-height: 320px; }
     .faq-body p { padding: 0 24px 20px; font-size: 14px; line-height: 1.75; color: oklch(0.42 0.012 240); font-weight: 300; }
 
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      margin-top: 56px; align-items: stretch;
+    }
+    .pricing-card {
+      border-radius: 14px; padding: 32px;
+      background: oklch(0.13 0.007 240);
+      border: 1px solid var(--border-dark);
+      display: flex; flex-direction: column;
+      transition: border-color 0.2s;
+    }
+    .pricing-card:hover { border-color: var(--accent-mid); }
+    .pricing-card.featured {
+      background: linear-gradient(var(--bg-dark), var(--bg-dark)) padding-box,
+                  linear-gradient(135deg, oklch(0.72 0.18 200), oklch(0.6 0.18 260)) border-box;
+      border: 1.5px solid transparent;
+    }
+    .pricing-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 5px 10px; border-radius: 20px;
+      margin-bottom: 20px; width: fit-content;
+    }
+    .pricing-badge.blue   { background: oklch(0.72 0.18 200 / 0.12); color: oklch(0.72 0.18 200); }
+    .pricing-badge.indigo { background: oklch(0.6 0.18 260 / 0.15);  color: oklch(0.75 0.18 260); }
+    .pricing-badge.violet { background: oklch(0.55 0.18 290 / 0.15); color: oklch(0.72 0.18 290); }
+    .pricing-tier-name {
+      font-size: 19px; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--fg-dark); margin-bottom: 6px;
+    }
+    .pricing-tier-desc {
+      font-size: 13.5px; line-height: 1.6; color: var(--fg-muted);
+      font-weight: 300; margin-bottom: 24px; min-height: 54px;
+    }
+    .pricing-amount {
+      font-size: 42px; font-weight: 800; letter-spacing: -0.03em; color: var(--fg-dark);
+    }
+    .pricing-amount-unit {
+      font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 4px; vertical-align: middle;
+    }
+    .pricing-billing-note {
+      font-size: 11.5px; color: oklch(0.38 0.01 240); margin-top: 4px; margin-bottom: 24px;
+    }
+    .pricing-cta {
+      display: block; text-align: center; padding: 12px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; margin-bottom: 28px; transition: all 0.2s;
+    }
+    .pricing-cta.ghost  { border: 1px solid var(--border-dark); color: var(--fg-dark); }
+    .pricing-cta.ghost:hover { border-color: var(--accent-mid); }
+    .pricing-cta.primary { background: var(--accent); color: #0c0d10; }
+    .pricing-cta.primary:hover { filter: brightness(1.08); }
+    .pricing-divider { border: none; border-top: 1px solid var(--border-dark); margin-bottom: 20px; }
+    .pricing-feat-label {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: oklch(0.38 0.01 240); margin-bottom: 14px;
+    }
+    .pricing-feats { list-style: none; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .pricing-feat {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13.5px; line-height: 1.45; color: oklch(0.55 0.01 240); font-weight: 300;
+    }
+    .pricing-feat.highlight { color: var(--fg-dark); font-weight: 400; }
+    .pricing-check {
+      flex-shrink: 0; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent-dim); display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .pricing-cross {
+      flex-shrink: 0; width: 16px; height: 16px; display: flex;
+      align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .pricing-card-footer {
+      margin-top: 20px; padding: 12px 16px; border-radius: 8px;
+      background: oklch(0.1 0.006 240); text-align: center;
+      font-size: 11.5px; color: oklch(0.4 0.01 240);
+    }
+    .pricing-toggle-wrap {
+      display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 32px;
+    }
+    .pricing-toggle-label { font-size: 13px; font-weight: 500; color: var(--fg-muted); }
+    .pricing-toggle-label.active { color: var(--accent); }
+    .pricing-toggle-btn {
+      position: relative; width: 44px; height: 24px;
+      background: oklch(0.18 0.01 240); border-radius: 12px;
+      border: 1px solid var(--border-dark); cursor: pointer;
+    }
+    .pricing-toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); transition: transform 0.2s;
+    }
+    .pricing-toggle-btn.annual .pricing-toggle-thumb { transform: translateX(20px); }
+    .pricing-save-pill {
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+      background: oklch(0.55 0.17 150 / 0.12); color: oklch(0.72 0.17 150);
+    }
+    .pricing-popular-bar {
+      text-align: center; margin: -32px -32px 24px;
+      padding: 9px; border-radius: 14px 14px 0 0;
+      background: linear-gradient(135deg, oklch(0.72 0.18 200), oklch(0.6 0.18 260));
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #0c0d10;
+    }
+    @media (max-width: 900px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+      .pricing-tier-desc { min-height: auto; }
+    }
+
     /* ── CTA ── */
     #contact {
       padding: 120px 40px;
@@ -809,6 +918,7 @@
     <li><a href="#how">How it works</a></li>
     <li><a href="#sectors">Sectors</a></li>
     <li><a href="#service">Service</a></li>
+    <li><a href="#pricing">Pricing</a></li>
     <li><a href="#contact" class="accent">Book a call</a></li>
   </ul>
   <div style="display:flex;align-items:center;gap:10px;">
@@ -1406,6 +1516,101 @@
   </div>
 </section>
 
+<!-- ── PRICING ── -->
+<section id="pricing" class="section section-dark">
+  <div class="section-inner">
+    <div class="section-label on-dark fade-up">Pricing</div>
+    <h2 class="section-h2 on-dark fade-up">Simple, transparent pricing.</h2>
+    <p class="section-p on-dark fade-up" style="max-width:500px;">Fully managed — we run the pipeline, you close the deals. Three tiers matched to your team size and pipeline ambition.</p>
+
+    <div class="pricing-toggle-wrap fade-up" style="transition-delay:0.04s;">
+      <span class="pricing-toggle-label active" id="idx-lbl-monthly">Monthly</span>
+      <button class="pricing-toggle-btn" id="idx-billing-toggle" onclick="idxToggleBilling()">
+        <span class="pricing-toggle-thumb"></span>
+      </button>
+      <span class="pricing-toggle-label" id="idx-lbl-annual">Annual</span>
+      <span class="pricing-save-pill">−20%</span>
+    </div>
+
+    <div class="pricing-grid fade-up" style="transition-delay:0.08s;">
+
+      <!-- STARTER -->
+      <div class="pricing-card">
+        <div class="pricing-badge blue">GTM Starter</div>
+        <div class="pricing-tier-name">Single Project</div>
+        <div class="pricing-tier-desc">Fully managed for independent operators with 1–2 active projects. We run the pipeline — you approve before anything is sent.</div>
+        <div><span class="pricing-amount" id="idx-price-solo">€1,990</span><span class="pricing-amount-unit">/mo</span></div>
+        <div class="pricing-billing-note" id="idx-sub-solo">Monthly billing · 3-month minimum</div>
+        <a href="#contact" class="pricing-cta ghost">Get started →</a>
+        <hr class="pricing-divider"/>
+        <div class="pricing-feat-label">Included</div>
+        <ul class="pricing-feats">
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 active campaign (LinkedIn <em>or</em> email)</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 200 qualified leads / month</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>7-gate AI qualification (0–100 score)</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>AI-drafted personalised message sequences</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Weekly tracking report</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 campaign hypothesis / month</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Approval gates before any send</li>
+          <li class="pricing-feat"><span class="pricing-cross"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="oklch(0.28 0.01 240)" stroke-width="1.5" stroke-linecap="round"/></svg></span><span style="color:oklch(0.35 0.01 240)">Multi-channel · A/B testing · Strategy calls</span></li>
+        </ul>
+        <div class="pricing-card-footer">Email support · 48h response</div>
+      </div>
+
+      <!-- GROWTH (featured) -->
+      <div class="pricing-card featured">
+        <div class="pricing-popular-bar">★ Most popular</div>
+        <div class="pricing-badge indigo">GTM Growth</div>
+        <div class="pricing-tier-name">Active Pipeline</div>
+        <div class="pricing-tier-desc">Multi-channel managed pipeline for 2–3 active projects running qualification and outreach simultaneously across LinkedIn and email.</div>
+        <div><span class="pricing-amount" id="idx-price-cabinet">€4,500</span><span class="pricing-amount-unit">/mo</span></div>
+        <div class="pricing-billing-note" id="idx-sub-cabinet">Monthly billing · 3-month minimum</div>
+        <a href="#contact" class="pricing-cta primary">Start Growth →</a>
+        <hr class="pricing-divider"/>
+        <div class="pricing-feat-label">Everything in Starter, plus:</div>
+        <ul class="pricing-feats">
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>2 simultaneous campaigns (LinkedIn + email)</li>
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 500 qualified leads / month</li>
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A/B testing (p &lt; 0.05) + monthly intelligence report</li>
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Signal sourcing — hiring surge, fundraising, relocation</li>
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 competitor monitored</li>
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Notion CRM sync</li>
+          <li class="pricing-feat highlight"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Bi-weekly 30-min strategy call</li>
+        </ul>
+        <div class="pricing-card-footer" style="background:oklch(0.72 0.18 200 / 0.08);color:oklch(0.72 0.18 200);">Priority support · 24h · Onboarding call included</div>
+      </div>
+
+      <!-- SCALE -->
+      <div class="pricing-card">
+        <div class="pricing-badge violet">GTM Scale</div>
+        <div class="pricing-tier-name">Portfolio Scale</div>
+        <div class="pricing-tier-desc">For groups and asset managers with multiple projects across markets. Maximum coverage, weekly strategy, full intelligence compounding.</div>
+        <div><span class="pricing-amount" id="idx-price-scale">€9,000</span><span class="pricing-amount-unit">/mo</span></div>
+        <div class="pricing-billing-note" id="idx-sub-scale">Monthly billing · 3-month minimum</div>
+        <a href="#contact" class="pricing-cta ghost">Contact us →</a>
+        <hr class="pricing-divider"/>
+        <div class="pricing-feat-label">Everything in Growth, plus:</div>
+        <ul class="pricing-feats">
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Unlimited concurrent campaigns</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 1,500 qualified leads / month</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Multi-segment ICP (up to 3 segments)</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Full signal monitoring — jobs, funding, news</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>3 competitors monitored</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Weekly intelligence report + recommendations</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Weekly 1-hour dedicated strategy call</li>
+          <li class="pricing-feat"><span class="pricing-check"><svg width="8" height="8" fill="none" viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="oklch(0.72 0.18 200)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Dedicated Slack channel for async requests</li>
+        </ul>
+        <div class="pricing-card-footer">Dedicated Slack support · 4h response</div>
+      </div>
+
+    </div>
+
+    <p class="fade-up" style="text-align:center;font-size:13px;color:oklch(0.38 0.01 240);margin-top:32px;transition-delay:0.12s;">
+      Third-party API costs (Crustdata, Unipile, Instantly, etc.) billed separately at cost — typically €700–€1,500/mo.
+    </p>
+  </div>
+</section>
+
 <!-- ── CTA ── -->
 <section id="contact">
   <div class="cta-glow"></div>
@@ -1837,6 +2042,33 @@ ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<GTMTweaks />
   if (chartEl) chartObserver.observe(chartEl);
 
   // ── 12. FEED CARDS STAGGER ──
+  // ── PRICING TOGGLE ──
+  const idxPrices = {
+    monthly: { solo:'€1,990', cabinet:'€4,500', scale:'€9,000' },
+    annual:  { solo:'€1,590', cabinet:'€3,600', scale:'€7,200' },
+    subM: 'Monthly billing · 3-month minimum',
+    subA: {
+      solo:    'Billed €19,080/yr · save €4,800',
+      cabinet: 'Billed €43,200/yr · save €10,800',
+      scale:   'Billed €86,400/yr · save €21,600'
+    }
+  };
+  let idxIsAnnual = false;
+  function idxToggleBilling() {
+    idxIsAnnual = !idxIsAnnual;
+    document.getElementById('idx-billing-toggle').classList.toggle('annual', idxIsAnnual);
+    const p = idxIsAnnual ? idxPrices.annual : idxPrices.monthly;
+    const s = idxIsAnnual ? idxPrices.subA : { solo: idxPrices.subM, cabinet: idxPrices.subM, scale: idxPrices.subM };
+    document.getElementById('idx-price-solo').textContent    = p.solo;
+    document.getElementById('idx-price-cabinet').textContent = p.cabinet;
+    document.getElementById('idx-price-scale').textContent   = p.scale;
+    document.getElementById('idx-sub-solo').textContent    = s.solo;
+    document.getElementById('idx-sub-cabinet').textContent = s.cabinet;
+    document.getElementById('idx-sub-scale').textContent   = s.scale;
+    document.getElementById('idx-lbl-monthly').classList.toggle('active', !idxIsAnnual);
+    document.getElementById('idx-lbl-annual').classList.toggle('active',   idxIsAnnual);
+  }
+
   let feedFired = false;
   const feedObserver = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -1854,7 +2086,7 @@ ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<GTMTweaks />
   if (feedEl) feedObserver.observe(feedEl);
 
   // ── 13. ACTIVE NAV LINK HIGHLIGHT ──
-  const sections = ['problem','how','sectors','service','contact'];
+  const sections = ['problem','how','sectors','service','pricing','contact'];
   const navLinks = document.querySelectorAll('.nav-links a');
   const linkMap = {};
   navLinks.forEach(a => {
