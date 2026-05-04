@@ -46,6 +46,13 @@ program
   .option('-c, --config <path>', 'Path to config YAML', '~/.gtm-os/config.yaml')
   .option('-t, --tenant <slug>', 'Tenant slug (overrides GTM_OS_TENANT env and .gtm-os-tenant file)')
   .option('-v, --verbose', 'Enable verbose output with full stack traces')
+  .addHelpText(
+    'after',
+    `
+Next: run \`yalc-gtm start\` to set up your GTM context, or \`yalc-gtm doctor\` to diagnose your environment.
+Docs: https://github.com/Othmane-Khadri/YALC-the-GTM-operating-system#getting-started
+`,
+  )
   .hook('preAction', (thisCommand) => {
     // Resolve verbose flag first — affects error output globally
     const opts = thisCommand.opts()
@@ -196,6 +203,18 @@ program
     await runReport({ config, week: opts.week })
   }))
 
+/**
+ * Refuse cleanly when the user has opted the channel out via config.
+ * Wired into every send-path command. Exits the process when blocked.
+ */
+async function assertChannelEnabled(channel: 'email' | 'linkedin', commandTag: string): Promise<void> {
+  const { isChannelOptedOut, channelOptedOutMessage } = await import('../lib/config/loader.js')
+  if (isChannelOptedOut(channel)) {
+    console.error(`[${commandTag}] ${channelOptedOutMessage(channel)}`)
+    process.exit(1)
+  }
+}
+
 // ─── leads:scrape-post ──────────────────────────────────────────────────────
 program
   .command('leads:scrape-post')
@@ -206,6 +225,7 @@ program
   .option('--output <path>', 'Custom output JSON path')
   .option('--account <name>', 'Unipile account name or ID to use for scraping')
   .action(withDiagnostics(async (opts) => {
+    await assertChannelEnabled('linkedin', 'leads:scrape-post')
     const config = loadConfig(program.opts().config.replace('~', homedir()))
     const { scrapePostEngagers } = await import('../lib/scraping/post-engagers')
     const result = await scrapePostEngagers({
@@ -235,6 +255,7 @@ program
   .option('--exclude <names...>', 'Author names to skip (partial match)')
   .option('--provider <name>', 'Override the configured LinkedIn provider')
   .action(async (opts) => {
+    await assertChannelEnabled('linkedin', 'linkedin:answer-comments')
     const { answerCommentsSkill } = await import('../lib/skills/builtin/answer-comments')
     const { getSkillRegistryReady } = await import('../lib/skills/registry')
     const { getRegistryReady } = await import('../lib/providers/registry')
@@ -289,6 +310,7 @@ program
   .option('--exclude <names...>', 'Author names to skip (partial match)')
   .option('--provider <name>', 'Override the configured LinkedIn provider')
   .action(async (opts) => {
+    await assertChannelEnabled('linkedin', 'linkedin:reply-to-comments')
     const { replyToCommentsSkill } = await import('../lib/skills/builtin/reply-to-comments')
     const { getRegistryReady } = await import('../lib/providers/registry')
     const providerRegistry = await getRegistryReady()
@@ -336,6 +358,7 @@ program
   .requiredOption('--audience <text>', 'Target audience description')
   .option('--segment-id <id>', 'ICP segment ID for voice targeting')
   .action(async (opts) => {
+    await assertChannelEnabled('email', 'email:create-sequence')
     const { emailSequenceSkill } = await import('../lib/skills/builtin/email-sequence')
     const context = {
       framework: null as any,
@@ -370,6 +393,7 @@ program
   .option('--provider <name>', 'Override the configured email provider for this send')
   .option('--dry-run', 'Preview without sending', false)
   .action(async (opts) => {
+    await assertChannelEnabled('email', 'email:send')
     const { readFileSync, writeFileSync } = await import('fs')
     const yaml = (await import('js-yaml')).default
 
@@ -985,6 +1009,9 @@ program
   .option('--dry-run', 'Preview qualification without writing results')
   .option('--no-dedup', 'Skip dedup gate entirely')
   .option('--slack-confirm', 'Create Notion review pages for ambiguous dedup matches (requires notion.dedup_review_db or notion.notifications_db)')
+  .option('--enrich-signals', 'After qualify, pull PredictLeads company signals for surviving leads')
+  .option('--signals-types <types>', 'Comma-separated signal types (jobs,funding,tech,news)')
+  .option('--no-cache', 'Force re-fetch even if cached within TTL (used with --enrich-signals)')
   .action(withDiagnostics(async (opts) => {
     const config = loadConfig(program.opts().config.replace('~', homedir()))
     const { runQualify } = await import('../lib/qualification/pipeline')
@@ -997,6 +1024,145 @@ program
       noDedup: opts.noDedup === true || opts.dedup === false,
       slackConfirm: opts.slackConfirm ?? false,
     })
+
+    if (opts.enrichSignals) {
+      const { enrichResultSet } = await import('../lib/services/predictleads-bulk')
+      await enrichResultSet({
+        resultSetId: opts.resultSet,
+        types: opts.signalsTypes,
+        forceRefresh: opts.cache === false,
+        tenantId: getTenant(),
+      })
+    }
+  }))
+
+// ─── signals:fetch ──────────────────────────────────────────────────────────
+program
+  .command('signals:fetch')
+  .description('Pull PredictLeads signals for a single company domain')
+  .requiredOption('--domain <d>', 'Company domain (e.g. hubspot.com)')
+  .option('--types <types>', 'Comma-separated signal types (jobs,funding,tech,news,similar)')
+  .option('--no-cache', 'Force re-fetch even if cached within TTL')
+  .option('--ttl-days <n>', 'Cache TTL in days', '7')
+  .action(withDiagnostics(async (opts) => {
+    const { db } = await import('../lib/db')
+    const { enrichDomain, parseSignalTypes } = await import('../lib/services/predictleads-enrichment')
+    const types = parseSignalTypes(opts.types)
+    const result = await enrichDomain(db, {
+      domain: opts.domain,
+      types,
+      ttlDays: parseInt(opts.ttlDays, 10),
+      forceRefresh: opts.cache === false,
+      tenantId: getTenant(),
+    })
+    console.log(`[signals:fetch] ${result.domain}`)
+    for (const [type, info] of Object.entries(result.perType)) {
+      const tag = info.cacheHit ? 'cache hit' : `+${info.count} signals`
+      console.log(`  ${type.padEnd(18)} ${tag}`)
+    }
+    if (result.errors.length > 0) {
+      console.log('  errors:')
+      for (const err of result.errors) console.log(`    ${err.signalType}: ${err.message}`)
+    }
+  }))
+
+// ─── signals:show ───────────────────────────────────────────────────────────
+// Reads PredictLeads signals from local SQLite. Distinct from signals:list
+// which lists watch entries in the existing detection subsystem.
+program
+  .command('signals:show')
+  .description('Read cached PredictLeads signals for a domain from local SQLite (no API call)')
+  .requiredOption('--domain <d>', 'Company domain')
+  .option('--type <type>', 'Filter by signal type')
+  .option('--limit <n>', 'Max rows', '20')
+  .action(withDiagnostics(async (opts) => {
+    const { db } = await import('../lib/db')
+    const { listSignals } = await import('../lib/services/predictleads-storage')
+    const { parseSignalTypes } = await import('../lib/services/predictleads-enrichment')
+    const signalType = opts.type ? parseSignalTypes(opts.type)[0] : undefined
+    const rows = await listSignals(db, {
+      domain: opts.domain,
+      signalType,
+      limit: parseInt(opts.limit, 10),
+      tenantId: getTenant(),
+    })
+    if (rows.length === 0) {
+      console.log(`No cached signals for ${opts.domain}. Run signals:fetch first.`)
+      return
+    }
+    for (const row of rows) {
+      const date = row.eventDate ? row.eventDate.slice(0, 10) : '         '
+      const payload = row.payload as Record<string, unknown>
+      const headline = String(
+        payload.title
+          ?? payload.headline
+          ?? payload.summary
+          ?? payload.round
+          ?? payload.name
+          ?? payload.similar_company
+          ?? '',
+      ).slice(0, 80)
+      console.log(`  ${date}  ${row.signalType.padEnd(18)} ${headline}`)
+    }
+  }))
+
+// ─── signals:enrich ─────────────────────────────────────────────────────────
+program
+  .command('signals:enrich')
+  .description('Pull signals for every unique domain in a result set')
+  .requiredOption('--result-set <id>', 'Result set ID to enrich')
+  .option('--types <types>', 'Comma-separated signal types')
+  .option('--no-cache', 'Force re-fetch even if cached')
+  .option('--ttl-days <n>', 'Cache TTL in days', '7')
+  .action(withDiagnostics(async (opts) => {
+    const { enrichResultSet } = await import('../lib/services/predictleads-bulk')
+    await enrichResultSet({
+      resultSetId: opts.resultSet,
+      types: opts.types,
+      ttlDays: parseInt(opts.ttlDays, 10),
+      forceRefresh: opts.cache === false,
+      tenantId: getTenant(),
+    })
+  }))
+
+// ─── signals:similar ────────────────────────────────────────────────────────
+program
+  .command('signals:similar')
+  .description('Fetch lookalike companies for a given domain (account discovery)')
+  .requiredOption('--domain <d>', 'Seed company domain')
+  .option('--limit <n>', 'Max similar companies to fetch', '50')
+  .action(withDiagnostics(async (opts) => {
+    const { predictleadsService } = await import('../lib/services/predictleads')
+    const { db } = await import('../lib/db')
+    const { upsertSignals, recordFetch } = await import('../lib/services/predictleads-storage')
+    const { normalizeListResponse } = await import('../lib/services/predictleads-enrichment')
+
+    const raw = await predictleadsService.getSimilarCompanies(opts.domain, {
+      limit: parseInt(opts.limit, 10),
+    })
+    const signals = normalizeListResponse(raw)
+
+    await upsertSignals(db, {
+      domain: opts.domain,
+      signalType: 'similar_company',
+      signals,
+      tenantId: getTenant(),
+    })
+    await recordFetch(db, {
+      domain: opts.domain,
+      signalType: 'similar_company',
+      rowsReturned: signals.length,
+      tenantId: getTenant(),
+    })
+
+    console.log(`[signals:similar] ${opts.domain}: ${signals.length} lookalikes`)
+    for (const sig of signals.slice(0, 20)) {
+      const p = sig.payload as Record<string, unknown>
+      const sim = String(p.similar_company ?? p.domain ?? '')
+      const score = p.score ? ` (score=${p.score})` : ''
+      const reason = p.reason ? ` — ${p.reason}` : ''
+      console.log(`  ${sim}${score}${reason}`)
+    }
   }))
 
 // ─── leads:import ───────────────────────────────────────────────────────────
@@ -1159,6 +1325,117 @@ program
     await runBootstrap({ config, dryRun: opts.dryRun ?? false })
   }))
 
+// ─── adapters:list ──────────────────────────────────────────────────────────
+//
+// List every capability adapter the registry has resolved (built-in TS +
+// declarative YAML manifests), grouped by capability with priority index
+// and availability. Use `--json` for machine-readable output.
+program
+  .command('adapters:list')
+  .description('List capability adapters (built-in + declarative) with priority and availability.')
+  .option('--json', 'Emit JSON instead of the human-readable table')
+  .action(withDiagnostics(async (opts) => {
+    const { runAdaptersList } = await import('./commands/adapters-list')
+    const result = await runAdaptersList({ json: !!opts.json })
+    process.stdout.write(result.output + '\n')
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
+
+// ─── gates:list ─────────────────────────────────────────────────────────────
+//
+// List every awaiting human-gate sentinel with framework, gate id, age, time
+// remaining before auto-reject, and stale/fresh status. Auto-rejects any
+// already-expired sentinel before listing. Use `--json` for machine output.
+program
+  .command('gates:list')
+  .description('List awaiting human-gates with age, timeout, and stale/fresh status.')
+  .option('--json', 'Emit JSON instead of the human-readable table')
+  .action(withDiagnostics(async (opts) => {
+    const { runGatesList } = await import('./commands/gates-list')
+    const result = await runGatesList({ json: !!opts.json })
+    process.stdout.write(result.output + '\n')
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
+
+// ─── notify:test ────────────────────────────────────────────────────────────
+//
+// Send a single test notification to the requested channel so operators can
+// verify their wiring (Slack webhook URL, macOS notification permissions)
+// before relying on the runner's gate-notification fan-out.
+program
+  .command('notify:test')
+  .description('Send a test notification (--channel slack|desktop) to verify config.')
+  .requiredOption('--channel <channel>', 'Channel to test: slack or desktop')
+  .action(withDiagnostics(async (opts) => {
+    const { runNotifyTest } = await import('./commands/notify-test')
+    const channel = String(opts.channel).toLowerCase() as 'slack' | 'desktop'
+    const result = await runNotifyTest(channel)
+    process.stdout.write(result.output + '\n')
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
+
+// ─── adapters:smoke ─────────────────────────────────────────────────────────
+//
+// Run a declarative manifest's `smoke_test` block against the live vendor
+// and report pass/fail. Exits 0 on green, non-zero on red.
+program
+  .command('adapters:smoke')
+  .description('Run a declarative adapter manifest\'s smoke test (path argument required).')
+  .argument('<path>', 'Path to a YAML manifest under ~/.gtm-os/adapters/ or anywhere on disk.')
+  .option('--json', 'Emit JSON instead of the human-readable summary')
+  .action(withDiagnostics(async (path: string, opts: any) => {
+    const { runAdaptersSmoke } = await import('./commands/adapters-smoke')
+    const result = await runAdaptersSmoke(path, { json: !!opts.json })
+    process.stdout.write(result.output + '\n')
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
+
+// ─── provider:install ───────────────────────────────────────────────────────
+//
+// Fetch a community manifest from the yalc-providers repo (or a custom
+// `--source <url>` / `YALC_PROVIDERS_SOURCE` env), validate via the
+// declarative compiler, write to `~/.gtm-os/adapters/`, and optionally
+// add the provider to `~/.gtm-os/config.yaml`'s priority list. No live
+// HTTP smoke is run — that's `adapters:smoke`.
+program
+  .command('provider:install')
+  .description(
+    'Install a declarative adapter manifest from the yalc-providers community repo.',
+  )
+  .argument(
+    '<spec>',
+    'Capability/provider pair, e.g. icp-company-search/apollo',
+  )
+  .option(
+    '--source <url>',
+    'Override the manifest URL. Used verbatim — no <cap>/<prov>.yaml suffix is appended.',
+  )
+  .option('--force', 'Overwrite an existing manifest at the target path')
+  .option(
+    '--no-prompt',
+    'Skip every interactive prompt (use with --yes for unattended installs)',
+  )
+  .option(
+    '--no-priority-update',
+    'Skip the prompt to add this provider to capabilities.<cap>.priority in config.yaml',
+  )
+  .option(
+    '--yes',
+    'Answer "yes" to the priority-list update prompt without asking',
+  )
+  .action(withDiagnostics(async (spec: string, opts: any) => {
+    const { runProviderInstall } = await import('./commands/provider-install')
+    const result = await runProviderInstall(spec, {
+      sourceUrl: opts.source,
+      force: !!opts.force,
+      noPrompt: opts.prompt === false,
+      noPriorityUpdate: opts.priorityUpdate === false,
+      autoConfirmPriority: !!opts.yes,
+    })
+    process.stdout.write(result.output + '\n')
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
+
 // ─── campaign:dashboard ──────────────────────────────────────────────────────
 program
   .command('campaign:dashboard')
@@ -1171,6 +1448,37 @@ program
     const { execFile } = await import('child_process')
     execFile('open', [`http://localhost:${port}/campaigns`])
   })
+
+// ─── dashboard / ui ─────────────────────────────────────────────────────────
+//
+// Summon the SPA from anywhere. Idempotent: if the dashboard server is
+// already up on the target port, just opens the browser + prints the URL.
+// Otherwise spawns the server detached (same mechanism as `start`) and
+// waits up to 10s for it to come up.
+//
+// Route resolution:
+//   - `~/.gtm-os/company_context.yaml` missing  → /setup/review
+//   - present                                   → /today
+//   - --route <path> overrides both
+program
+  .command('dashboard')
+  .alias('ui')
+  .description('Open the SPA in the browser. Boots the dashboard server if needed.')
+  .option('--port <port>', 'Server port', '3847')
+  .option('--route <path>', 'Open this route literally instead of inferring from disk state')
+  .option('--archetype <id>', 'Open the archetype-specific dashboard (a, b, c, or d)')
+  .option('--no-open', 'Print the URL without launching a browser (headless / SSH)')
+  .action(withDiagnostics(async (opts) => {
+    const { runDashboard } = await import('./commands/dashboard')
+    const port = Number.parseInt(opts.port, 10)
+    const result = await runDashboard({
+      port: Number.isFinite(port) ? port : 3847,
+      route: opts.route,
+      archetype: opts.archetype,
+      open: opts.open !== false,
+    })
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
 
 // ─── campaign:monthly-report ────────────────────────────────────────────────
 program
@@ -1234,15 +1542,44 @@ program
 // ─── start ──────────────────────────────────────────────────────────────────
 program
   .command('start')
-  .description('Guided onboarding — API keys, company context, framework, and goals in one flow')
+  .description(
+    'Guided onboarding — prompts for a website URL, then opens the SPA review (default). Use --review-in-chat for the legacy terminal interview.',
+  )
+  .addHelpText(
+    'after',
+    `
+Recommended (no flags — single URL prompt + browser SPA):
+  $ yalc-gtm start
+
+Flag-driven (zero prompts, headless / CI):
+  $ yalc-gtm start --non-interactive --website https://your-company.com
+
+  Optional refinements:
+  $ yalc-gtm start --non-interactive \\
+      --website https://your-company.com \\
+      --linkedin https://linkedin.com/in/you \\
+      --docs ./brand-deck.md \\
+      --icp-summary "engineering leaders at Series A SaaS"
+
+  Re-runs after editing a placeholder \`.env\`:
+  $ yalc-gtm start --non-interactive   # writes ~/.gtm-os/.env template
+
+  Legacy terminal interview (no SPA):
+  $ yalc-gtm start --review-in-chat
+`,
+  )
   .option('--non-interactive', 'Skip prompts (use env vars and defaults)')
   // Flag-driven capture inputs (0.6.0). When any of these are present in
   // --non-interactive mode, runs the full capture + synthesis pipeline and
   // writes the result into _preview/.
   .option('--company-name <name>', 'Company name (flag-driven capture)')
-  .option('--website <url>', 'Company website URL — scraped for context')
+  .option('--website <url>', 'Company website URL — scraped for context (recommended minimum)')
   .option('--linkedin <url>', 'LinkedIn profile URL — fetched for context')
-  .option('--docs <path>', 'Path to a folder of markdown/text files to ingest')
+  .option(
+    '--docs <path-or-url>',
+    'Path or URL to ingest (repeatable). URLs auto-fetch and cache to ~/.gtm-os/_cache/docs/.',
+    (val: string, prev: string[] = []) => prev.concat(val),
+  )
   .option('--icp-summary <text>', 'One-line ICP description seed for synthesis')
   .option('--voice <path>', 'Path to a file with voice samples for tone extraction')
   .option('--no-cache', 'Bypass the local scrape cache for this run')
@@ -1253,9 +1590,71 @@ program
   .option('--discard <section>', 'Skip a section on commit (repeatable)', (val: string, prev: string[] = []) => prev.concat(val))
   .option('--regenerate <section>', 'Re-run synthesis for a single preview section')
   .option('--hint <text>', 'Hint forwarded to the synthesis prompt during --regenerate')
+  .option(
+    '--regenerate-low-confidence',
+    'Re-run synthesis for every preview section below --confidence-threshold (default 0.6)',
+  )
+  .option(
+    '--confidence-threshold <value>',
+    'Threshold (0–1) used by --regenerate-low-confidence. Defaults to 0.6.',
+    (val) => Number.parseFloat(val),
+  )
   .option('--discard-preview', 'Delete the _preview/ folder entirely (no new capture)')
   .option('--force-overwrite-preview', 'Proceed past the uncommitted-preview block')
+  .option('--force-synthesis', 'Run synthesis even if captured inputs are below the minimum content bar')
+  // 0.9.B: review handoff controls. By default we auto-open the SPA at
+  // /setup/review at the end of capture. --no-open suppresses the launch;
+  // --review-in-chat falls back to the legacy CLI section walk.
+  .option('--no-open', 'Suppress browser auto-open at the end of capture')
+  .option('--review-in-chat', 'Walk preview sections in the terminal instead of the SPA')
+  // 0.9.F: confidence-banded auto-commit. High-confidence sections move
+  // straight to live; low-confidence ones queue at /setup/review.
+  .option(
+    '--no-auto-commit',
+    'Force every preview section into the /setup/review queue regardless of confidence.',
+  )
+  .option(
+    '--auto-commit-threshold <value>',
+    'Threshold (0–1) for confidence-banded auto-commit. Defaults to 0.85.',
+    (val) => Number.parseFloat(val),
+  )
+  // 0.9.1: suppress the auto-open of ~/.gtm-os/.env after a fresh scaffold.
+  .option('--no-open-env', 'Skip auto-opening the .env template in the default editor')
   .action(withDiagnostics(async (opts) => {
+    // 0.9.7 / A1 — no-flag default routes to the SPA. The single inquirer
+    // prompt asks for a website URL, then delegates to the same flag-capture
+    // path that `start --non-interactive --website <url>` uses, which auto-
+    // opens /setup/review. Any of: --non-interactive, --review-in-chat,
+    // capture flags (--website / --linkedin / --docs / etc.), or preview-
+    // lifecycle flags (--commit-preview / --regenerate / --discard-preview)
+    // bypass the SPA-default and run the canonical `runStart` directly.
+    const { runStartSpaDefault, shouldUseSpaDefault } = await import(
+      './commands/start-spa-default'
+    )
+    if (
+      shouldUseSpaDefault({
+        nonInteractive: opts.nonInteractive,
+        reviewInChat: opts.reviewInChat,
+        companyName: opts.companyName,
+        website: opts.website,
+        linkedin: opts.linkedin,
+        docs: opts.docs,
+        icpSummary: opts.icpSummary,
+        voice: opts.voice,
+        commitPreview: opts.commitPreview,
+        discardPreview: opts.discardPreview,
+        regenerateSection: opts.regenerate,
+        regenerateLowConfidence: opts.regenerateLowConfidence,
+      })
+    ) {
+      const result = await runStartSpaDefault({
+        tenantId: getTenant(),
+        noOpen: opts.open === false,
+        noOpenEnv: opts.openEnv === false,
+      })
+      if (result.exitCode !== 0) process.exitCode = result.exitCode
+      return
+    }
     const { runStart } = await import('../lib/onboarding/start')
     await runStart({
       tenantId: getTenant(),
@@ -1271,8 +1670,16 @@ program
       discardSections: opts.discard,
       regenerateSection: opts.regenerate,
       regenerateHint: opts.hint,
+      regenerateLowConfidence: opts.regenerateLowConfidence ?? false,
+      confidenceThreshold: opts.confidenceThreshold,
       discardPreview: opts.discardPreview ?? false,
       forceOverwritePreview: opts.forceOverwritePreview ?? false,
+      forceSynthesis: opts.forceSynthesis ?? false,
+      noOpen: opts.open === false,
+      reviewInChat: opts.reviewInChat ?? false,
+      noAutoCommit: opts.autoCommit === false,
+      autoCommitThreshold: opts.autoCommitThreshold,
+      noOpenEnv: opts.openEnv === false,
     })
   }))
 
@@ -1999,6 +2406,192 @@ program
     )
   }))
 
+// ─── framework:* — proposition system ──────────────────────────────────────
+
+program
+  .command('framework:list')
+  .description('List all bundled and installed frameworks')
+  .action(withDiagnostics(async () => {
+    const { runFrameworkList } = await import('./commands/framework.js')
+    await runFrameworkList()
+  }))
+
+program
+  .command('framework:recommend')
+  .description('Recommend frameworks based on configured providers and captured context')
+  .action(withDiagnostics(async () => {
+    const { runFrameworkRecommend } = await import('./commands/framework.js')
+    await runFrameworkRecommend()
+  }))
+
+program
+  .command('framework:install <name>')
+  .description('Install a framework: pick output destination, schedule, and seed-run')
+  .option('--auto-confirm', 'Accept defaults for every input')
+  .option('--destination <dest>', 'Output destination (notion or dashboard)')
+  .option('--notion-parent <id>', 'Notion parent page ID (required if --destination notion)')
+  .option('--open', 'Open the framework dashboard in the browser after install')
+  .action(withDiagnostics(async (name: string, opts) => {
+    const { runFrameworkInstall } = await import('./commands/framework.js')
+    await runFrameworkInstall(name, {
+      autoConfirm: !!opts.autoConfirm,
+      destination: opts.destination,
+      notionParent: opts.notionParent,
+    })
+    if (opts.open) {
+      const { openBrowser } = await import('../lib/cli/open-browser.js')
+      const url = `http://localhost:3847/frameworks/${name}`
+      const r = openBrowser(url)
+      console.log(r.launched ? `  Opening ${url}…` : `  Open ${url} to view the dashboard.`)
+    }
+  }))
+
+program
+  .command('framework:run <name>')
+  .description('Run an installed framework now (off-schedule)')
+  .option('--seed', "Use seed_run.override_inputs from the framework definition")
+  .option('--open', 'Open the framework dashboard in the browser after the run')
+  .action(withDiagnostics(async (name: string, opts) => {
+    const { runFrameworkRun } = await import('./commands/framework.js')
+    await runFrameworkRun(name, { seed: !!opts.seed })
+    if (opts.open) {
+      const { openBrowser } = await import('../lib/cli/open-browser.js')
+      const url = `http://localhost:3847/frameworks/${name}`
+      const r = openBrowser(url)
+      console.log(r.launched ? `  Opening ${url}…` : `  Open ${url} to view the dashboard.`)
+    }
+  }))
+
+program
+  .command('framework:resume <name>')
+  .description('Resume a framework run that paused at a human-gate step')
+  .requiredOption('--from-gate <runId>', 'Run-id of the paused gate to resume')
+  .action(withDiagnostics(async (name: string, opts) => {
+    const { runFrameworkResume } = await import('./commands/framework.js')
+    const { FrameworkGatePauseError, FrameworkRunError, EXIT_CODE_AWAITING_GATE } =
+      await import('../lib/frameworks/runner.js')
+    try {
+      const result = await runFrameworkResume(name, { fromGate: opts.fromGate })
+      console.log(`  Resumed (${result.mode}). Wrote: ${result.path}`)
+      console.log(`  Rows:  ${result.rows}`)
+    } catch (err) {
+      if (err instanceof FrameworkGatePauseError) {
+        console.log(`  Run paused again at gate \`${err.gateId}\`. View: http://localhost:3847/today`)
+        console.log(`  Awaiting gate file: ${err.awaitingGatePath}`)
+        process.exit(EXIT_CODE_AWAITING_GATE)
+      }
+      if (err instanceof FrameworkRunError) {
+        console.error(`  Step ${err.step} (${err.stepSkill}) failed: ${err.message}`)
+        process.exit(1)
+      }
+      throw err
+    }
+  }))
+
+program
+  .command('framework:status <name>')
+  .description('Show status (last run, next run, output destination) for an installed framework')
+  .action(withDiagnostics(async (name: string) => {
+    const { runFrameworkStatus } = await import('./commands/framework.js')
+    await runFrameworkStatus(name)
+  }))
+
+program
+  .command('framework:logs <name>')
+  .description('Show the most recent run for an installed framework')
+  .action(withDiagnostics(async (name: string) => {
+    const { runFrameworkLogs } = await import('./commands/framework.js')
+    await runFrameworkLogs(name)
+  }))
+
+program
+  .command('framework:disable <name>')
+  .description('Pause scheduled runs for an installed framework (config preserved)')
+  .action(withDiagnostics(async (name: string) => {
+    const { runFrameworkDisable } = await import('./commands/framework.js')
+    await runFrameworkDisable(name)
+  }))
+
+program
+  .command('framework:set-hypothesis <name>')
+  .description('Persist the 4-field outbound hypothesis (ICP / angle / signal / expected reply rate) for a framework')
+  .requiredOption('--icp-segment <segment>', 'ICP segment under test')
+  .requiredOption('--message-angle <angle>', 'One-line message angle being tested')
+  .requiredOption('--signal-trigger <signal>', 'Observable buying signal that makes a prospect a fit')
+  .requiredOption('--expected-reply-rate <rate>', 'Success bar — fraction in [0, 1] (e.g. 0.05 for 5%)')
+  .action(withDiagnostics(async (name: string, opts) => {
+    const { runFrameworkSetHypothesis } = await import('./commands/framework.js')
+    await runFrameworkSetHypothesis(name, {
+      icpSegment: opts.icpSegment,
+      messageAngle: opts.messageAngle,
+      signalTrigger: opts.signalTrigger,
+      expectedReplyRate: opts.expectedReplyRate,
+    })
+  }))
+
+program
+  .command('framework:remove <name>')
+  .description('Remove an installed framework: delete config, agent yaml, and run history')
+  .action(withDiagnostics(async (name: string) => {
+    const { runFrameworkRemove } = await import('./commands/framework.js')
+    await runFrameworkRemove(name)
+  }))
+
+// ─── routine:propose ───────────────────────────────────────────────────────
+//
+// Run the deterministic Routine Generator and print the proposed routine
+// (frameworks + schedules + default dashboard + notes). Read-only — never
+// writes to `~/.gtm-os/`. Exits 2 when no Anthropic key is available so
+// the SPA can branch on "nothing to install".
+program
+  .command('routine:propose')
+  .description('Print the proposed Routine (frameworks, schedules, dashboard) without applying.')
+  .option('--json', 'Emit JSON instead of the human-readable preview')
+  .action(withDiagnostics(async (opts) => {
+    const { runRoutinePropose } = await import('./commands/routine.js')
+    const r = await runRoutinePropose({ json: !!opts.json })
+    process.stdout.write(r.output + '\n')
+    if (r.exitCode !== 0) process.exit(r.exitCode)
+  }))
+
+// ─── routine:install ───────────────────────────────────────────────────────
+//
+// Recompute the proposal (so a stale preview can't drift), prompt for
+// confirmation (unless `--yes`), then apply: install each framework via
+// `framework:install --auto-confirm`, write `~/.gtm-os/routine.yaml`, and
+// patch `dashboard.default_route` into `~/.gtm-os/config.yaml`.
+program
+  .command('routine:install')
+  .description('Apply the proposed Routine: install frameworks + persist sidecar.')
+  .option('--yes', 'Skip the interactive confirmation prompt')
+  .option('--dry-run', 'Print the actions that would run, but do not write anything')
+  .option('--only <names>', 'Comma-separated subset of frameworks to install')
+  .action(withDiagnostics(async (opts) => {
+    const { runRoutineInstall } = await import('./commands/routine.js')
+    const only = typeof opts.only === 'string'
+      ? opts.only.split(',').map((s: string) => s.trim()).filter(Boolean)
+      : undefined
+    const r = await runRoutineInstall({
+      yes: !!opts.yes,
+      dryRun: !!opts.dryRun,
+      only,
+    })
+    process.stdout.write(r.output + '\n')
+    if (r.exitCode !== 0) process.exit(r.exitCode)
+  }))
+
+// ─── trigger ───────────────────────────────────────────────────────────────
+// On-demand-only counterpart to `framework:run`. Validates the named
+// framework is `mode: on-demand`, fires it, and exits 0 with the new run id.
+program
+  .command('trigger <framework>')
+  .description('Fire an on-demand framework now (writes ~/.gtm-os/triggers.log)')
+  .action(withDiagnostics(async (framework: string) => {
+    const { runTrigger } = await import('./commands/trigger.js')
+    const r = await runTrigger(framework)
+    if (r.exitCode !== 0) process.exit(r.exitCode)
+  }))
+
 // ─── provider:list ─────────────────────────────────────────────────────────
 // Map the underlying status enum (`active` / `disconnected` / `error`) to a
 // short user-facing label. Most "disconnected" cases in the wild are simply a
@@ -2059,6 +2652,8 @@ program
   .description('Add an MCP provider from a shipped template or a JSON config file')
   .requiredOption('--mcp <name-or-path>', 'Template name (hubspot, apollo, ...) OR path to a JSON config file')
   .option('--force', 'Overwrite an existing provider config of the same name')
+  .option('--accept-disabled', 'Register a config that ships with "disabled": true (debug use only)')
+  .option('--tool <name>', 'Override the configured tool name to validate against the live MCP server')
   .action(withDiagnostics(async (opts) => {
     const { existsSync, copyFileSync, mkdirSync, readFileSync, writeFileSync } = await import('fs')
     const { join, resolve, isAbsolute } = await import('path')
@@ -2067,6 +2662,35 @@ program
 
     const targetDir = join(homedir(), '.gtm-os', 'mcp')
     const input = String(opts.mcp)
+
+    // Refuse Claude Code MCP locations — those are a different registry and
+    // editing them via YALC corrupts the host IDE's config. The two systems
+    // are documented side-by-side at the top of docs/mcp.md.
+    const claudeCodeMcpPaths = [
+      '.mcp.json',
+      join(homedir(), '.claude.json'),
+      join(homedir(), '.claude', '.mcp.json'),
+    ]
+    const inputResolved = input.startsWith('~/')
+      ? join(homedir(), input.slice(2))
+      : input
+    const matchesClaudeCode = claudeCodeMcpPaths.some((p) => {
+      const absoluteP = isAbsolute(p) ? p : resolve(process.cwd(), p)
+      const absoluteInput = isAbsolute(inputResolved) ? inputResolved : resolve(process.cwd(), inputResolved)
+      return absoluteP === absoluteInput || inputResolved.endsWith('/.mcp.json') || inputResolved.endsWith('.claude.json')
+    })
+    if (matchesClaudeCode) {
+      console.error(
+        'Error: That path is a Claude Code MCP registry, not a YALC one.',
+      )
+      console.error(
+        '  YALC MCP configs live in ~/.gtm-os/mcp/<name>.json — see docs/mcp.md for the side-by-side table.',
+      )
+      console.error(
+        '  Run `yalc-gtm provider:add --mcp <template>` or pass a path inside ~/.gtm-os/mcp/.',
+      )
+      process.exit(1)
+    }
 
     // Detect path-vs-template-name. A path either contains a separator,
     // starts with ./ ../ / ~/ or ends with .json. Anything else is a name.
@@ -2122,6 +2746,14 @@ program
         }
       }
 
+      // Refuse disabled templates unless the user explicitly accepts them.
+      if (cfg.disabled === true && !opts.acceptDisabled) {
+        const comment = typeof cfg._comment === 'string' ? `\n  Comment: ${cfg._comment}` : ''
+        console.error(`Error: provider config has "disabled": true.${comment}`)
+        console.error('  To register anyway pass --accept-disabled (debug use).')
+        process.exit(1)
+      }
+
       const { validateMcpConfig } = await import('../lib/providers/mcp-loader')
       const v = validateMcpConfig(cfg, resolved)
       if (!v.valid) {
@@ -2163,6 +2795,8 @@ program
         }
         console.log('\nAdd them to your .env.local or export them before running GTM-OS.')
       }
+      // Connect + verify configured tool name (best-effort — never blocks).
+      await verifyMcpToolName(targetName, cfg, opts.tool as string | undefined)
       console.log(`\nVerify with: yalc-gtm provider:test ${targetName}`)
       return
     }
@@ -2188,6 +2822,19 @@ program
       process.exit(1)
     }
 
+    // Refuse disabled templates here too — apply before copying.
+    try {
+      const tplRaw = JSON.parse(readFileSync(templatePath, 'utf-8'))
+      if (tplRaw && tplRaw.disabled === true && !opts.acceptDisabled) {
+        const comment = typeof tplRaw._comment === 'string' ? `\n  Comment: ${tplRaw._comment}` : ''
+        console.error(`Error: template "${input}" is marked "disabled": true.${comment}`)
+        console.error('  Pass --accept-disabled to register anyway (debug use).')
+        process.exit(1)
+      }
+    } catch {
+      // Fall through — the existing copy + validate flow surfaces JSON errors.
+    }
+
     mkdirSync(targetDir, { recursive: true })
     copyFileSync(templatePath, targetPath)
 
@@ -2211,7 +2858,117 @@ program
       console.log('\nAdd them to your .env.local or export them before running GTM-OS.')
     }
 
+    await verifyMcpToolName(input, config, opts.tool as string | undefined)
     console.log('\nVerify with: yalc-gtm provider:test ' + input)
+  }))
+
+/**
+ * Best-effort tool-name validation against a registered MCP server. Pulls
+ * the tools list from a fresh adapter, then checks that the configured
+ * `tool` (or `healthCheck.tool`, or override --tool) exists. If not, prints
+ * a WARN with the closest matches by Levenshtein distance. Never throws.
+ */
+async function verifyMcpToolName(
+  providerName: string,
+  cfg: Record<string, unknown>,
+  override?: string,
+): Promise<void> {
+  // What tool does this config name?
+  const explicit =
+    override ??
+    (typeof cfg.tool === 'string' ? cfg.tool : undefined) ??
+    ((cfg.healthCheck as Record<string, unknown> | undefined)?.tool as string | undefined)
+  if (!explicit) return
+
+  try {
+    const { McpProviderAdapter } = await import('../lib/providers/mcp-adapter')
+    const adapter = new (McpProviderAdapter as unknown as new (cfg: Record<string, unknown>) => { connect: () => Promise<void>; getDiscoveredTools: () => Array<{ name: string }>; isAvailable?: () => boolean })(cfg as never)
+    await adapter.connect()
+    const tools = adapter.getDiscoveredTools().map((t) => t.name)
+    if (tools.length === 0) return // server didn't expose anything to compare
+    if (tools.includes(explicit)) {
+      console.log(`\n  ✓ Configured tool "${explicit}" found on server.`)
+      return
+    }
+    // Levenshtein-based closest matches.
+    const ranked = tools
+      .map((t) => ({ name: t, dist: levenshtein(t, explicit) }))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 3)
+      .map((r) => r.name)
+    console.log(
+      `\n  ! Configured tool "${explicit}" not found on the MCP server "${providerName}".`,
+    )
+    console.log(`    Closest matches: [${ranked.join(', ')}]`)
+    console.log(`    Edit the config OR re-run with --tool <name>.`)
+  } catch {
+    // Connection failures here are not fatal — provider:test will surface
+    // them properly later.
+  }
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length
+  const n = b.length
+  if (m === 0) return n
+  if (n === 0) return m
+  const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0))
+  for (let i = 0; i <= m; i++) dp[i][0] = i
+  for (let j = 0; j <= n; j++) dp[0][j] = j
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+    }
+  }
+  return dp[m][n]
+}
+
+// ─── keys:connect ──────────────────────────────────────────────────────────
+//
+// Primary surface: open the SPA's /keys/connect form, wait for the user to
+// paste their key, then exit when the sentinel appears at
+// ~/.gtm-os/_handoffs/keys/<provider>.ready. Reuses openBrowser() for the
+// platform launch and the same sentinel pattern the 0.8.E connect-provider
+// CLI established.
+program
+  .command('keys:connect [provider]')
+  .description(
+    'Open the /keys/connect form for a provider (or agnostic mode) and wait for the sentinel.',
+  )
+  .option('--open', 'Open the form in the default browser', false)
+  .option('--no-open', 'Do not auto-open the browser')
+  .option('--timeout <ms>', 'Sentinel-poll timeout in ms', `${30 * 60 * 1000}`)
+  .action(withDiagnostics(async (provider: string | undefined, options: { open?: boolean; timeout?: string }) => {
+    const { runKeysConnect } = await import('./commands/keys-connect')
+    const timeoutMs = options.timeout ? Number(options.timeout) : undefined
+    const result = await runKeysConnect(provider, {
+      open: options.open !== false,
+      timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : undefined,
+    })
+    if (result.status === 'timeout') {
+      console.error(`Timed out waiting for ${result.url}`)
+    } else if (result.status === 'failed') {
+      console.warn(`Sentinel ${result.sentinelPath} reports a failed health check.`)
+    } else {
+      console.log(`Configured. Sentinel: ${result.sentinelPath}`)
+    }
+    if (result.exitCode !== 0) process.exit(result.exitCode)
+  }))
+
+// ─── connect-provider ──────────────────────────────────────────────────────
+//
+// Preserved as a thin wrapper around `keys:connect` so existing scripts and
+// docs from 0.8.E keep working. The headline UX is now the agnostic flow —
+// "tell us about your provider" — and the bundled knowledge yamls are
+// suggestions, not the menu.
+program
+  .command('connect-provider <name>')
+  .description('Add a provider end-to-end (legacy alias — wraps keys:connect).')
+  .action(withDiagnostics(async (name: string) => {
+    const { runConnectProvider } = await import('./commands/connect-provider')
+    const result = await runConnectProvider(name)
+    if (result.exitCode !== 0) process.exit(result.exitCode)
   }))
 
 // ─── provider:test ─────────────────────────────────────────────────────────
@@ -2774,6 +3531,35 @@ program
       console.log('\n── Structured Data ──')
       console.log(JSON.stringify(finding.structuredData, null, 2))
     }
+  }))
+
+// ─── visualize ─────────────────────────────────────────────────────────────
+//
+// Generate a tailored interactive HTML page from local JSON data + an intent
+// string. Persists to `~/.gtm-os/visualizations/<view_id>.html` plus a
+// sidecar metadata JSON. Re-running with the same view_id overwrites both.
+program
+  .command('visualize <viewId>')
+  .description('Generate a tailored interactive page from local data + intent.')
+  .option(
+    '--data <glob>',
+    'Path or glob for one or more JSON files (repeat for multiple sources)',
+    (val: string, prev: string[] | undefined) => (prev ? [...prev, val] : [val]),
+    [] as string[],
+  )
+  .option('--intent <text>', 'One-line description of what the page should show')
+  .option('--open', 'Open the generated page in the default browser', false)
+  .option('--port <number>', 'Server port for the printed URL', '3847')
+  .action(withDiagnostics(async (viewId: string, options: { data?: string[]; intent?: string; open?: boolean; port?: string }) => {
+    const { runVisualizeCli } = await import('./commands/visualize')
+    const port = Number(options.port ?? '3847')
+    const result = await runVisualizeCli(viewId, {
+      data: options.data ?? [],
+      intent: options.intent ?? '',
+      open: !!options.open,
+      port: Number.isFinite(port) ? port : 3847,
+    })
+    if (result.exitCode !== 0) process.exit(result.exitCode)
   }))
 
 program.parse()

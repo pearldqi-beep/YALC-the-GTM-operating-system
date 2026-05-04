@@ -18,9 +18,66 @@ inputs:
   - name: additional_context
     description: Any extra signals like LinkedIn activity, website visits, content engagement
     required: false
-provider: mock
+capability: reasoning
 capabilities: [qualify]
 output: structured_json
+output_schema:
+  type: object
+  required:
+    - overall_score
+    - verdict
+    - dimensions
+    - recommended_action
+    - personalization_hooks
+  properties:
+    overall_score:
+      type: integer
+      minimum: 0
+      maximum: 100
+    verdict:
+      type: string
+      enum:
+        - hot
+        - warm
+        - monitor
+        - disqualified
+    dimensions:
+      type: object
+      properties:
+        title_fit:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+        company_fit:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+        seniority_fit:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+        intent_signals:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+    recommended_action:
+      type: string
+    personalization_hooks:
+      type: array
+      items:
+        type: string
 ---
 
 Score this lead against the provided ICP criteria.
@@ -33,6 +90,8 @@ Score this lead against the provided ICP criteria.
 
 **ICP Criteria:**
 {{icp_criteria}}
+
+If `additional_context` is empty, score using only the lead/title/company/icp_criteria fields above. Do NOT ask follow-up questions and do NOT fabricate context — return a result with `intent_signals.score = 0` and `intent_signals.reason = "no additional context provided"` instead.
 
 Evaluate each ICP dimension on a 0-100 scale:
 1. **Title Fit** — Does their role match the target buyer persona?

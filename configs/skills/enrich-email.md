@@ -12,9 +12,18 @@ inputs:
   - name: company_domain
     description: Company website domain (e.g. acme.com)
     required: true
-provider: fullenrich
+capability: people-enrich
 capabilities: [enrich]
 output: structured_json
+output_schema:
+  type: object
+  required:
+    - results
+  properties:
+    results:
+      type: array
+      items:
+        type: object
 ---
 
 Find the professional email address for {{first_name}} {{last_name}} who works at {{company_domain}}.

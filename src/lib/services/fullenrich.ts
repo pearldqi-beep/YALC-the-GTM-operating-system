@@ -1,7 +1,12 @@
 // Singleton service wrapping FullEnrich REST API
 // Auth: Authorization: Bearer ${FULLENRICH_API_KEY}
 
-const BASE_URL = 'https://api.fullenrich.com'
+const BASE_URL = 'https://app.fullenrich.com/api/v1'
+
+/** Required env vars for the FullEnrich provider. */
+export const envVarSchema = {
+  FULLENRICH_API_KEY: { minLength: 20 },
+} as const
 
 export interface FullEnrichContact {
   firstname: string
@@ -56,7 +61,7 @@ export class FullEnrichService {
     const start = Date.now()
 
     while (Date.now() - start < maxWait) {
-      const res = await fetch(`${BASE_URL}/bulk/${encodeURIComponent(enrichmentId)}`, {
+      const res = await fetch(`${BASE_URL}/contact/enrich/bulk/${encodeURIComponent(enrichmentId)}`, {
         headers: getHeaders(),
       })
 

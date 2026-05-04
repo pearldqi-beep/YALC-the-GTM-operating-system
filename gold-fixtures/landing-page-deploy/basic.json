@@ -1,0 +1,13 @@
+{
+  "input": {
+    "html": "<h1>CMO Playbook</h1>",
+    "slug": "cmo-playbook",
+    "title": "CMO Playbook"
+  },
+  "expected_output": {
+    "deployed": true,
+    "url": "https://cmo-playbook-abc123.vercel.app",
+    "deploymentId": "dpl_abc123xyz",
+    "fallbackReason": null
+  }
+}

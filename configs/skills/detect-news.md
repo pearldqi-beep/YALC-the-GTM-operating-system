@@ -3,8 +3,27 @@ name: detect-news
 description: Detect recent company news and announcements via web scraping
 category: research
 version: 1.0.0
-provider: firecrawl
+capability: news-feed
 capabilities: [search]
+output_schema:
+  type: object
+  properties:
+    items:
+      type: array
+    query:
+      type: string
+    companyDomain:
+      type: string
+    lastCheckDate:
+      type: string
+    changed:
+      type: boolean
+    summary:
+      type: string
+    data:
+      type: object
+    newBaseline:
+      type: object
 inputs:
   - name: company_domain
     description: Company website domain to monitor for news

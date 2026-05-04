@@ -19,7 +19,7 @@ npm install -g yalc-gtm-os
 yalc-gtm start
 ```
 
-That is the whole installation. The `start` command writes its config to `~/.gtm-os/` and walks you through the rest.
+That is the whole installation. The `start` command writes its config to `~/.gtm-os/`, asks for your company website URL, then opens the browser at `/setup/review` so you can confirm the inferred framework. No long terminal interview by default.
 
 YALC is a CLI; there's no public Node API to import.
 
@@ -43,18 +43,24 @@ pnpm link --global
 
 If `pnpm link --global` fails with `ERR_PNPM_NO_GLOBAL_BIN_DIR` (or you are on Windows), run YALC in-repo with `pnpm cli start` instead.
 
-The `start` command walks you through 4 steps:
+What `yalc-gtm start` does:
 
-1. **Environment** — Collects API keys. All keys are optional; setup never blocks on a missing one. Without `ANTHROPIC_API_KEY` you can still complete onboarding — Steps 3–4 are skipped and can be finished later by running `yalc-gtm onboard` then `yalc-gtm configure`. When run inside Claude Code, both `ANTHROPIC_API_KEY` and `FIRECRAWL_API_KEY` default to skip (the parent CC session covers LLM + WebFetch).
-2. **Company Context** — Interactive interview about your company, ICP, pain points, competitors, and voice. Optionally scrapes your website for additional context.
-3. **Framework** *(skipped without an Anthropic key)* — Claude synthesizes everything into a structured GTM framework (segments, signals, positioning, competitors). You see a summary and confirm before anything is written to disk.
-4. **Goals & Config** *(skipped without an Anthropic key)* — Claude recommends goals and generates qualification rules, outreach templates, and search queries.
+1. Prompts you for your company website URL (one question, that is it).
+2. Scaffolds `~/.gtm-os/` and writes a `.env` template the first time it runs.
+3. Scrapes the website, runs synthesis, and stages a draft framework into `_preview/`.
+4. Spawns a local dashboard server on port 3847 and opens `http://localhost:3847/setup/review` in your browser so you can confirm or edit each section before committing.
 
-You'll end with a readiness report showing what's unlocked and a suggested first command.
+High-confidence sections auto-commit; low-confidence ones queue at `/setup/review` for your sign-off. You can re-run any section from the SPA or via `yalc-gtm start --regenerate <section>`.
 
-### Onboarding modes
+If you do not have an `ANTHROPIC_API_KEY` set, the framework synthesis steps are skipped — you can add the key later and re-run `yalc-gtm onboard` then `yalc-gtm configure`. Inside Claude Code, the parent session provides the LLM + WebFetch, so no Anthropic / Firecrawl keys are required.
 
-When you run `yalc-gtm start`, you can choose how to provide context: answer questions one by one, paste a long-form response covering all questions at once, or hand over your website + documents and let YALC infer the positioning for you. Pick whichever matches the material you already have ready.
+### Prefer a terminal interview?
+
+If you would rather walk through the legacy 4-step terminal interview instead of opening the browser, pass `--review-in-chat`:
+
+```bash
+yalc-gtm start --review-in-chat
+```
 
 ### After Setup
 
@@ -216,6 +222,10 @@ When talking to Claude Code, reference these locations directly:
 
 ## Providers
 
+YALC ships providers in two forms: **built-in TypeScript adapters** (compiled into the package) and **bundled declarative manifests** (YAML under `configs/adapters/`). Both surface through the same capability registry. Run `yalc-gtm adapters:list` for the live view.
+
+### Built-in TypeScript adapters
+
 | Provider | Capabilities | Env Var |
 |----------|-------------|---------|
 | **Unipile** | LinkedIn search, connections, DMs, scraping | `UNIPILE_API_KEY`, `UNIPILE_DSN` |
@@ -226,8 +236,45 @@ When talking to Claude Code, reference these locations directly:
 | **Instantly** | Cold email sending, sequence management | `INSTANTLY_API_KEY` |
 | **Anthropic** | AI planning, qualification, personalization (optional inside Claude Code) | `ANTHROPIC_API_KEY` |
 | **Voyage** | Embeddings (memory) | `VOYAGE_API_KEY` |
+| **Playwright** | Asset rendering (PDF/PNG from HTML) — optional dep | `pnpm add playwright` |
+
+> **Note on `asset-rendering`:** the `playwright` provider is shipped as an [optional dependency](docs/providers.md#optional-asset-rendering-playwright). HTML rendering always works; PDF/PNG rendering kicks in once you `pnpm add playwright && npx playwright install chromium`.
+
+### Bundled declarative adapters
+
+| Capability | Provider | Env Var | Manifest |
+|---|---|---|---|
+| `people-enrich` | peopledatalabs | `PEOPLEDATALABS_API_KEY` | `configs/adapters/people-enrich-peopledatalabs.yaml` |
+| `crm-contact-upsert` | hubspot | `HUBSPOT_API_KEY` | `configs/adapters/crm-contact-upsert-hubspot.yaml` |
+| `email-campaign-create` | brevo | `BREVO_API_KEY` | `configs/adapters/email-campaign-create-brevo.yaml` |
+| `landing-page-deploy` | vercel | `VERCEL_TOKEN` (+ optional `VERCEL_TEAM_ID`) | `configs/adapters/landing-page-deploy-vercel.yaml` |
+
+Counts at this commit: 20 built-in TypeScript adapters across 18 capabilities; 4 bundled declarative manifests. See [docs/providers.md](docs/providers.md#bundled-declarative-providers) for setup and override semantics.
 
 ## Skills
+
+YALC ships skills across three distinct runtime systems. See [CONTRIBUTING.md](CONTRIBUTING.md#skills) for the full distinction.
+
+### Bundled Claude Code skills (`.claude/skills/`)
+
+Conversational entry points. Activate from a Claude Code session with the trigger phrases in each skill's `description` frontmatter.
+
+| Skill | What it does |
+|-------|--------------|
+| `campaign-dashboard` | Opens the local campaign visualization dashboard in the browser |
+| `debugger` | 5-layer diagnostic funnel for any failing GTM-OS CLI command |
+| `predictleads-dashboard` | Generates a self-contained HTML page from cached PredictLeads signals |
+| `predictleads-lookalikes` | Pulls up to 50 companies similar to a seed domain (1 credit per seed) |
+| `predictleads-signals` | Single-company signal lookup (jobs, financing, news, tech) with 7-day cache |
+| `prospect-discovery-pipeline` | Meta-skill: chains lookalikes → ICP filter → CMO finder → signals → 2 LinkedIn variants |
+| `provider-builder` | Authors a declarative adapter manifest from vendor + capability + docs URL in ~5 min |
+| `setup` | New-user onboarding: install, env, capture, preview, commit, doctor, framework recommend |
+
+**16 more skills shipping in 0.13.0** — see [CHANGELOG.md](CHANGELOG.md) and [docs/skills-architecture.md](docs/skills-architecture.md).
+
+### Legacy TypeScript skill registry (`src/lib/skills/builtin/`)
+
+Loaded at runtime by `orchestrate` and surfaced via `skills:list`.
 
 | Skill | Category | Description |
 |-------|----------|-------------|

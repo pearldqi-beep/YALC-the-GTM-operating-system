@@ -16,6 +16,13 @@ import { randomBytes } from 'node:crypto'
 import yaml from 'js-yaml'
 import { SIGNUP_URLS } from '../constants.js'
 import { isClaudeCode } from '../env/claude-code.js'
+import { isChannelOptedOut } from '../config/loader.js'
+import {
+  applyCollectedKeysToEnv,
+  envTemplateInstructions,
+  writeEnvTemplate,
+  type WriteEnvTemplateOutcome,
+} from './env-template.js'
 
 const GTM_OS_DIR = join(homedir(), '.gtm-os')
 const CONFIG_PATH = join(GTM_OS_DIR, 'config.yaml')
@@ -77,7 +84,7 @@ export interface StartOptions {
   companyName?: string
   website?: string
   linkedin?: string
-  docs?: string
+  docs?: string | string[]
   icpSummary?: string
   voice?: string
   /** Bypass the local scrape cache for this run. */
@@ -89,6 +96,53 @@ export interface StartOptions {
   regenerateHint?: string
   discardPreview?: boolean
   forceOverwritePreview?: boolean
+  /** Bypass the captured-input content validation before synthesis (#3). */
+  forceSynthesis?: boolean
+  /**
+   * Re-run synthesis for every preview section whose confidence is below
+   * `confidenceThreshold` (default 0.6). 0.8.F glue over the existing
+   * `regenerateSection` plumbing — no new synthesis code path.
+   */
+  regenerateLowConfidence?: boolean
+  /** Threshold used by `regenerateLowConfidence`. Defaults to 0.6. */
+  confidenceThreshold?: number
+  /**
+   * Suppress the auto-open of /setup/review in the user's default browser
+   * after a successful flag-driven capture. Set when `--no-open` is passed
+   * or when the caller wants to drive review headlessly.
+   */
+  noOpen?: boolean
+  /**
+   * Walk preview sections directly in the terminal at the end of capture
+   * (legacy chat-walk pattern). Mutually exclusive with the SPA review —
+   * when set, the browser is not launched.
+   */
+  reviewInChat?: boolean
+  /**
+   * Server URL the SPA is served from. Defaults to http://localhost:3847.
+   * Override for tests / non-default ports.
+   */
+  serverUrl?: string
+  /**
+   * Browser-open hook injected for tests. Production callers leave this
+   * unset and the helper resolves to `openBrowser()`.
+   */
+  openHook?: (url: string) => { attempted: boolean; launched: boolean }
+  /**
+   * 0.9.F: confidence-banded auto-commit controls. When `noAutoCommit`
+   * is true (CLI: `--no-auto-commit`), every section stays in the review
+   * queue; otherwise sections with confidence ≥ `autoCommitThreshold`
+   * (default 0.85, configurable via config.yaml) auto-commit and only
+   * low-confidence sections appear in `/setup/review`.
+   */
+  noAutoCommit?: boolean
+  autoCommitThreshold?: number
+  /**
+   * 0.9.1: suppress the auto-open of `~/.gtm-os/.env` in the user's default
+   * editor after a fresh scaffold writes the template. Set this in CI / non-
+   * TTY contexts where launching the desktop editor is undesirable.
+   */
+  noOpenEnv?: boolean
 }
 
 export async function runStart(opts: StartOptions): Promise<void> {
@@ -141,6 +195,7 @@ export async function runStart(opts: StartOptions): Promise<void> {
     }
     const result = commitPreview({ tenant: tenantCtx, discardSections })
     await refreshLiveIndex(tenantCtx)
+    await writeReviewCommittedSentinel(tenantCtx)
     console.log(`  ✓ Committed ${result.committed.length} path(s) to live`)
     if (result.discarded.length > 0) {
       console.log(`  ⊘ Left in preview (discarded): ${result.discarded.join(', ')}`)
@@ -152,6 +207,15 @@ export async function runStart(opts: StartOptions): Promise<void> {
     await runRegenerateSection({
       tenantId,
       section: opts.regenerateSection,
+      hint: opts.regenerateHint,
+    })
+    return
+  }
+
+  if (opts.regenerateLowConfidence) {
+    await runRegenerateLowConfidence({
+      tenantId,
+      threshold: opts.confidenceThreshold,
       hint: opts.regenerateHint,
     })
     return
@@ -188,6 +252,55 @@ export async function runStart(opts: StartOptions): Promise<void> {
     console.error('  yalc-gtm start --discard-preview              # delete the preview entirely')
     console.error('  yalc-gtm start --force-overwrite-preview      # advance anyway (power-user override)')
     process.exitCode = 1
+    return
+  }
+
+  // Bare scaffold-only mode (0.7.0) — `start --non-interactive` with no
+  // capture flag set never invokes synthesis, regardless of Anthropic key
+  // presence. We just lay down ~/.gtm-os/ + DB + default config and exit.
+  // The user is told exactly which command to run next.
+  const bareScaffoldOnly = !!opts.nonInteractive && !captureFlagsSet
+  if (bareScaffoldOnly) {
+    if (!existsSync(GTM_OS_DIR)) {
+      mkdirSync(GTM_OS_DIR, { recursive: true })
+      console.log(`  Created ${GTM_OS_DIR}`)
+    }
+    if (!existsSync(CONFIG_PATH)) {
+      writeFileSync(CONFIG_PATH, yaml.dump(DEFAULT_CONFIG))
+      console.log('  Created default config')
+    }
+
+    // Lay down the template `.env` with placeholders for every supported
+    // provider. First boot writes the full template; re-runs delta-merge
+    // any new placeholders that didn't exist in the previous version.
+    const envOutcome = ensureEnvTemplate()
+    printEnvOutcome(envOutcome)
+
+    // 0.9.1: when we just wrote a fresh template, hand the file off to the
+    // user's default editor so they can uncomment + paste keys in one pass.
+    // This is the primary onboarding flow for filling provider keys —
+    // `keys:connect <provider> --open` remains available for adding/rotating
+    // a single key after onboarding, but the bulk-edit-the-.env flow is
+    // dramatically faster when the user has multiple keys to enter.
+    if (envOutcome.mode === 'created' && !opts.noOpenEnv) {
+      const { openInEditor } = await import('../cli/open-browser.js')
+      const r = openInEditor(envOutcome.envPath)
+      console.log('')
+      console.log('  Opening ~/.gtm-os/.env in your default editor.')
+      console.log('  → Remove the leading "#" from the lines you want to enable')
+      console.log('  → Paste your API key value after the "=" sign')
+      console.log('  → Save the file')
+      console.log('  Tell your assistant "keys done" when you have saved the file.')
+      if (!r.launched) {
+        console.log('')
+        console.log(`  (Auto-open skipped — open ${envOutcome.envPath} manually.)`)
+      }
+    }
+
+    await applyMigrations()
+    console.log(
+      '\nScaffold complete. Run `yalc-gtm start --non-interactive --website <url>` to capture context.',
+    )
     return
   }
 
@@ -343,12 +456,18 @@ export async function runStart(opts: StartOptions): Promise<void> {
     console.log('    .env.local and re-run `yalc-gtm setup` to validate.')
   }
 
-  // Write canonical env file at ~/.gtm-os/.env
-  const envContent = Object.entries(collectedKeys)
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n') + '\n'
-  writeFileSync(ENV_PATH, envContent)
-  console.log(`\n  ✓ ${Object.keys(collectedKeys).length} keys saved to ${ENV_PATH}`)
+  // Write canonical env file at ~/.gtm-os/.env. First boot lays down the
+  // full template with commented placeholders for every supported provider;
+  // re-runs preserve user lines and append placeholders for any new keys.
+  const envOutcome = ensureEnvTemplate()
+  printEnvOutcome(envOutcome)
+
+  // Apply any keys collected through interactive prompts on top of the
+  // template. We rewrite the file in-place: existing lines keep their order
+  // and comments, but matching `# KEY=` / `KEY=` / `KEY=oldvalue` lines are
+  // replaced by the live value, and unknown keys are appended at the bottom.
+  applyCollectedKeysToEnv(ENV_PATH, collectedKeys)
+  console.log(`  ✓ ${Object.keys(collectedKeys).length} key(s) saved to ${ENV_PATH}`)
 
   // ── Step 1b: Outbound Channel Selection ─────────────────────────────────
   // Pick the email provider so future `email:send` calls resolve through the
@@ -379,12 +498,60 @@ export async function runStart(opts: StartOptions): Promise<void> {
   const useFlagCapture = !!opts.nonInteractive && hasCaptureFlags(captureOpts)
 
   let flagCaptureSummary: string | null = null
+  // Capture phase wall-clock — printed at the end of the flow so users can
+  // see whether they're hitting the <60s target promised by the docs.
+  const captureStartedAt = Date.now()
   if (useFlagCapture) {
     console.log('  Running flag-driven capture into _preview/')
     const result = await runFlagCapture(captureOpts)
     writeCapturedPreview(result, { tenantId })
     flagCaptureSummary = summarizeCapture(result)
     if (flagCaptureSummary) console.log(flagCaptureSummary)
+
+    // Validate captured raw content before invoking synthesis. Without enough
+    // signal (≥500ch website OR ≥200ch LinkedIn OR a docs file ≥200ch) the
+    // model is just hallucinating. Bypass with --force-synthesis.
+    const { validateCaptureForSynthesis } = await import('./flag-capture.js')
+    const validation = validateCaptureForSynthesis({
+      websiteContent: result.websiteContent,
+      linkedinContent: result.linkedinContent,
+      docsContent: result.docsContent,
+      docsFiles: result.sourcesUsed.docs,
+    })
+    if (!validation.ok && !opts.forceSynthesis) {
+      // Tailor the error message based on whether the website was the only
+      // input the user gave us. With just `--website` and a thin scrape, the
+      // most actionable suggestions are: add an ICP one-liner, point at
+      // local docs, or force.
+      const websiteOnly =
+        !!opts.website &&
+        !opts.linkedin &&
+        !opts.docs &&
+        !opts.icpSummary &&
+        !opts.voice
+      if (websiteOnly) {
+        console.error(
+          `\nWebsite fetch returned ${validation.websiteChars} chars (minimum 500).`,
+        )
+        console.error('Pass one of these to seed synthesis:')
+        console.error('  --icp-summary "<one-liner describing your buyers>"')
+        console.error('  --docs <path-or-url>   # additional context')
+        console.error('  --force-synthesis      # proceed anyway with what we have')
+      } else {
+        console.error(
+          `\nInsufficient source content. Got: website=${validation.websiteChars} chars, ` +
+            `linkedin=${validation.linkedinChars} chars, docs=${validation.docsFiles} files.`,
+        )
+        console.error(
+          'Need at least one of: website≥500ch, linkedin≥200ch, docs with ≥1 file ≥200ch.',
+        )
+        console.error(
+          'Re-run with better inputs or pass --force-synthesis to proceed anyway.',
+        )
+      }
+      process.exitCode = 1
+      return
+    }
 
     // Synthesize all sections into the preview tree. Stubs are emitted when
     // no Anthropic key is available so the folder layout is still correct.
@@ -397,15 +564,119 @@ export async function runStart(opts: StartOptions): Promise<void> {
         docs: result.docsContent,
         voice: result.voiceContent,
       },
+      hasMetadataAnchors: result.websiteHasMetadataAnchors,
       tenant: { tenantId },
     })
     console.log(
       `  ✓ Wrote ${synth.written.length} preview files (${synth.llmDriven ? 'LLM-derived' : 'stub'})`,
     )
 
+    const elapsedMs = Date.now() - captureStartedAt
+    const elapsedSec = Math.round(elapsedMs / 1000)
     console.log(
-      `\n  ✓ Preview ready. Review then run: yalc-gtm start --commit-preview`,
+      `\n  Captured + synthesized in ${elapsedSec}s. Preview ready at ~/.gtm-os/_preview/`,
     )
+
+    // 0.9.F: confidence-banded auto-commit. High-confidence sections
+    // move straight to live; everything else stays in `_preview/` for
+    // explicit review. Failures are non-fatal — the user can always
+    // commit manually via the SPA.
+    try {
+      const { applyAutoCommit, resolveEffectiveThreshold } = await import('./auto-commit.js')
+      const threshold = resolveEffectiveThreshold({
+        threshold: opts.autoCommitThreshold,
+        noAutoCommit: opts.noAutoCommit,
+      })
+      const ac = await applyAutoCommit({ tenantId }, {
+        threshold: opts.autoCommitThreshold,
+        noAutoCommit: opts.noAutoCommit,
+      })
+      if (ac.committed.length > 0) {
+        console.log(
+          `  ✓ Auto-committed ${ac.committed.length} high-confidence section(s) ` +
+            `(threshold ${threshold.toFixed(2)}): ${ac.committed.join(', ')}`,
+        )
+      }
+      if (ac.queued.length > 0) {
+        console.log(
+          `  ⊘ Queued ${ac.queued.length} section(s) for /setup/review: ${ac.queued.join(', ')}`,
+        )
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn(`  ! Auto-commit pass skipped: ${msg}`)
+    }
+    if (elapsedMs > 120_000) {
+      console.warn(
+        '  ⚠ Capture took longer than expected. Synthesis may be slow due to model load —',
+      )
+      console.warn(
+        '    re-run with `yalc-gtm start --regenerate <section>` if any section is missing.',
+      )
+    }
+    // Hand off to the SPA review surface (0.9.B). Three modes:
+    //   1. --review-in-chat → terminal-driven section walk, then return.
+    //   2. default → auto-spawn the dashboard server, auto-open the SPA at
+    //      /setup/review, and return. The spawned server is detached so it
+    //      survives this CLI exit until the user kills it.
+    //   3. --no-open → just print the URL (server is NOT spawned; user
+    //      presumably already has one running or wants to drive headlessly).
+    // Browser-open failures fall back to the printed URL silently.
+    const port = 3847
+    const reviewUrl = `${opts.serverUrl ?? `http://localhost:${port}`}/setup/review`
+
+    if (opts.reviewInChat) {
+      await runChatReviewWalk({ tenantId })
+      return
+    }
+
+    // 0.9.2: auto-spawn the dashboard server if the port isn't already in
+    // use. Without this, the browser opens to a non-existent server.
+    let spawnedPid: number | null = null
+    if (!opts.noOpen) {
+      const inUse = await isPortListening(port).catch(() => false)
+      if (!inUse) {
+        spawnedPid = await spawnDashboardServer(port)
+        if (spawnedPid) {
+          console.log(
+            `  Started review server on :${port} (pid: ${spawnedPid}). Stop later with: kill ${spawnedPid}`,
+          )
+          // Wait up to 10s for the server to start listening so the
+          // browser-open below doesn't race against an empty port.
+          for (let i = 0; i < 20; i++) {
+            if (await isPortListening(port).catch(() => false)) break
+            await new Promise((r) => setTimeout(r, 500))
+          }
+        } else {
+          console.log(
+            `  Could not auto-spawn the review server. In another terminal run:`,
+          )
+          console.log(`    yalc-gtm campaign:dashboard --port ${port}`)
+        }
+      }
+    }
+
+    let openResult: { attempted: boolean; launched: boolean } = {
+      attempted: false,
+      launched: false,
+    }
+    if (!opts.noOpen) {
+      if (opts.openHook) {
+        openResult = opts.openHook(reviewUrl)
+      } else {
+        const { openBrowser } = await import('../cli/open-browser.js')
+        const r = openBrowser(reviewUrl)
+        openResult = { attempted: r.attempted, launched: r.launched }
+      }
+    }
+
+    if (openResult.launched) {
+      console.log(`  Opening ${reviewUrl} in your browser…`)
+    } else {
+      console.log(`  Open ${reviewUrl} to review and commit.`)
+    }
+    console.log('  CLI alternative: yalc-gtm start --commit-preview (or --review-in-chat).')
+    return
   }
 
   const { runOnboarding } = await import('../context/onboarding.js')
@@ -479,7 +750,7 @@ export async function runStart(opts: StartOptions): Promise<void> {
     const { setGoals } = await import('./goal-setter.js')
     const { configureSkills } = await import('./skill-configurator.js')
     const goals = await setGoals(fw)
-    await configureSkills(fw, goals)
+    await configureSkills(fw, goals, { tenant: tenantCtx })
   }
 
   // ── File Structure Map ─────────────────────────────────────────────────
@@ -487,6 +758,34 @@ export async function runStart(opts: StartOptions): Promise<void> {
 
   // ── Readiness Report ────────────────────────────────────────────────────
   printReadinessReport(collectedKeys, { frameworkDerived, inClaudeCode })
+}
+
+/**
+ * Render or delta-merge the template `.env`. Returns the outcome so the
+ * caller can decide what to print. The template is the source of truth for
+ * the structured "for-humans" portion; runtime-collected key values are
+ * splattered on top by `applyCollectedKeysToEnv()`.
+ */
+function ensureEnvTemplate(): WriteEnvTemplateOutcome {
+  return writeEnvTemplate({
+    envPath: ENV_PATH,
+    autoKeys: {
+      ENCRYPTION_KEY: randomBytes(32).toString('hex'),
+      DATABASE_URL: `file:${join(GTM_OS_DIR, 'gtm-os.db')}`,
+    },
+  })
+}
+
+function printEnvOutcome(outcome: WriteEnvTemplateOutcome): void {
+  if (outcome.mode === 'created') {
+    console.log('')
+    console.log(envTemplateInstructions(outcome.envPath))
+  } else if (outcome.mode === 'merged') {
+    console.log(
+      `  ✓ Added ${outcome.added.length} new placeholder(s) to ${outcome.envPath}`,
+    )
+  }
+  // 'unchanged' is silent — the file is already up-to-date.
 }
 
 /**
@@ -758,13 +1057,17 @@ function printReadinessReport(
 
   // Suggest a first command that will actually succeed in the user's
   // current state. Decision tree (first match wins): explore-providers →
-  // research → scrape-post → browse-skills.
+  // research → scrape-post → browse-skills. We re-read the persisted
+  // email/linkedin opt-out state so we never suggest a LinkedIn command
+  // when `linkedin.provider: none` was just selected.
+  const linkedinOptedOut = isChannelOptedOut('linkedin')
+
   let firstCommand: string
   if (!hasAnthropic && state.inClaudeCode) {
     firstCommand = 'yalc-gtm provider:list'
   } else if (hasAnthropic && has('CRUSTDATA_API_KEY')) {
     firstCommand = 'yalc-gtm research --question "what does <my-target-company> do" --target acme.com'
-  } else if (has('UNIPILE_API_KEY')) {
+  } else if (has('UNIPILE_API_KEY') && !linkedinOptedOut) {
     firstCommand = 'yalc-gtm leads:scrape-post --url <linkedin-post-url>'
   } else {
     firstCommand = 'yalc-gtm skills:browse --installed'
@@ -786,6 +1089,53 @@ function printReadinessReport(
  * sections require an Anthropic key — without one, we emit the same
  * "needs an LLM" handoff used elsewhere in the CLI.
  */
+/**
+ * Public wrapper around `runRegenerateSection` for the API surface (0.9.B).
+ *
+ * Throws on validation errors (unknown section, missing preview, missing key)
+ * instead of setting `process.exitCode`, so HTTP handlers can map to a 4xx.
+ * Returns the list of files synthesis wrote.
+ */
+export async function regeneratePreviewSection(args: {
+  tenantId: string
+  section: string
+  hint?: string
+}): Promise<{ section: string; written: string[] }> {
+  const tenant = { tenantId: args.tenantId }
+  const { previewExists, previewPath } = await import('./preview.js')
+  const { ALL_SECTION_IDS, writeSynthesizedPreview } = await import('./synthesis.js')
+
+  if (!previewExists(tenant)) {
+    throw new Error('No preview to regenerate. Run capture first.')
+  }
+  if (!ALL_SECTION_IDS.includes(args.section as (typeof ALL_SECTION_IDS)[number])) {
+    throw new Error(
+      `Unknown section "${args.section}". Valid: ${ALL_SECTION_IDS.join(', ')}`,
+    )
+  }
+  const ctxPath = previewPath('company_context.yaml', tenant)
+  if (!existsSync(ctxPath)) {
+    throw new Error(`Missing ${ctxPath}. Re-run start with capture flags first.`)
+  }
+  const yamlMod = (await import('js-yaml')).default
+  const ctx = yamlMod.load(readFileSync(ctxPath, 'utf-8')) as
+    | import('../framework/context-types.js').CompanyContext
+    | null
+  if (!ctx) throw new Error('Could not parse company_context.yaml.')
+
+  const inCC = isClaudeCode()
+  if (!process.env.ANTHROPIC_API_KEY && !inCC) {
+    throw new Error('--regenerate needs an Anthropic key (or run inside Claude Code).')
+  }
+  const result = await writeSynthesizedPreview({
+    context: ctx,
+    tenant,
+    only: [args.section as (typeof ALL_SECTION_IDS)[number]],
+    hint: args.hint,
+  })
+  return { section: args.section, written: result.written }
+}
+
 async function runRegenerateSection(args: {
   tenantId: string
   section: string
@@ -850,4 +1200,187 @@ async function runRegenerateSection(args: {
   console.log(
     `  ✓ Regenerated ${result.written.length} file(s) for section "${args.section}"`,
   )
+}
+
+/**
+ * Re-run synthesis for every preview section whose confidence dipped below
+ * `threshold` (default 0.6). Pure glue: scans `_preview/_meta.json`, then
+ * defers to `runRegenerateSection()` per low-confidence section so the
+ * regenerate plumbing stays the single source of truth.
+ */
+async function runRegenerateLowConfidence(args: {
+  tenantId: string
+  threshold?: number
+  hint?: string
+}): Promise<void> {
+  const tenant = { tenantId: args.tenantId }
+  const { previewExists, readPreviewMeta, previewRoot } = await import('./preview.js')
+  const { ALL_SECTION_IDS } = await import('./synthesis.js')
+
+  const threshold = args.threshold ?? 0.6
+  if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
+    console.error(`  Invalid --confidence-threshold ${threshold}. Must be between 0 and 1.`)
+    process.exitCode = 1
+    return
+  }
+
+  if (!previewExists(tenant)) {
+    console.error(
+      '  No preview to scan. Run capture first: yalc-gtm start --non-interactive --website ...',
+    )
+    process.exitCode = 1
+    return
+  }
+
+  const meta = readPreviewMeta(tenant)
+  const sections = meta?.sections ?? {}
+  const valid = new Set<string>(ALL_SECTION_IDS as readonly string[])
+  // A section is eligible only if the writer for it knows how to
+  // regenerate (i.e. it's in ALL_SECTION_IDS — `company_context` doesn't
+  // run through synthesis so we skip it even if it's in the meta).
+  const lowConfidence = Object.entries(sections)
+    .filter(([name, entry]) => valid.has(name) && entry.confidence < threshold)
+    .map(([name, entry]) => ({ name, confidence: entry.confidence }))
+    .sort((a, b) => a.confidence - b.confidence)
+
+  if (lowConfidence.length === 0) {
+    console.log(
+      `  ✓ No sections below threshold ${threshold.toFixed(2)} in ${previewRoot(tenant)}.`,
+    )
+    return
+  }
+
+  console.log(
+    `  Regenerating ${lowConfidence.length} section(s) below threshold ${threshold.toFixed(2)}:`,
+  )
+  for (const { name, confidence } of lowConfidence) {
+    console.log(`    - ${name} (confidence ${confidence.toFixed(2)})`)
+  }
+
+  for (const { name } of lowConfidence) {
+    await runRegenerateSection({
+      tenantId: args.tenantId,
+      section: name,
+      hint: args.hint,
+    })
+  }
+}
+
+// ─── 0.9.B: SPA handoff helpers ──────────────────────────────────────────────
+
+/**
+ * Write `<liveRoot>/_handoffs/setup/review.committed` so non-interactive
+ * harnesses (Claude Code, CI) can detect that commit completed without
+ * polling the preview directory. Best-effort.
+ *
+ * Async because the preview helpers ship as ESM and we can't `require()`
+ * them. Callers can fire-and-forget — failures never propagate.
+ */
+export async function writeReviewCommittedSentinel(tenant: {
+  tenantId: string
+}): Promise<void> {
+  try {
+    const { liveRoot } = await import('./preview.js')
+    const dir = join(liveRoot(tenant), '_handoffs', 'setup')
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+    writeFileSync(
+      join(dir, 'review.committed'),
+      JSON.stringify({ at: new Date().toISOString(), tenant: tenant.tenantId }) + '\n',
+    )
+  } catch {
+    // Sentinel is advisory — never propagate.
+  }
+}
+
+/**
+ * Legacy-style chat-walk: enumerate every preview section, print a short
+ * summary, and prompt for approve/regenerate/drop. Used only when
+ * `--review-in-chat` is passed (no browser available, CI).
+ *
+ * The full per-section walk lives in the synthesis prompts; here we just
+ * emit one summary line per section then immediately commit. Callers who
+ * want fine-grained control should run `yalc-gtm start --regenerate
+ * <section>` and `--commit-preview --discard <section>` directly.
+ */
+async function runChatReviewWalk(args: { tenantId: string }): Promise<void> {
+  const tenant = { tenantId: args.tenantId }
+  const { previewExists, previewPath, SECTION_NAMES, SECTION_PATHS, commitPreview, refreshLiveIndex } =
+    await import('./preview.js')
+
+  if (!previewExists(tenant)) {
+    console.error('  No preview to review.')
+    process.exitCode = 1
+    return
+  }
+
+  console.log('\n  Preview sections:')
+  for (const id of SECTION_NAMES) {
+    for (const canonical of SECTION_PATHS[id]) {
+      const abs = previewPath(canonical, tenant)
+      if (!existsSync(abs)) continue
+      console.log(`    - ${id} (${canonical})`)
+    }
+  }
+  console.log(
+    '\n  Review-in-chat mode: committing preview as-is. Re-run with --discard <section>',
+  )
+  console.log('  to drop sections, or --regenerate <section> to redo synthesis.\n')
+
+  const result = commitPreview({ tenant })
+  await refreshLiveIndex(tenant)
+  await writeReviewCommittedSentinel(tenant)
+  console.log(`  ✓ Committed ${result.committed.length} path(s) to live`)
+}
+
+/**
+ * 0.9.2: detect whether something is already listening on the given port.
+ * Used by the post-capture handoff to decide whether to spawn the dashboard
+ * server. Best-effort — a transient AF_INET6 vs AF_INET mismatch could
+ * report false negative; the worst case is a duplicate spawn which the
+ * user can kill.
+ */
+async function isPortListening(port: number, host = '127.0.0.1'): Promise<boolean> {
+  const { createConnection } = await import('node:net')
+  return new Promise((resolve) => {
+    const socket = createConnection({ port, host })
+    let settled = false
+    const done = (result: boolean) => {
+      if (settled) return
+      settled = true
+      socket.destroy()
+      resolve(result)
+    }
+    socket.once('connect', () => done(true))
+    socket.once('error', () => done(false))
+    setTimeout(() => done(false), 1000)
+  })
+}
+
+/**
+ * 0.9.2: spawn the dashboard server as a detached child process so it
+ * survives this CLI's exit. Uses the same node binary + the same CLI
+ * entry point we're already running, so it works inside sandboxed installs
+ * where `yalc-gtm` may not be on the PATH of the spawned shell.
+ *
+ * Returns the spawned PID on success, or null on failure.
+ */
+async function spawnDashboardServer(port: number): Promise<number | null> {
+  try {
+    const { spawn } = await import('node:child_process')
+    const cliEntry = process.argv[1]
+    if (!cliEntry) return null
+    const child = spawn(
+      process.execPath,
+      [cliEntry, 'campaign:dashboard', '--port', String(port)],
+      {
+        detached: true,
+        stdio: 'ignore',
+        env: process.env,
+      },
+    )
+    if (typeof child.unref === 'function') child.unref()
+    return child.pid ?? null
+  } catch {
+    return null
+  }
 }

@@ -3,6 +3,8 @@
 // Validates at load time. Bad skills never register.
 // ---------------------------------------------------------------------------
 
+import Ajv from 'ajv'
+
 export interface MarkdownInputDefinition {
   name: string
   description: string
@@ -13,14 +15,39 @@ export interface MarkdownSkillDefinition {
   name: string
   description: string
   inputs: MarkdownInputDefinition[]
-  provider: string
+  /**
+   * Legacy — pin the skill to a specific provider id. Mutually
+   * exclusive in practice with `capability:` (when both are set the
+   * loader logs a WARN and prefers `capability:`).
+   */
+  provider?: string
+  /**
+   * Capability-routed skills declare WHAT they need. The runtime
+   * resolves the provider via the capability registry's priority list.
+   * Validation of the capability id happens at runtime (not load time)
+   * so registration order doesn't matter.
+   */
+  capability?: string
+  /** Additional capabilities the skill body needs. */
+  requires_capabilities?: string[]
   capabilities?: string[]
   output?: string
   category?: string
   version?: string
+  /**
+   * Optional JSON Schema (Draft 7 subset) constraining the shape of the
+   * skill's runtime output. `null` is an explicit opt-out for deterministic
+   * pass-through skills. `undefined` means "not declared" — runtime skips
+   * validation (backward-compatible default).
+   */
+  output_schema?: Record<string, unknown> | null
 }
 
-const REQUIRED_FIELDS: (keyof MarkdownSkillDefinition)[] = ['name', 'description', 'inputs', 'provider']
+/**
+ * A skill must declare EITHER `provider:` (legacy) OR `capability:`
+ * (new). Both is permitted but emits a WARN at load time.
+ */
+const REQUIRED_FIELDS: (keyof MarkdownSkillDefinition)[] = ['name', 'description', 'inputs']
 
 /**
  * Validates a markdown skill definition and its prompt template.
@@ -37,6 +64,27 @@ export function validateMarkdownSkill(
     const val = definition[field]
     if (val === undefined || val === null || val === '') {
       errors.push(`Missing required frontmatter field: ${field}`)
+    }
+  }
+
+  // 1b. At least one of `provider:` or `capability:` must be present.
+  const hasProvider = !!definition.provider && definition.provider !== ''
+  const hasCapability = !!definition.capability && definition.capability !== ''
+  if (!hasProvider && !hasCapability) {
+    errors.push('Missing required frontmatter field: one of `provider` or `capability` must be set')
+  }
+
+  // 1c. requires_capabilities must be an array of non-empty strings if present.
+  if (definition.requires_capabilities !== undefined) {
+    if (!Array.isArray(definition.requires_capabilities)) {
+      errors.push('Frontmatter "requires_capabilities" must be an array of capability ids')
+    } else {
+      for (const c of definition.requires_capabilities) {
+        if (typeof c !== 'string' || c.trim() === '') {
+          errors.push('Frontmatter "requires_capabilities" entries must be non-empty strings')
+          break
+        }
+      }
     }
   }
 
@@ -93,6 +141,21 @@ export function validateMarkdownSkill(
     const validCategories = ['research', 'content', 'outreach', 'analysis', 'data', 'integration']
     if (!validCategories.includes(definition.category)) {
       errors.push(`Invalid category "${definition.category}". Valid: ${validCategories.join(', ')}`)
+    }
+  }
+
+  // 9. output_schema (if present and not null) must be a compilable JSON Schema.
+  if (definition.output_schema !== undefined && definition.output_schema !== null) {
+    if (typeof definition.output_schema !== 'object' || Array.isArray(definition.output_schema)) {
+      errors.push('Frontmatter "output_schema" must be a JSON Schema object or null')
+    } else {
+      const ajv = new Ajv({ allErrors: true, strict: false })
+      try {
+        ajv.compile(definition.output_schema)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        errors.push(`Frontmatter "output_schema" is not a valid JSON Schema: ${msg}`)
+      }
     }
   }
 

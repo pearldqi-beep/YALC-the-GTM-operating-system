@@ -16,6 +16,8 @@ import yaml from 'js-yaml'
 import { GTM_OS_DIR } from '../paths'
 import { isClaudeCode } from '../env/claude-code'
 import { isProviderDisabled } from '../config/loader'
+import { listInstalledFrameworks } from '../frameworks/registry'
+import { RETIRED_FRAMEWORKS } from '../frameworks/retired'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -104,7 +106,89 @@ function runSqlite(dbPath: string, query: string): string | null {
   }
 }
 
+// ─── Provider env-var schema registry (0.7.0) ────────────────────────────────
+//
+// Each provider service exports its own `envVarSchema`. Doctor walks the
+// registry uniformly instead of hardcoding per-provider checks.
+
+interface EnvVarRule {
+  pattern?: string
+  minLength?: number
+}
+
+interface ProviderEnvSchema {
+  provider: string
+  schema: Record<string, EnvVarRule>
+}
+
+async function loadProviderEnvSchemas(): Promise<ProviderEnvSchema[]> {
+  const out: ProviderEnvSchema[] = []
+  const services: Array<{ name: string; importer: () => Promise<{ envVarSchema?: Record<string, EnvVarRule> }> }> = [
+    { name: 'unipile', importer: () => import('../services/unipile') },
+    { name: 'crustdata', importer: () => import('../services/crustdata') },
+    { name: 'firecrawl', importer: () => import('../services/firecrawl') },
+    { name: 'notion', importer: () => import('../services/notion') },
+    { name: 'fullenrich', importer: () => import('../services/fullenrich') },
+    { name: 'instantly', importer: () => import('../services/instantly') },
+  ]
+  for (const s of services) {
+    try {
+      const mod = await s.importer()
+      if (mod.envVarSchema) {
+        out.push({ provider: s.name, schema: mod.envVarSchema })
+      }
+    } catch {
+      // Service module didn't export a schema — skip.
+    }
+  }
+  return out
+}
+
+function validateEnvVar(value: string, rule: EnvVarRule): string | null {
+  if (rule.minLength !== undefined && value.length < rule.minLength) {
+    return `expected length ≥ ${rule.minLength}, got ${value.length}`
+  }
+  if (rule.pattern !== undefined) {
+    try {
+      const re = new RegExp(rule.pattern)
+      if (!re.test(value)) return `did not match pattern ${rule.pattern}`
+    } catch {
+      // Invalid regex in our own schema — treat as no rule.
+    }
+  }
+  return null
+}
+
 // ─── Layer 1: Environment ────────────────────────────────────────────────────
+
+async function checkEnvironmentSchemas(envVars: Map<string, string>): Promise<CheckResult[]> {
+  const results: CheckResult[] = []
+  const schemas = await loadProviderEnvSchemas()
+  for (const entry of schemas) {
+    for (const [varName, rule] of Object.entries(entry.schema)) {
+      const value = envVars.get(varName) ?? process.env[varName]
+      if (!value || !value.trim()) {
+        // Missing entirely — already covered by per-key checks; skip silently.
+        continue
+      }
+      const failure = validateEnvVar(value, rule)
+      if (failure) {
+        results.push({
+          name: `${entry.provider}: ${varName}`,
+          status: 'fail',
+          detail: `Schema check failed — ${failure}`,
+        })
+      } else {
+        results.push({
+          name: `${entry.provider}: ${varName}`,
+          status: 'pass',
+          detail: '',
+        })
+      }
+    }
+  }
+  return results
+}
 
 function checkEnvironment(): LayerResult {
   const checks: CheckResult[] = []
@@ -175,27 +259,45 @@ function checkEnvironment(): LayerResult {
       })
     }
   } else if (uKey && !uDsn) {
-    checks.push({ name: 'Unipile credentials', status: 'fail', detail: 'UNIPILE_API_KEY set but UNIPILE_DSN missing. Both required.' })
+    checks.push({
+      name: 'Unipile credentials',
+      status: 'fail',
+      detail: `UNIPILE_API_KEY set but UNIPILE_DSN missing. Both required. Fix: ${keysConnectUrlFor('unipile')}`,
+    })
   } else if (!uKey && uDsn) {
-    checks.push({ name: 'Unipile credentials', status: 'fail', detail: 'UNIPILE_DSN set but UNIPILE_API_KEY missing. Both required.' })
+    checks.push({
+      name: 'Unipile credentials',
+      status: 'fail',
+      detail: `UNIPILE_DSN set but UNIPILE_API_KEY missing. Both required. Fix: ${keysConnectUrlFor('unipile')}`,
+    })
   } else {
-    checks.push({ name: 'Unipile credentials', status: 'skip', detail: 'Not configured (optional)' })
+    checks.push({
+      name: 'Unipile credentials',
+      status: 'skip',
+      detail: `Not configured (optional). Connect: ${keysConnectUrlFor('unipile')}`,
+    })
   }
 
   // Optional providers
   const optional = [
-    { key: 'FIRECRAWL_API_KEY', label: 'Firecrawl' },
-    { key: 'NOTION_API_KEY', label: 'Notion' },
-    { key: 'CRUSTDATA_API_KEY', label: 'Crustdata' },
-    { key: 'FULLENRICH_API_KEY', label: 'FullEnrich' },
-    { key: 'INSTANTLY_API_KEY', label: 'Instantly' },
+    { key: 'FIRECRAWL_API_KEY', label: 'Firecrawl', id: 'firecrawl' },
+    { key: 'NOTION_API_KEY', label: 'Notion', id: 'notion' },
+    { key: 'CRUSTDATA_API_KEY', label: 'Crustdata', id: 'crustdata' },
+    { key: 'FULLENRICH_API_KEY', label: 'FullEnrich', id: 'fullenrich' },
+    { key: 'INSTANTLY_API_KEY', label: 'Instantly', id: 'instantly' },
   ]
-  for (const { key, label } of optional) {
+  for (const { key, label, id } of optional) {
     const val = envVars.get(key) ?? process.env[key]
     if (val && val.trim()) {
       checks.push({ name: `${label} (${key})`, status: 'pass', detail: '' })
     } else {
-      checks.push({ name: `${label} (${key})`, status: 'skip', detail: 'Not configured (optional)' })
+      // Optional → skipped, but still surface the connect URL so the user
+      // can opt in without hunting for it.
+      checks.push({
+        name: `${label} (${key})`,
+        status: 'skip',
+        detail: `Not configured (optional). Connect: ${keysConnectUrlFor(id)}`,
+      })
     }
   }
 
@@ -360,8 +462,27 @@ function checkConfiguration(): LayerResult {
     })
   } else {
     try {
-      yaml.load(readFileSync(configPath, 'utf-8'))
+      const cfg = (yaml.load(readFileSync(configPath, 'utf-8')) as Record<string, unknown>) ?? {}
       checks.push({ name: 'User config (~/.gtm-os/config.yaml)', status: 'pass', detail: '' })
+
+      // Goals block — TODO until the user fills it. Onboarding writes
+      // explicit nulls so the unset state is loud; we surface a WARN here.
+      const goals = cfg.goals as Record<string, unknown> | undefined
+      const goalsUnset =
+        !goals ||
+        Object.values(goals).every(
+          (v) => v === null || v === undefined || (Array.isArray(v) && v.length === 0) || v === '',
+        )
+      if (goalsUnset) {
+        checks.push({
+          name: 'Goals block',
+          status: 'warn',
+          detail:
+            'Goals not yet defined. Edit `~/.gtm-os/config.yaml` `goals` section after your first month of outbound data.',
+        })
+      } else {
+        checks.push({ name: 'Goals block', status: 'pass', detail: '' })
+      }
     } catch (e) {
       checks.push({
         name: 'User config (~/.gtm-os/config.yaml)',
@@ -389,9 +510,55 @@ function checkConfiguration(): LayerResult {
       status: 'pass',
       detail: '',
     })
+    // 0.8.D: weekly-engagement-harvest sources the Unipile account id from
+    // sources.linkedin_account_id. Surface a WARN when the field is missing
+    // so the user knows to populate it before installing the framework.
+    try {
+      const ctx = (yaml.load(readFileSync(companyContextPath, 'utf-8')) as Record<string, unknown>) ?? {}
+      const sources = (ctx.sources as Record<string, unknown> | undefined) ?? {}
+      const acct = sources.linkedin_account_id
+      if (!acct || typeof acct !== 'string' || acct.trim() === '') {
+        checks.push({
+          name: 'sources.linkedin_account_id',
+          status: 'warn',
+          detail:
+            'Not captured. weekly-engagement-harvest needs this to know which Unipile account to scrape. ' +
+            'Run `yalc-gtm provider:add unipile` or set it manually under sources: in company_context.yaml.',
+        })
+      } else {
+        checks.push({ name: 'sources.linkedin_account_id', status: 'pass', detail: '' })
+      }
+    } catch {
+      // already-handled malformed yaml above
+    }
   }
 
   return { layer: 'Configuration', checks }
+}
+
+// ─── Keys:connect handoff ────────────────────────────────────────────────────
+//
+// When a provider check FAILs because the API key is missing/invalid, doctor
+// prints a clickable URL pointing at the SPA's `/keys/connect/<provider>`
+// route so the user has an actionable next step. Doctor itself does NOT
+// boot the server — it just prints the URL. The user runs `yalc-gtm
+// dashboard` (A2) separately when they want to click through.
+
+const KEYS_CONNECT_BASE_URL = 'http://localhost:3847/keys/connect'
+
+export function keysConnectUrlFor(provider: string): string {
+  return `${KEYS_CONNECT_BASE_URL}/${encodeURIComponent(provider)}`
+}
+
+/**
+ * Append a `Fix: <url>` hint to a check's detail message. Idempotent — if
+ * the detail already ends with the same URL, returns the original.
+ */
+function appendKeysConnectHint(detail: string, provider: string): string {
+  const url = keysConnectUrlFor(provider)
+  if (detail.includes(url)) return detail
+  const sep = detail.trim() === '' ? '' : ' '
+  return `${detail}${sep}Fix: ${url}`.trim()
 }
 
 // ─── Layer 4: Provider Connectivity ──────────────────────────────────────────
@@ -413,6 +580,48 @@ async function checkProviders(): Promise<LayerResult> {
   const linkedinProvider = (userConfig.linkedin as Record<string, unknown> | undefined)?.provider
   const emailDisabled = isProviderDisabled(emailProvider)
   const linkedinDisabled = isProviderDisabled(linkedinProvider)
+
+  // Provider self-describing health checks (0.7.0). Walk the registry and
+  // call `selfHealthCheck()` for any builtin that exposes it. Builtins that
+  // have not migrated fall through to the legacy hardcoded blocks below.
+  const selfHealthDone = new Set<string>()
+  try {
+    const { getRegistryReady } = await import('../providers/registry')
+    const registry = await getRegistryReady()
+    const ordered: Array<{ id: string; label: string; gate?: 'email' | 'linkedin' }> = [
+      { id: 'crustdata', label: 'Crustdata' },
+      { id: 'unipile', label: 'Unipile (LinkedIn)', gate: 'linkedin' },
+      { id: 'firecrawl', label: 'Firecrawl' },
+      { id: 'notion', label: 'Notion' },
+      { id: 'fullenrich', label: 'FullEnrich' },
+      { id: 'instantly', label: 'Instantly', gate: 'email' },
+    ]
+    for (const entry of ordered) {
+      if (entry.gate === 'email' && emailDisabled) {
+        checks.push({ name: entry.label, status: 'skip', detail: 'Opted out via config' })
+        selfHealthDone.add(entry.id)
+        continue
+      }
+      if (entry.gate === 'linkedin' && linkedinDisabled) {
+        checks.push({ name: entry.label, status: 'skip', detail: 'Opted out via config' })
+        selfHealthDone.add(entry.id)
+        continue
+      }
+      const exec = registry.getAll().find((p) => p.id === entry.id)
+      if (!exec) continue
+      try {
+        const e = registry.resolve({ stepType: exec.capabilities[0] ?? 'search', provider: exec.id } as never)
+        if (typeof (e as { selfHealthCheck?: unknown }).selfHealthCheck !== 'function') continue
+        const result = await (e as { selfHealthCheck: () => Promise<{ status: 'ok' | 'fail' | 'warn'; detail: string }> }).selfHealthCheck()
+        checks.push({ name: entry.label, status: result.status === 'ok' ? 'pass' : result.status, detail: result.detail })
+        selfHealthDone.add(entry.id)
+      } catch {
+        // selfHealthCheck threw — fall through to legacy probe below.
+      }
+    }
+  } catch {
+    // Registry unavailable — fall through to legacy probes entirely.
+  }
 
   // Anthropic
   const anthropicKey = process.env.ANTHROPIC_API_KEY
@@ -446,10 +655,12 @@ async function checkProviders(): Promise<LayerResult> {
     checks.push({ name: 'Anthropic API', status: 'fail', detail: 'ANTHROPIC_API_KEY not set' })
   }
 
-  // Unipile
+  // Unipile (legacy probe — only if selfHealthCheck didn't already cover it)
   const uKey = process.env.UNIPILE_API_KEY
   const uDsn = process.env.UNIPILE_DSN
-  if (linkedinDisabled) {
+  if (selfHealthDone.has('unipile')) {
+    // already reported via selfHealthCheck
+  } else if (linkedinDisabled) {
     checks.push({ name: 'Unipile (LinkedIn)', status: 'skip', detail: 'Opted out via config' })
   } else if (uKey && uDsn) {
     try {
@@ -477,8 +688,10 @@ async function checkProviders(): Promise<LayerResult> {
     checks.push({ name: 'Unipile (LinkedIn)', status: 'skip', detail: 'Not configured' })
   }
 
-  // Firecrawl
-  if (process.env.FIRECRAWL_API_KEY) {
+  // Firecrawl (legacy probe)
+  if (selfHealthDone.has('firecrawl')) {
+    // already reported
+  } else if (process.env.FIRECRAWL_API_KEY) {
     try {
       const resp = await fetch('https://api.firecrawl.dev/v1/scrape', {
         method: 'POST',
@@ -505,8 +718,10 @@ async function checkProviders(): Promise<LayerResult> {
     checks.push({ name: 'Firecrawl', status: 'skip', detail: 'Not configured' })
   }
 
-  // Notion
-  if (process.env.NOTION_API_KEY) {
+  // Notion (legacy probe)
+  if (selfHealthDone.has('notion')) {
+    // already reported
+  } else if (process.env.NOTION_API_KEY) {
     try {
       const resp = await fetch('https://api.notion.com/v1/search', {
         method: 'POST',
@@ -532,8 +747,10 @@ async function checkProviders(): Promise<LayerResult> {
     checks.push({ name: 'Notion', status: 'skip', detail: 'Not configured' })
   }
 
-  // Crustdata
-  if (process.env.CRUSTDATA_API_KEY) {
+  // Crustdata (legacy probe)
+  if (selfHealthDone.has('crustdata')) {
+    // already reported
+  } else if (process.env.CRUSTDATA_API_KEY) {
     try {
       const resp = await fetch('https://api.crustdata.com/screener/credit_check/', {
         method: 'GET',
@@ -557,8 +774,10 @@ async function checkProviders(): Promise<LayerResult> {
     checks.push({ name: 'Crustdata', status: 'skip', detail: 'Not configured' })
   }
 
-  // Instantly
-  if (emailDisabled) {
+  // Instantly (legacy probe)
+  if (selfHealthDone.has('instantly')) {
+    // already reported
+  } else if (emailDisabled) {
     checks.push({ name: 'Instantly', status: 'skip', detail: 'Opted out via config' })
   } else if (process.env.INSTANTLY_API_KEY) {
     try {
@@ -587,8 +806,10 @@ async function checkProviders(): Promise<LayerResult> {
     checks.push({ name: 'Instantly', status: 'skip', detail: 'Not configured' })
   }
 
-  // FullEnrich
-  if (process.env.FULLENRICH_API_KEY) {
+  // FullEnrich (legacy probe)
+  if (selfHealthDone.has('fullenrich')) {
+    // already reported
+  } else if (process.env.FULLENRICH_API_KEY) {
     try {
       const resp = await fetch('https://api.fullenrich.com/v1/credits', {
         headers: {
@@ -652,7 +873,156 @@ async function checkProviders(): Promise<LayerResult> {
     // MCP check is best-effort
   }
 
+  // 0.9.6 / A5: append a `/keys/connect/<provider>` URL to any FAIL/WARN
+  // check whose detail signals a missing or invalid key. The mapping
+  // covers the canonical builtins; MCP entries are intentionally left
+  // alone since the SPA route doesn't manage their config files.
+  const PROVIDER_LABEL_TO_ID: Record<string, string> = {
+    'Crustdata': 'crustdata',
+    'Unipile (LinkedIn)': 'unipile',
+    'Firecrawl': 'firecrawl',
+    'Notion': 'notion',
+    'FullEnrich': 'fullenrich',
+    'Instantly': 'instantly',
+  }
+  for (const c of checks) {
+    if (c.status !== 'fail' && c.status !== 'warn') continue
+    const providerId = PROVIDER_LABEL_TO_ID[c.name]
+    if (!providerId) continue
+    c.detail = appendKeysConnectHint(c.detail, providerId)
+  }
+
   return { layer: 'Provider Connectivity', checks }
+}
+
+// ─── Preview Confidence (0.8.F) ──────────────────────────────────────────────
+//
+// Surfaces the per-section confidence scores synthesis stamped into
+// `_preview/_meta.json`. Only runs when a preview folder exists — once the
+// user has committed (or discarded), the layer is omitted entirely so a
+// healthy `~/.gtm-os/` doesn't pick up a noisy section it doesn't need.
+
+interface PreviewConfidenceEntry {
+  section: string
+  confidence: number
+  inputChars: number
+}
+
+function readPreviewConfidenceEntries(): PreviewConfidenceEntry[] | null {
+  const previewDir = join(GTM_OS_DIR, '_preview')
+  if (!existsSync(previewDir)) return null
+  const metaPath = join(previewDir, '_meta.json')
+  if (!existsSync(metaPath)) return null
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(readFileSync(metaPath, 'utf-8'))
+  } catch {
+    return null
+  }
+  if (!parsed || typeof parsed !== 'object') return null
+  const sections = (parsed as { sections?: Record<string, unknown> }).sections
+  if (!sections || typeof sections !== 'object') return null
+
+  const entries: PreviewConfidenceEntry[] = []
+  for (const [name, raw] of Object.entries(sections)) {
+    if (!raw || typeof raw !== 'object') continue
+    const confidence = (raw as { confidence?: unknown }).confidence
+    if (typeof confidence !== 'number' || !Number.isFinite(confidence)) continue
+    const signals = (raw as { confidence_signals?: { input_chars?: unknown } }).confidence_signals
+    const inputChars =
+      signals && typeof signals.input_chars === 'number' ? signals.input_chars : 0
+    entries.push({ section: name, confidence, inputChars })
+  }
+  return entries
+}
+
+function suggestionForSection(section: string): string {
+  // Map each section to the capture flag(s) most likely to add grounding
+  // signal. Used in the WARN message so the user has an actionable next
+  // step rather than a bare score.
+  switch (section) {
+    case 'voice':
+      return '`--voice <path-with-samples>` or `--linkedin <url>`'
+    case 'icp':
+      return '`--icp-summary "<description>"` or `--docs <path>`'
+    case 'positioning':
+    case 'qualification_rules':
+    case 'campaign_templates':
+    case 'search_queries':
+    case 'framework':
+      return '`--docs <path>` or `--icp-summary "<description>"`'
+    default:
+      return '`--docs <path>`'
+  }
+}
+
+/**
+ * 0.9.F retired-framework layer.
+ *
+ * Emits a single WARN per installed framework whose name is in the
+ * 0.9.F retirement registry, telling the user which archetype replaces
+ * it. Layer is only added when ≥1 retired framework is still installed —
+ * users on a clean 0.9.0 install see no extra noise.
+ */
+function retiredFrameworksLayer(): LayerResult | null {
+  try {
+    const installed = new Set(listInstalledFrameworks())
+    const retiredHits = RETIRED_FRAMEWORKS.filter((r) => installed.has(r.name))
+    if (retiredHits.length === 0) return null
+    const checks: CheckResult[] = []
+    for (const r of retiredHits) {
+      checks.push({
+        name: `Retired framework still installed: ${r.name}`,
+        status: 'warn',
+        detail:
+          `Replaced by '${r.replacement}'. Install the archetype with ` +
+          `\`yalc-gtm framework:install ${r.replacement}\` and remove the legacy ` +
+          `agent yaml under ~/.gtm-os/agents/${r.name}.yaml when ready.`,
+      })
+    }
+    return { layer: 'Retired Frameworks', checks }
+  } catch {
+    return null
+  }
+}
+
+function previewConfidenceLayer(): LayerResult | null {
+  const entries = readPreviewConfidenceEntries()
+  if (!entries || entries.length === 0) return null
+
+  const checks: CheckResult[] = []
+  // Bucket counts (high ≥0.85, medium 0.6–0.85, low <0.6) drive the summary.
+  let high = 0
+  let medium = 0
+  let low = 0
+  for (const e of entries) {
+    if (e.confidence >= 0.85) high++
+    else if (e.confidence >= 0.6) medium++
+    else low++
+  }
+  checks.push({
+    name: `Preview confidence — ${high} high (≥0.85), ${medium} medium (0.6–0.85), ${low} low (<0.6)`,
+    status: 'pass',
+    detail: '',
+  })
+
+  // Surface each low-confidence section with an actionable hint. Sort by
+  // ascending confidence so the worst offenders appear first.
+  const lows = entries
+    .filter((e) => e.confidence < 0.6)
+    .sort((a, b) => a.confidence - b.confidence)
+  for (const e of lows) {
+    const score = e.confidence.toFixed(2)
+    const detail =
+      `confidence ${score} — input was thin (${e.inputChars} chars). ` +
+      `Consider re-running with ${suggestionForSection(e.section)}.`
+    checks.push({
+      name: `Low-confidence section: ${e.section}`,
+      status: 'warn',
+      detail,
+    })
+  }
+  return { layer: 'Preview Confidence', checks }
 }
 
 // ─── Layer 5: Rate Limits & Runtime State ────────────────────────────────────
@@ -769,6 +1139,15 @@ export async function runDoctor(opts: { report?: boolean } = {}): Promise<void> 
   // Layer 1
   console.log('── Environment ──')
   const envResult = checkEnvironment()
+  // Walk per-provider env-var schemas (0.7.0). Each service module exports
+  // its own validation rules; we surface them under the same Environment
+  // layer so users see them next to the per-key presence checks.
+  try {
+    const schemaChecks = await checkEnvironmentSchemas(readEnvFile())
+    envResult.checks.push(...schemaChecks)
+  } catch {
+    // Best-effort.
+  }
   layers.push(envResult)
   for (const check of envResult.checks) printCheck(check)
 
@@ -783,6 +1162,24 @@ export async function runDoctor(opts: { report?: boolean } = {}): Promise<void> 
   const cfgResult = checkConfiguration()
   layers.push(cfgResult)
   for (const check of cfgResult.checks) printCheck(check)
+
+  // Preview Confidence (0.8.F) — only emitted when a `_preview/` folder is
+  // staged. Post-commit installs see no extra noise.
+  const previewLayer = previewConfidenceLayer()
+  if (previewLayer) {
+    console.log('\n── Preview Confidence ──')
+    layers.push(previewLayer)
+    for (const check of previewLayer.checks) printCheck(check)
+  }
+
+  // Retired Frameworks (0.9.F) — only emitted when ≥1 retired framework is
+  // still installed locally so a clean 0.9.0 install stays quiet.
+  const retiredLayer = retiredFrameworksLayer()
+  if (retiredLayer) {
+    console.log('\n── Retired Frameworks ──')
+    layers.push(retiredLayer)
+    for (const check of retiredLayer.checks) printCheck(check)
+  }
 
   // Layer 4
   console.log('\n── Provider Connectivity ──')

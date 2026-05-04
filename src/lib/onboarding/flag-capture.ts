@@ -16,8 +16,10 @@
  * Produces a populated `_preview/` folder via writeSynthesizedPreview().
  */
 
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { homedir } from 'node:os'
+import { createHash } from 'node:crypto'
 import yaml from 'js-yaml'
 import { emptyCompanyContext, type CompanyContext } from '../framework/context-types.js'
 import {
@@ -33,13 +35,19 @@ import {
   pruneScrapeCache,
   writeScrapeCache,
 } from '../web/scrape-cache.js'
+import { extractCompanyMeta } from './auto-extract.js'
 
 export interface FlagCaptureOptions {
   tenantId: string
   companyName?: string
   website?: string
   linkedin?: string
-  docs?: string
+  /**
+   * Path(s) and/or URL(s) to ingest. URLs are auto-fetched and cached under
+   * `~/.gtm-os/_cache/docs/<sha256>.md`; mixing local paths and URLs is
+   * supported.
+   */
+  docs?: string | string[]
   icpSummary?: string
   voice?: string
   /** When true bypass the scrape cache for this run (no read, no write). */
@@ -59,6 +67,12 @@ export interface FlagCaptureResult {
     docs?: string[]
     voice?: string
   }
+  /**
+   * True when website auto-extract found rich metadata anchors
+   * (og:site_name, <title>, <meta description>). Drives the per-section
+   * `has_metadata_anchors` flag in 0.8.F confidence scoring.
+   */
+  websiteHasMetadataAnchors?: boolean
 }
 
 /** True when at least one of the capture flags was provided. */
@@ -98,7 +112,6 @@ function readDocsFolder(folder: string): { content: string; files: string[] } {
   const visit = (dir: string) => {
     let entries: string[]
     try {
-      const { readdirSync } = require('node:fs') as typeof import('node:fs')
       entries = readdirSync(dir)
     } catch {
       return
@@ -129,6 +142,47 @@ function readDocsFolder(folder: string): { content: string; files: string[] } {
   return { content: parts.join('\n\n').slice(0, 60000), files }
 }
 
+const DOCS_CACHE_DIR = join(homedir(), '.gtm-os', '_cache', 'docs')
+
+/**
+ * Fetch a docs URL via the same backend used for website/linkedin scraping,
+ * cache the result under `~/.gtm-os/_cache/docs/<sha256>.md`, and return the
+ * cache path + content. Cached entries embed the origin URL in a YAML
+ * front-matter header so we can attribute them later.
+ */
+export async function fetchDocsUrl(
+  url: string,
+  opts: { noCache?: boolean } = {},
+): Promise<{ path: string; content: string } | null> {
+  const hash = createHash('sha256').update(url).digest('hex').slice(0, 32)
+  const cachePath = join(DOCS_CACHE_DIR, `${hash}.md`)
+
+  if (!opts.noCache && existsSync(cachePath)) {
+    try {
+      const raw = readFileSync(cachePath, 'utf-8')
+      // Strip the front-matter header on read.
+      const stripped = raw.replace(/^---\n[\s\S]*?\n---\n/, '')
+      return { path: cachePath, content: stripped }
+    } catch {
+      // Fall through to refetch.
+    }
+  }
+
+  const content = await fetchForCapture(url, { noCache: opts.noCache })
+  if (!content) return null
+
+  if (!opts.noCache) {
+    if (!existsSync(DOCS_CACHE_DIR)) mkdirSync(DOCS_CACHE_DIR, { recursive: true })
+    const header = ['---', `origin_url: ${url}`, `fetched_at: ${new Date().toISOString()}`, '---', ''].join('\n')
+    try {
+      writeFileSync(cachePath, header + content)
+    } catch {
+      // Cache write is best-effort.
+    }
+  }
+  return { path: cachePath, content }
+}
+
 /**
  * Fetch a URL via the configured web-fetch provider, honoring the local
  * scrape cache. Returns null when no fetch backend is available.
@@ -149,11 +203,13 @@ export async function fetchForCapture(
     return null
   }
   if (provider === 'claude-code') {
-    // Inside CC the parent emits a handoff line so the user knows what to
-    // do. We return null (no content captured automatically) — the caller
-    // surfaces the handoff in its log.
+    // Inside CC: emit a structured handoff marker the parent can intercept.
+    // We return null (no content captured automatically) — the caller
+    // surfaces the handoff in its log and exits.
+    const { emitWebFetchHandoff } = await import('../web/fetcher.js')
+    emitWebFetchHandoff(url, 'start --non-interactive needs the page contents to seed onboarding capture')
     console.log(
-      `[start] Claude Code WebFetch handoff: please run WebFetch on ${url} and re-run with --input <file>`,
+      `[start] Claude Code WebFetch handoff requested for ${url}. Parent session should fetch and re-run.`,
     )
     return null
   }
@@ -195,6 +251,7 @@ export async function runFlagCapture(opts: FlagCaptureOptions): Promise<FlagCapt
   ctx.meta.version = '0.6.0'
 
   const sourcesUsed: FlagCaptureResult['sourcesUsed'] = {}
+  let websiteHasMetadataAnchors = false
 
   if (opts.companyName) ctx.company.name = opts.companyName
 
@@ -205,6 +262,29 @@ export async function runFlagCapture(opts: FlagCaptureOptions): Promise<FlagCapt
     ctx.sources.website = opts.website
     ctx.sources.website_fetched_at = new Date().toISOString()
     sourcesUsed.website = opts.website
+
+    // Auto-extract company.name + description from the scrape so synthesis
+    // never starts from `<UNKNOWN>`. The user-supplied `--company-name` (if
+    // present) and any non-empty existing field always wins.
+    if (websiteContent) {
+      const extracted = extractCompanyMeta({
+        content: websiteContent,
+        url: opts.website,
+      })
+      if (!ctx.company.name && extracted.name) ctx.company.name = extracted.name
+      if (!ctx.company.description && extracted.description) {
+        ctx.company.description = extracted.description
+      }
+      if (extracted.hasMetadataAnchors) {
+        websiteHasMetadataAnchors = true
+      }
+    } else if (!ctx.company.name) {
+      // No content but a URL — derive a placeholder name from the host so
+      // downstream prompts still have something to anchor on.
+      const { deriveNameFromUrl } = await import('./auto-extract.js')
+      const fallback = deriveNameFromUrl(opts.website)
+      if (fallback) ctx.company.name = fallback
+    }
   }
 
   let linkedinContent: string | null = null
@@ -218,11 +298,28 @@ export async function runFlagCapture(opts: FlagCaptureOptions): Promise<FlagCapt
 
   let docsContent: string | null = null
   if (opts.docs) {
-    const { content, files } = readDocsFolder(opts.docs)
-    docsContent = content || null
-    if (files.length > 0) {
-      ctx.sources.docs = files
-      sourcesUsed.docs = files
+    const docsList = Array.isArray(opts.docs) ? opts.docs : [opts.docs]
+    const allFiles: string[] = []
+    const allParts: string[] = []
+    for (const entry of docsList) {
+      if (/^https?:\/\//i.test(entry)) {
+        // URL — fetch via the configured backend and cache under
+        // ~/.gtm-os/_cache/docs/<sha256>.md so re-runs are free.
+        const cached = await fetchDocsUrl(entry, { noCache: opts.noCache })
+        if (cached) {
+          allFiles.push(cached.path)
+          allParts.push(`--- ${entry} (cached at ${cached.path}) ---\n${cached.content.slice(0, 8000)}`)
+        }
+      } else {
+        const { content, files } = readDocsFolder(entry)
+        if (files.length > 0) allFiles.push(...files)
+        if (content) allParts.push(content)
+      }
+    }
+    docsContent = allParts.join('\n\n').slice(0, 60000) || null
+    if (allFiles.length > 0) {
+      ctx.sources.docs = allFiles
+      sourcesUsed.docs = allFiles
     }
   }
 
@@ -243,7 +340,84 @@ export async function runFlagCapture(opts: FlagCaptureOptions): Promise<FlagCapt
     }
   }
 
-  return { context: ctx, websiteContent, linkedinContent, docsContent, voiceContent, sourcesUsed }
+  // Rich profile synthesis (A4) — single tool-use call against Claude that
+  // populates competitors[].weaknesses, segments[].buyingTriggers,
+  // segments[].keyDecisionMakers, signals.* directly into
+  // company_context.yaml. Skipped silently when no Anthropic key is set or
+  // the captured content is too thin to ground synthesis. Failures are
+  // non-fatal — the thin context still ships and downstream synthesis
+  // (`writeSynthesizedPreview`) picks up the slack.
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const { buildRichCompanyProfile } = await import('./rich-profile.js')
+      const rich = await buildRichCompanyProfile({
+        companyName: opts.companyName ?? ctx.company.name,
+        website: opts.website,
+        websiteContent,
+        linkedinContent,
+        docsContent,
+        icpSummary: opts.icpSummary,
+      })
+      if (rich) {
+        // Rich detail arrays (always overwrite when the model produced them
+        // — these fields don't exist pre-rich-synthesis).
+        if (rich.competitors.length > 0) {
+          ctx.icp.competitors_detail = rich.competitors
+          // Keep the back-compat string array in sync so older readers still
+          // see competitor names.
+          const names = rich.competitors.map((c) => c.name).filter(Boolean)
+          if (names.length > 0) ctx.icp.competitors = names
+        }
+        if (rich.segments.length > 0) {
+          ctx.icp.segments_detail = rich.segments
+          // Aggregate pain points across segments — the thin field is
+          // consumed by stub synthesis when no LLM is available later.
+          const pains = new Set<string>()
+          for (const s of rich.segments) for (const p of s.painPoints) pains.add(p)
+          if (pains.size > 0) ctx.icp.pain_points = Array.from(pains)
+          // Stitch a freeform summary when the user didn't supply one.
+          if (!ctx.icp.segments_freeform) {
+            const lines = rich.segments
+              .map((s) => (s.description ? `${s.name}: ${s.description}` : s.name))
+              .filter(Boolean)
+            if (lines.length) ctx.icp.segments_freeform = lines.join('\n')
+          }
+        }
+        ctx.signals = rich.signals
+
+        // User-supplied fields always win — only fill when missing.
+        if (rich.company) {
+          if (!ctx.company.name && rich.company.name) ctx.company.name = rich.company.name
+          if (!ctx.company.description && rich.company.description) {
+            ctx.company.description = rich.company.description
+          }
+          if (!ctx.company.industry && rich.company.industry) {
+            ctx.company.industry = rich.company.industry
+          }
+          if (!ctx.company.stage && rich.company.stage) {
+            ctx.company.stage = rich.company.stage
+          }
+          if (!ctx.company.team_size && rich.company.teamSize) {
+            ctx.company.team_size = rich.company.teamSize
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(
+        `[start] rich profile synthesis skipped: ${err instanceof Error ? err.message : String(err)}`,
+      )
+    }
+  }
+
+  return {
+    context: ctx,
+    websiteContent,
+    linkedinContent,
+    docsContent,
+    voiceContent,
+    sourcesUsed,
+    websiteHasMetadataAnchors,
+  }
 }
 
 /**
@@ -263,7 +437,25 @@ export function writeCapturedPreview(
   ensurePreviewDir('company_context.yaml', tenant)
   writeFileSync(previewPath('company_context.yaml', tenant), yaml.dump(result.context))
 
-  // 2. _meta.json — captured_at + sources.
+  // 2. _meta.json — captured_at + sources + minimal company_context
+  //    confidence entry (A4). The full per-section confidence pass runs in
+  //    `writeSynthesizedPreview()` later; here we only need company_context
+  //    populated so /setup/review surfaces a badge for it from the get-go.
+  //    A6 owns the post-commit meta persistence semantics — we stay minimal.
+  const richEnriched = !!(
+    (result.context.icp.competitors_detail?.length ?? 0) > 0 ||
+    (result.context.icp.segments_detail?.length ?? 0) > 0 ||
+    result.context.signals
+  )
+  // Cheap heuristic: rich synthesis ran cleanly → 0.85. Thin capture only
+  // (just website/LinkedIn captured, no LLM) → 0.5. The single-source
+  // `company.name`-only fallback → 0.3.
+  const captureConfidence = richEnriched
+    ? 0.85
+    : result.context.company.website
+      ? 0.5
+      : 0.3
+
   writePreviewMeta(
     {
       captured_at: result.context.meta.captured_at,
@@ -272,6 +464,18 @@ export function writeCapturedPreview(
         linkedin: result.sourcesUsed.linkedin ?? null,
         docs: result.sourcesUsed.docs ?? null,
         voice: result.sourcesUsed.voice ?? null,
+      },
+      sections: {
+        company_context: {
+          confidence: captureConfidence,
+          confidence_signals: {
+            input_chars: (result.websiteContent?.length ?? 0) +
+              (result.linkedinContent?.length ?? 0) +
+              (result.docsContent?.length ?? 0),
+            llm_self_rating: richEnriched ? 8 : 5,
+            has_metadata_anchors: !!result.websiteHasMetadataAnchors,
+          },
+        },
       },
       version: '0.6.0',
     },
@@ -314,6 +518,53 @@ export function shouldRunFlagDrivenCapture(opts: {
   capture: FlagCaptureOptions
 }): boolean {
   return !!opts.nonInteractive && hasCaptureFlags(opts.capture)
+}
+
+export interface CaptureValidationInput {
+  websiteContent?: string | null
+  linkedinContent?: string | null
+  docsContent?: string | null
+  docsFiles?: string[]
+}
+
+export interface CaptureValidationResult {
+  ok: boolean
+  /** Diagnostic numbers for the error message. */
+  websiteChars: number
+  linkedinChars: number
+  docsFiles: number
+  /** Number of docs files that meet the per-file 200ch bar. */
+  docsFilesOver200: number
+}
+
+/**
+ * Validate that captured raw inputs have enough content to drive
+ * Claude-based synthesis. The bar (any one of):
+ *   - website fetch  ≥ 500 chars
+ *   - linkedin fetch ≥ 200 chars
+ *   - docs folder has ≥ 1 file with ≥ 200 chars of text
+ *
+ * If none of those are met we refuse synthesis. The CLI surfaces the result
+ * (with --force-synthesis to bypass).
+ */
+export function validateCaptureForSynthesis(
+  input: CaptureValidationInput,
+): CaptureValidationResult {
+  const websiteChars = input.websiteContent?.length ?? 0
+  const linkedinChars = input.linkedinContent?.length ?? 0
+  const docsFiles = input.docsFiles?.length ?? 0
+
+  // We don't have per-file char counts at the call site, so approximate by
+  // assuming concatenated docs content is ≥ 200ch * fileCount on average.
+  // This stays correct in the only failure mode that matters — empty / near
+  // empty docs — because docsContent would be ~0 chars.
+  const totalDocsChars = input.docsContent?.length ?? 0
+  const docsFilesOver200 = totalDocsChars >= 200 ? Math.max(1, docsFiles) : 0
+
+  const ok =
+    websiteChars >= 500 || linkedinChars >= 200 || docsFilesOver200 >= 1
+
+  return { ok, websiteChars, linkedinChars, docsFiles, docsFilesOver200 }
 }
 
 /** Re-export for ergonomic imports. */

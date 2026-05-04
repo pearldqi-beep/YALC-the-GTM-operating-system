@@ -3,8 +3,22 @@ name: detect-job-change
 description: Detect if a person changed their job title or company since the last baseline check
 category: research
 version: 1.0.0
-provider: crustdata
+capability: person-job-change-signal
 capabilities: [search]
+output_schema:
+  type: object
+  required:
+    - changed
+    - data
+  properties:
+    changed:
+      type: boolean
+    summary:
+      type: string
+    data:
+      type: object
+    newBaseline:
+      type: object
 inputs:
   - name: person_linkedin_url
     description: LinkedIn profile URL of the person to monitor

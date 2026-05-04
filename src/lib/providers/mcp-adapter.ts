@@ -132,13 +132,11 @@ export function classifyMcpError(err: unknown, childStderr?: string): Classified
   const haystack = childStderr ? `${sdkMsg}\n${childStderr}` : sdkMsg
 
   if (/E404|404 Not Found|not found in registry|npm error 404|npm error code E404/i.test(haystack)) {
-    // Surface the offending package name when we can extract it from npm chatter.
-    const pkgMatch = haystack.match(/(?:404\s+Not\s+Found[^\n]*?:\s*|GET\s+https?:\/\/[^\s]+\/)(@?[\w./-]+)/i)
-    const pkgHint = pkgMatch ? ` Package: ${pkgMatch[1]}` : ''
+    const pkgHint = extractNpmPackageFromError(haystack)
     return {
       kind: 'package_not_found',
       message: 'MCP package not found on npm',
-      hint: `Verify "command"/"args" in your config. If using a private package, ensure your npm auth is set.${pkgHint}`,
+      hint: `Verify "command"/"args" in your config. If using a private package, ensure your npm auth is set.${pkgHint ? ` Package: ${pkgHint}` : ''}`,
     }
   }
   if (/Cannot find module|MODULE_NOT_FOUND|command not found:/i.test(haystack)) {
@@ -177,6 +175,37 @@ export function classifyMcpError(err: unknown, childStderr?: string): Classified
     }
   }
   return { kind: 'unknown', message: sdkMsg, hint: '' }
+}
+
+/**
+ * Extract the offending npm package spec from an error blob. Handles the
+ * three common shapes npm emits:
+ *
+ *   1. `404 Not Found - GET https://registry.npmjs.org/@scope%2fname - Not found`
+ *      (registry URL with %2f-encoded slash for scopes)
+ *   2. `404 Not Found: @scope/name@1.2.3` (colon form, optional version)
+ *   3. `'@scope/name@1.2.3' is not in this registry`
+ *
+ * Returns the canonical npm spec (e.g. `@scope/name@1.2.3`) or empty.
+ */
+export function extractNpmPackageFromError(haystack: string): string {
+  // Decode %2f / %2F as `/` so registry-URL form normalizes to spec form.
+  const decoded = haystack.replace(/%2[fF]/g, '/')
+
+  // Form 1: registry URL — capture path component after the host slash.
+  const urlMatch = decoded.match(
+    /https?:\/\/registry\.[^\s/]+\/(@[\w.-]+\/[\w.-]+(?:@[\w.+-]+)?|[\w.-]+(?:@[\w.+-]+)?)/,
+  )
+  if (urlMatch) return urlMatch[1]
+
+  // Form 2 + 3: quoted or post-colon spec. Allow scoped + unscoped, with or
+  // without version. Avoid matching log preambles like "404 Not Found - GET".
+  const specMatch = decoded.match(
+    /(?:["']|:\s*|registry[/\s]+|in registry\s+|GET\s+)(@[\w.-]+\/[\w.-]+(?:@[\w.+-]+)?|[\w.-]+@[\w.+-]+)/,
+  )
+  if (specMatch) return specMatch[1]
+
+  return ''
 }
 
 // ─── Adapter ──────────────────────────────────────────────────────────────────
@@ -357,14 +386,9 @@ export class McpProviderAdapter implements StepExecutor {
       }
     }
 
-    // Determine which MCP tool to call.
-    // Priority: step.config.tool > first tool matching step description > first tool
+    // Determine which MCP tool to call. Throws when `tool:` is not set in
+    // the skill frontmatter — see resolveToolName. No silent fallbacks.
     const toolName = this.resolveToolName(step)
-    if (!toolName) {
-      throw new Error(
-        `[mcp:${this.config.name}] No matching tool found for step "${step.title}". Available: ${this.tools.map(t => t.name).join(', ')}`,
-      )
-    }
 
     // Build arguments from step config + previous step rows.
     // `step.config` is, by construction, only tool args (skill-runtime
@@ -492,27 +516,26 @@ export class McpProviderAdapter implements StepExecutor {
 
   // ─── Internals ────────────────────────────────────────────────────────────
 
-  private resolveToolName(step: WorkflowStepInput): string | null {
-    // Explicit tool in config
+  private resolveToolName(step: WorkflowStepInput): string {
+    // Explicit tool name in config — the only path supported as of 0.7.0.
+    // Implicit fallbacks (first tool, keyword overlap with the step
+    // description) silently routed calls to the wrong tool when skills
+    // forgot to specify `tool:`. Removed.
     if (step.config?.tool && typeof step.config.tool === 'string') {
-      const match = this.tools.find(t => t.name === step.config!.tool)
-      if (match) return match.name
+      const match = this.tools.find((t) => t.name === step.config!.tool)
+      if (match) {
+        logMcp(
+          'log',
+          `[mcp:${this.config.name}] resolved tool "${match.name}" for step "${step.title}"`,
+        )
+        return match.name
+      }
     }
 
-    // Match by step description keywords
-    const desc = (step.description ?? '').toLowerCase()
-    for (const t of this.tools) {
-      const toolDesc = (t.description ?? t.name).toLowerCase()
-      if (desc.includes(t.name.toLowerCase())) return t.name
-      // Check for keyword overlap
-      const descWords = desc.split(/\s+/)
-      const toolWords = toolDesc.split(/\s+/)
-      const overlap = descWords.filter(w => w.length > 3 && toolWords.includes(w))
-      if (overlap.length >= 2) return t.name
-    }
-
-    // Fall back to first tool
-    return this.tools[0]?.name ?? null
+    const available = this.tools.map((t) => t.name).join(', ') || '(none discovered)'
+    throw new Error(
+      `No tool specified for MCP provider '${this.config.name}'. Set \`tool: <x>\` in skill frontmatter. Available: [${available}].`,
+    )
   }
 
   private parseToolResult(result: unknown): Record<string, unknown>[] {

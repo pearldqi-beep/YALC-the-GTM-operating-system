@@ -1,5 +1,6 @@
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { existsSync, readFileSync } from 'fs'
+import { resolve, join } from 'path'
+import { homedir } from 'os'
 import yaml from 'js-yaml'
 import type { GTMOSConfig } from './types'
 import { setCrustdataDefaults } from '../services/crustdata'
@@ -82,4 +83,39 @@ export function isProviderDisabled(value: unknown): boolean {
   if (typeof value !== 'string') return false
   const v = value.trim().toLowerCase()
   return v === '' || v === 'none' || v === 'disabled'
+}
+
+/**
+ * Read the user's `~/.gtm-os/config.yaml` and report whether the given outbound
+ * channel (`'email'` or `'linkedin'`) has been opted out of via the
+ * `<channel>.provider: none` sentinel. Returns `false` when the file is
+ * missing or unparsable so we never block a user with a fresh install.
+ *
+ * Used by send-path commands (email:send, email:create-sequence,
+ * linkedin:answer-comments, linkedin:reply-to-comments, leads:scrape-post)
+ * to refuse cleanly with the documented message.
+ */
+export function isChannelOptedOut(channel: 'email' | 'linkedin'): boolean {
+  try {
+    const cfgPath = join(homedir(), '.gtm-os', 'config.yaml')
+    if (!existsSync(cfgPath)) return false
+    const raw = readFileSync(cfgPath, 'utf-8')
+    const parsed = (yaml.load(raw) as Record<string, unknown> | null) ?? {}
+    const slot = parsed[channel] as Record<string, unknown> | undefined
+    return isProviderDisabled(slot?.provider)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Standard message printed when a send path refuses because the channel was
+ * opted out via config. Kept here so the wording stays uniform across the
+ * five call sites.
+ */
+export function channelOptedOutMessage(channel: 'email' | 'linkedin'): string {
+  return (
+    `Provider opted out via config. To enable, set ${channel}.provider in ` +
+    `\`~/.gtm-os/config.yaml\` to a real provider (e.g. ${channel === 'email' ? 'instantly' : 'unipile'}).`
+  )
 }
