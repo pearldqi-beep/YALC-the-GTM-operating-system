@@ -11,6 +11,7 @@ import {
   buildSegmentSection,
   buildScoringAccuracySection,
   buildTrendsSection,
+  buildBoothInteractionSection,
   declareWinner,
 } from './report-sections'
 import type { CampaignReport } from './report-types'
@@ -30,7 +31,7 @@ export async function generateCampaignReport(campaignId: string): Promise<Campai
   const leads = await db.select().from(campaignLeads).where(eq(campaignLeads.campaignId, campaignId))
   const variants = await db.select().from(campaignVariants).where(eq(campaignVariants.campaignId, campaignId))
 
-  // Build all 7 sections
+  // Build all sections
   const funnel = buildFunnelSection(leads)
   const variantSection = buildVariantSection(leads, variants)
   const tags = buildTagSection(leads)
@@ -38,6 +39,7 @@ export async function generateCampaignReport(campaignId: string): Promise<Campai
   const segments = buildSegmentSection(leads)
   const scoringAccuracy = buildScoringAccuracySection(leads)
   const trends = buildTrendsSection(leads)
+  const boothInteraction = buildBoothInteractionSection(leads)
   const winner = declareWinner(variantSection.variants)
 
   // Auto-update variant stats in DB
@@ -111,6 +113,7 @@ Provide a 3-section report: Key Insights, Recommendations, Next Steps. Keep it c
     trends,
     winner,
     narrative,
+    boothInteraction: boothInteraction.hasFairLeads ? boothInteraction : undefined,
   }
 }
 
@@ -185,6 +188,22 @@ export async function runReport(opts: ReportOptions): Promise<void> {
       console.log('\n── 7. Week-over-Week Trends ──')
       for (const w of report.trends.weeks) {
         console.log(`  ${w.weekStart}  ${w.sends} sends | ${w.acceptRate}% accept | ${w.replyRate}% reply`)
+      }
+    }
+
+    // 8. Booth Interaction (fair leads only)
+    if (report.boothInteraction?.hasFairLeads) {
+      const bi = report.boothInteraction
+      console.log(`\n── 8. Booth Interaction — ${bi.fairName ?? 'Fair'} ──`)
+      console.log('  By interaction type:')
+      for (const s of bi.byInteractionType) {
+        console.log(`    ${s.segment.padEnd(20)} ${String(s.count).padStart(4)} leads | ${s.acceptRate}% accept | ${s.replyRate}% reply`)
+      }
+      console.log('  By staff rating:')
+      for (const s of bi.byRating) {
+        if (s.count > 0) {
+          console.log(`    ${s.segment.padEnd(20)} ${String(s.count).padStart(4)} leads | ${s.acceptRate}% accept | ${s.replyRate}% reply`)
+        }
       }
     }
 

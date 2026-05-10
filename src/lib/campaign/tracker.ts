@@ -389,9 +389,16 @@ export async function runTracker(opts: TrackerOptions): Promise<TrackerSummary> 
           const variant = lead.variantId ? variantMap.get(lead.variantId) : null
           if (!variant) continue
           try {
+            // Fair-sourced leads carry fairName — their intelligence expires in
+            // 18 months (market signals from a specific event have a shelf life).
+            const isFairLead = !!(lead.fairName)
+            const expiresAt = isFairLead
+              ? new Date(Date.now() + 18 * 30 * 24 * 60 * 60 * 1000).toISOString()
+              : null
+
             await store.add({
               category: 'campaign',
-              insight: `Variant "${variant.name}" messaging generated a reply from ${lead.headline ?? 'unknown role'} at ${lead.company ?? 'unknown company'}`,
+              insight: `Variant "${variant.name}" messaging generated a reply from ${lead.headline ?? 'unknown role'} at ${lead.company ?? 'unknown company'}${isFairLead ? ` (fair: ${lead.fairName})` : ''}`,
               evidence: [{
                 type: 'campaign_outcome',
                 sourceId: campaign.id,
@@ -400,14 +407,14 @@ export async function runTracker(opts: TrackerOptions): Promise<TrackerSummary> 
                 sampleSize: variant.dmsSent ?? 0,
                 timestamp: new Date().toISOString(),
               }],
-              segment: null,
+              segment: isFairLead ? `fair:${lead.fairName}` : null,
               channel: 'linkedin',
               confidence: 'hypothesis',
               source: 'campaign_outcome',
               biasCheck: null,
               supersedes: null,
               validatedAt: null,
-              expiresAt: null,
+              expiresAt,
             })
           } catch (err) { console.error('[tracker] intelligence store add failed (best-effort):', err) }
         }

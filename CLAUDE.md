@@ -79,3 +79,31 @@ For per-tenant runs (`--tenant acme`), substitute `~/.gtm-os/tenants/acme/_previ
 
 ## Second Brain Context
 For Earleads-specific client context (ICP, playbooks, battlecards), read from the Second Brain workspace configured as `additionalDirectory`. Client files: `01_Projects/Clients/Active/{ClientName}/`.
+
+## Planned: Trade Fair & Exhibition Vertical
+
+A phased customization to adapt the system for exhibitors at trade fairs and exhibitions (all goods and services types). The use case: badge-scanned visitors are leads; exhibitors want post-fair outreach to reach new customers or new markets.
+
+### Phase 1 — Core MVP (~1.5 days)
+- **`import-badge-scans` skill**: ingest scanner CSV (name, company, title, email, phone), normalize, dedup by email, feed qualification pipeline
+- **Name+company enrichment entry point**: extend FullEnrich provider for reverse lookup (name + company → LinkedIn profile), since fair leads have no LinkedIn URL
+- **Booth interaction fields on lead schema**: `staffRating` (hot/warm/cold), `demoAttended`, `dwellMinutes`, `materialsCollected`, `sessionAttended` — Drizzle migration + wire into Gate 5 AI scoring prompt
+- **`fair_followup` sequence template**: day-0 connect+note, day-1 DM, day-4 DM, day-10 email; warm tone; `[Fair]` / `[Product shown]` placeholders
+- **`fair_mode` voice preset**: warm, event-referencing tone — no cold-outreach framing
+
+### Phase 2 — Intelligence loop (~0.5 days)
+- **Fair catalog context loader**: drop fair catalog markdown into `~/.gtm-os/contexts/<fair>/`, load via existing `markdown-folder` adapter
+- **Fair-scoped intelligence expiry**: set `expiresAt` (18 months) on intelligence entries sourced from a fair campaign — small change in `tracker.ts`
+- **Post-fair intelligence report**: extend `intelligence-report.ts` to segment by booth interaction type (demo vs. passerby)
+
+### Phase 3 — Multi-exhibitor (~1 day)
+- **`fair:setup --exhibitor <slug>` CLI command**: creates tenant slug, copies fair context, sets ICP from exhibitor product category
+- **Shared fair context across tenants**: single fair catalog loaded once, referenced by all exhibitor tenants
+- **Validation across goods/services types**: gate configs tested for B2B machinery, consumer goods, professional services
+
+### Key Design Decisions (do not re-derive)
+- Sequence default timing shifts to day-0 for first touch (warm lead, not cold)
+- Booth interaction `staffRating: hot` overrides a weak headline score in Gate 5
+- Intelligence `expiresAt` set explicitly for fair-derived entries (18 months), not left to 365-day dream cycle default
+- Business card OCR deferred (large effort, not MVP scope)
+- Multi-tenant isolation already works — Phase 3 is onboarding UX only

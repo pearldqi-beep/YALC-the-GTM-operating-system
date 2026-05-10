@@ -46,13 +46,27 @@ export class QualifyProvider implements StepExecutor {
         return `Lead ${idx + 1}:\n${fields}`
       }).join('\n\n')
 
+      // Detect whether this batch contains fair/exhibition leads
+      const hasFairLeads = slice.some(r =>
+        r.staff_rating || r.staffRating || r.fair_name || r.fairName
+      )
+
+      const fairBoothNote = hasFairLeads ? `
+## Fair / Exhibition Booth Context
+These leads were collected at a trade fair. Apply the following overrides:
+- staff_rating = "hot": treat as a strong positive signal — add +15 to base score regardless of headline/company strength
+- demo_attended = true: treat as confirmed interest — add +10 to base score
+- dwell_minutes > 10: sustained engagement — add +5 to base score
+- staff_rating = "cold" with no demo and dwell_minutes < 2: strong negative signal — maximum score 45
+Warm leads from a shared event context require lower evidence threshold for a "Strong" classification.` : ''
+
       const prompt = `You are a lead qualification engine. Score each lead against the ICP criteria below.
 
 ## ICP Framework
 ${context.frameworkContext || 'No ICP framework loaded. Use general B2B qualification criteria (company size, relevance, seniority).'}
 
 ${context.learningsContext ? `## Historical Learnings (from user feedback)\n${context.learningsContext}\n\nApply these patterns when scoring. They reflect what this specific user considers a good or bad lead.` : ''}
-
+${fairBoothNote}
 ## Qualification Criteria
 ${step.description || 'Score leads based on ICP fit. Consider company relevance, role seniority, company size, and alignment with pain points.'}
 

@@ -1,0 +1,43 @@
+# Post-Fair Follow-up Sequence
+# Use immediately after badge scan import and qualification.
+# First touch fires day-0 (same day as scan import) while the event is still live.
+#
+# Merge fields:
+#   {{first_name}}     — lead's first name
+#   {{company}}        — lead's company
+#   {{fair_name}}      — e.g. "Hannover Messe 2026"
+#   {{product_shown}}  — what you demonstrated at the booth
+#   {{staff_name}}     — exhibitor rep who spoke with the lead
+
+steps:
+  - type: connect_note
+    body: |
+      Hi {{first_name}}, great meeting you at {{fair_name}}. Would love to stay connected and share more about what we showed you.
+    delay_days: 0
+
+  - type: dm
+    body: |
+      Hi {{first_name}}, following up after {{fair_name}} — hope the rest of the show was worth it!
+
+      We had a chance to show you {{product_shown}}. Happy to send across more details or set up a quick call if it's relevant for {{company}}.
+    delay_days: 1
+
+  - type: dm
+    body: |
+      {{first_name}}, just circling back — did you get a chance to look further into {{product_shown}} after the show?
+
+      I can put together a short overview tailored specifically to {{company}} if that would help move things forward.
+    delay_days: 4
+
+  - type: email
+    subject: "Following up from {{fair_name}}"
+    body: |
+      Hi {{first_name}},
+
+      It was great meeting you at {{fair_name}}. I wanted to follow up on our conversation about {{product_shown}}.
+
+      A lot of visitors we spoke with were dealing with [pain point relevant to product] — I'd love to understand whether that resonates at {{company}} and whether a 20-minute call would be worthwhile.
+
+      Best,
+      {{staff_name}}
+    delay_days: 10
