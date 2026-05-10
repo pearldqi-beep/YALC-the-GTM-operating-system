@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTM-OS Pricing — AI-Native GTM Operating System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(234,88,12,0.08) 0%, transparent 65%),
+                  radial-gradient(ellipse 50% 40% at 85% 40%, rgba(15,118,110,0.06) 0%, transparent 55%),
+                  #ffffff;
+    }
+    .section-alt { background: #f8fafc; }
+    .section-white { background: #ffffff; }
+    .section-dark { background: #0f172a; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ea580c 0%, #0f766e 60%, #0284c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-text-blue {
+      background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(234,88,12,0.3);
+      box-shadow: 0 4px 24px rgba(234,88,12,0.07);
+      transform: translateY(-2px);
+    }
+    .card-orange {
+      background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+      border: 1px solid #fed7aa;
+    }
+    .card-teal {
+      background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%);
+      border: 1px solid #99f6e4;
+    }
+    .card-blue {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdfa 100%);
+      border: 1px solid #bfdbfe;
+    }
+    .card-dark {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+    }
+    .card-popular {
+      background: #ffffff;
+      border: 2px solid #ea580c;
+      box-shadow: 0 8px 40px rgba(234,88,12,0.12);
+    }
+
+    .nav-blur {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid #e4e4e7;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ea580c 0%, #0f766e 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(234,88,12,0.3);
+    }
+    .btn-ghost {
+      border: 1px solid #d4d4d8;
+      background: #ffffff;
+      transition: all 0.3s ease;
+    }
+    .btn-ghost:hover {
+      border-color: #fb923c;
+      background: #fff7ed;
+    }
+    .btn-dark {
+      background: linear-gradient(135deg, #ea580c 0%, #0f766e 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-dark:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(234,88,12,0.4);
+    }
+
+    .pill-orange { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; }
+    .pill-teal   { background: #f0fdfa; border: 1px solid #99f6e4; color: #0f766e; }
+    .pill-blue   { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+    .pill-slate  { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; }
+
+    .number-accent {
+      background: linear-gradient(135deg, #ea580c, #0f766e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .terminal { background: #18181b; border: 1px solid #3f3f46; }
+
+    .toggle-bg {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+    .toggle-btn {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .toggle-btn.active {
+      background: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+
+    .check-icon { color: #0f766e; }
+    .cross-icon { color: #d4d4d8; }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track { animation: ticker 40s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    .grid-pattern {
+      background-image: linear-gradient(rgba(234,88,12,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(234,88,12,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .faq-item { border-bottom: 1px solid #e4e4e7; }
+    .faq-answer { display: none; }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-chevron { transition: transform 0.2s ease; }
+
+    .price-display { transition: all 0.3s ease; }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 overflow-x-hidden">
+
+<!-- ── NAV ──────────────────────────────────────────────── -->
+<nav class="nav-blur fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/>
+          <circle cx="7" cy="7" r="2" fill="white" opacity="0.6"/>
+        </svg>
+      </div>
+      <span class="font-bold text-zinc-900 tracking-tight">GTM-OS</span>
+    </div>
+    <div class="hidden md:flex items-center gap-7 text-sm text-zinc-500">
+      <a href="#how-it-works" class="hover:text-zinc-900 transition-colors">How it works</a>
+      <a href="#plans" class="hover:text-zinc-900 transition-colors font-semibold text-zinc-900">Pricing</a>
+      <a href="#qualified-lead" class="hover:text-zinc-900 transition-colors">Qualified Lead</a>
+      <a href="#faq" class="hover:text-zinc-900 transition-colors">FAQ</a>
+      <a href="landing-energy-infra.html" class="hover:text-zinc-900 transition-colors">Energy &amp; Infra</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#contact" class="btn-ghost text-sm px-4 py-2 rounded-lg text-zinc-600 hidden md:block">Book a Demo</a>
+      <a href="#contact" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium text-white">Get Started →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TICKER ────────────────────────────────────────────── -->
+<div class="fixed top-16 w-full z-40 overflow-hidden border-b border-zinc-100" style="background:rgba(248,250,252,0.95)">
+  <div class="flex ticker-track py-2 gap-12 whitespace-nowrap">
+    <span class="text-xs text-zinc-400 mono flex gap-12">
+      <span>⚙️ 7-gate AI qualification pipeline</span>
+      <span>🎯 Pay only for qualified leads · score ≥ 65</span>
+      <span>🤖 Claude-powered outreach personalisation</span>
+      <span>📊 A/B variant testing built-in</span>
+      <span>🏗️ Trade fair badge-scan import</span>
+      <span>📈 Campaign intelligence reports</span>
+      <span>🔔 Slack alerts on replies</span>
+      <span>🗂️ Notion shortlist sync</span>
+      <span>🌍 Multi-tenant · unlimited seats</span>
+      <span>⚙️ 7-gate AI qualification pipeline</span>
+      <span>🎯 Pay only for qualified leads · score ≥ 65</span>
+      <span>🤖 Claude-powered outreach personalisation</span>
+      <span>📊 A/B variant testing built-in</span>
+      <span>🏗️ Trade fair badge-scan import</span>
+      <span>📈 Campaign intelligence reports</span>
+      <span>🔔 Slack alerts on replies</span>
+      <span>🗂️ Notion shortlist sync</span>
+      <span>🌍 Multi-tenant · unlimited seats</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero-gradient grid-pattern pt-36 pb-20 px-6 relative">
+  <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(234,88,12,0.06), transparent 70%)"></div>
+  <div class="absolute top-1/2 right-1/4 w-64 h-64 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(15,118,110,0.05), transparent 70%)"></div>
+
+  <div class="max-w-4xl mx-auto text-center relative">
+    <div class="inline-flex items-center gap-2 pill-orange px-4 py-2 rounded-full text-sm font-medium mb-8">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+      Volume-based · Pay per qualified lead
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-none mb-6">
+      Simple pricing.<br/>
+      <span class="gradient-text">Serious results.</span>
+    </h1>
+    <p class="text-xl text-zinc-500 leading-relaxed max-w-2xl mx-auto mb-4">
+      Every plan is measured in <strong class="text-zinc-800">qualified leads</strong> — prospects that passed all 7 AI gates with a score ≥ 65. You only pay for contacts your team can actually work with.
+    </p>
+    <p class="text-sm text-zinc-400 mb-12 mono">Overage: +€0.35 per extra qualified lead beyond your plan quota</p>
+
+    <!-- Billing toggle -->
+    <div class="flex items-center justify-center gap-4 mb-16">
+      <span id="label-monthly" class="text-sm font-semibold text-zinc-900">Monthly</span>
+      <div class="toggle-bg rounded-full p-1 flex gap-1 cursor-pointer" id="billing-toggle" onclick="toggleBilling()">
+        <div class="toggle-btn px-4 py-1.5 rounded-full text-sm font-medium text-zinc-900 active" id="btn-monthly">Monthly</div>
+        <div class="toggle-btn px-4 py-1.5 rounded-full text-sm font-medium text-zinc-500" id="btn-annual">Annual</div>
+      </div>
+      <span class="text-sm font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">Save 20%</span>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-3 gap-6 max-w-xl mx-auto">
+      <div class="text-center">
+        <div class="text-3xl font-black number-accent">7</div>
+        <div class="text-xs text-zinc-500 mt-1">AI qualification gates</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-black number-accent">40–80×</div>
+        <div class="text-xs text-zinc-500 mt-1">Typical ROI</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-black number-accent">≥65</div>
+        <div class="text-xs text-zinc-500 mt-1">Minimum lead score</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PLAN CARDS ────────────────────────────────────────── -->
+<section id="plans" class="section-alt py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <!-- Solo -->
+      <div class="card rounded-2xl p-7 flex flex-col">
+        <div class="mb-6">
+          <div class="inline-block pill-slate text-xs px-3 py-1 rounded-full mb-4">Solo</div>
+          <div class="text-zinc-500 text-sm mb-4">One operator, one campaign at a time. Perfect for solo founders and individual BDRs.</div>
+          <div class="price-display" id="price-solo">
+            <div class="text-4xl font-black text-zinc-900">€399<span class="text-lg font-medium text-zinc-400">/mo</span></div>
+            <div class="text-xs text-zinc-400 mt-1 mono">billed monthly</div>
+          </div>
+        </div>
+        <div class="space-y-3 text-sm text-zinc-600 mb-8 flex-1">
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span><strong class="text-zinc-800">200 qualified leads</strong>/month</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>1 active campaign</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>7-gate AI qualification</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Claude outreach generation</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>LinkedIn connect automation</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Slack reply alerts</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Campaign intelligence report</span></div>
+          <div class="flex items-start gap-2"><span class="cross-icon font-bold mt-0.5">✕</span><span class="text-zinc-400">A/B variant testing</span></div>
+          <div class="flex items-start gap-2"><span class="cross-icon font-bold mt-0.5">✕</span><span class="text-zinc-400">Multi-tenant</span></div>
+          <div class="flex items-start gap-2"><span class="cross-icon font-bold mt-0.5">✕</span><span class="text-zinc-400">Trade fair import</span></div>
+        </div>
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Solo Plan" class="btn-ghost w-full py-3 rounded-xl text-sm font-semibold text-center text-zinc-700 block">
+          Get started →
+        </a>
+        <div class="text-center text-xs text-zinc-400 mt-3 mono">+€0.35 per extra lead</div>
+      </div>
+
+      <!-- Agency — MOST POPULAR -->
+      <div class="card-popular rounded-2xl p-7 flex flex-col relative">
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+          <span class="btn-primary text-white text-xs font-bold px-4 py-1.5 rounded-full">MOST POPULAR</span>
+        </div>
+        <div class="mb-6 pt-2">
+          <div class="inline-block pill-orange text-xs px-3 py-1 rounded-full mb-4">Agency</div>
+          <div class="text-zinc-500 text-sm mb-4">Built for boutique agencies and small sales teams running multiple outbound motions.</div>
+          <div class="price-display" id="price-agency">
+            <div class="text-4xl font-black text-zinc-900">€899<span class="text-lg font-medium text-zinc-400">/mo</span></div>
+            <div class="text-xs text-zinc-400 mt-1 mono">billed monthly</div>
+          </div>
+        </div>
+        <div class="space-y-3 text-sm text-zinc-600 mb-8 flex-1">
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span><strong class="text-zinc-800">600 qualified leads</strong>/month</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>5 active campaigns</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>7-gate AI qualification</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Claude outreach generation</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>LinkedIn connect automation</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Slack reply alerts</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Campaign intelligence report</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span><strong class="text-zinc-800">A/B variant testing</strong></span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Notion shortlist sync</span></div>
+          <div class="flex items-start gap-2"><span class="cross-icon font-bold mt-0.5">✕</span><span class="text-zinc-400">Multi-tenant</span></div>
+        </div>
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Agency Plan" class="btn-primary w-full py-3 rounded-xl text-sm font-semibold text-center text-white block">
+          Get started →
+        </a>
+        <div class="text-center text-xs text-zinc-400 mt-3 mono">+€0.35 per extra lead</div>
+      </div>
+
+      <!-- Scale -->
+      <div class="card rounded-2xl p-7 flex flex-col">
+        <div class="mb-6">
+          <div class="inline-block pill-teal text-xs px-3 py-1 rounded-full mb-4">Scale</div>
+          <div class="text-zinc-500 text-sm mb-4">High-volume outbound for growth teams, recruiting desks, and exhibition-heavy businesses.</div>
+          <div class="price-display" id="price-scale">
+            <div class="text-4xl font-black text-zinc-900">€1,799<span class="text-lg font-medium text-zinc-400">/mo</span></div>
+            <div class="text-xs text-zinc-400 mt-1 mono">billed monthly</div>
+          </div>
+        </div>
+        <div class="space-y-3 text-sm text-zinc-600 mb-8 flex-1">
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span><strong class="text-zinc-800">2,000 qualified leads</strong>/month</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Unlimited active campaigns</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>7-gate AI qualification</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Claude outreach generation</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>LinkedIn connect automation</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Slack reply alerts</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Campaign intelligence report</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>A/B variant testing</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span>Notion + CRM sync</span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span><strong class="text-zinc-800">Multi-tenant (3 tenants)</strong></span></div>
+          <div class="flex items-start gap-2"><span class="check-icon font-bold mt-0.5">✓</span><span><strong class="text-zinc-800">Trade fair badge import</strong></span></div>
+        </div>
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Scale Plan" class="btn-ghost w-full py-3 rounded-xl text-sm font-semibold text-center text-zinc-700 block">
+          Get started →
+        </a>
+        <div class="text-center text-xs text-zinc-400 mt-3 mono">+€0.35 per extra lead</div>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="card-dark rounded-2xl p-7 flex flex-col">
+        <div class="mb-6">
+          <div class="inline-block bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-3 py-1 rounded-full mb-4">Enterprise</div>
+          <div class="text-zinc-400 text-sm mb-4">Custom volume, dedicated onboarding, SLA, and white-label options for organisers and resellers.</div>
+          <div class="price-display" id="price-enterprise">
+            <div class="text-4xl font-black text-white">Custom</div>
+            <div class="text-xs text-zinc-500 mt-1 mono">tailored to your volume</div>
+          </div>
+        </div>
+        <div class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span><strong class="text-zinc-200">Unlimited qualified leads</strong></span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>Unlimited campaigns</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>All AI qualification features</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>Unlimited tenants</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>Trade fair + exhibition module</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span><strong class="text-zinc-200">White-label deployment</strong></span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>Dedicated implementation engineer</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>Custom ICP & gate configuration</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>SLA + priority support</span></div>
+          <div class="flex items-start gap-2"><span class="text-emerald-400 font-bold mt-0.5">✓</span><span>Volume pricing negotiated</span></div>
+        </div>
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Enterprise" class="btn-dark w-full py-3 rounded-xl text-sm font-semibold text-center text-white block">
+          Contact us →
+        </a>
+        <div class="text-center text-xs text-zinc-500 mt-3 mono">Let's talk volume</div>
+      </div>
+
+    </div>
+
+    <!-- Annual savings note -->
+    <div class="mt-8 text-center">
+      <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-5 py-2.5 rounded-full">
+        <span class="text-emerald-600 font-bold text-sm">💡</span>
+        <span class="text-sm text-emerald-700">Annual billing saves 20% — <span class="font-semibold">Agency annual = €719/mo (€8,628/yr)</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT IS A QUALIFIED LEAD ───────────────────────────── -->
+<section id="qualified-lead" class="section-white py-20 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <div class="inline-block pill-teal text-xs px-3 py-1 rounded-full mb-4">Transparent metering</div>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4">
+        What counts as a<br/><span class="gradient-text">qualified lead?</span>
+      </h2>
+      <p class="text-zinc-500 text-lg max-w-2xl mx-auto">Not every contact in a LinkedIn search is worth your time. GTM-OS runs every prospect through a strict 7-gate pipeline before it counts toward your quota.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      <!-- Gates list -->
+      <div class="card rounded-2xl p-8">
+        <h3 class="font-bold text-zinc-900 text-lg mb-6">The 7-Gate Pipeline</h3>
+        <div class="space-y-4">
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Dedup</div>
+              <div class="text-xs text-zinc-500">Already in your database? Skipped immediately.</div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Headline</div>
+              <div class="text-xs text-zinc-500">Title and role must match your ICP target seniority.</div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Exclusion</div>
+              <div class="text-xs text-zinc-500">Blocklist, competitors, and spam signals filtered out.</div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Company</div>
+              <div class="text-xs text-zinc-500">Company size, industry, funding stage checked against ICP.</div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">5</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Enrichment</div>
+              <div class="text-xs text-zinc-500">Missing contact data pulled via provider registry.</div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">6</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">AI Score (Claude)</div>
+              <div class="text-xs text-zinc-500">Scored 0–100 with your ICP rules + intelligence context. Must reach ≥ 65.</div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-7 h-7 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">7</div>
+            <div>
+              <div class="font-semibold text-zinc-800 text-sm">Threshold</div>
+              <div class="text-xs text-zinc-500">Final pass/fail. Only score ≥ 65 enters your campaign.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- What this means -->
+      <div class="space-y-5">
+        <div class="card-orange rounded-2xl p-6">
+          <div class="text-2xl mb-2">🎯</div>
+          <h4 class="font-bold text-zinc-900 mb-2">You never pay for junk contacts</h4>
+          <p class="text-sm text-zinc-600">A lead counts toward your quota only after passing all 7 gates and scoring ≥ 65. Contacts that bounce on Gate 1 (dedup) or Gate 3 (exclusion) cost you nothing.</p>
+        </div>
+        <div class="card-teal rounded-2xl p-6">
+          <div class="text-2xl mb-2">🏗️</div>
+          <h4 class="font-bold text-zinc-900 mb-2">Trade fair leads get a boost</h4>
+          <p class="text-sm text-zinc-600">Badge-scanned visitors rated <span class="mono text-xs bg-teal-100 px-1.5 py-0.5 rounded">hot</span> by your staff get +15 pts in Gate 6. Demo attendees get +10. These warm leads qualify faster — and your staff rating is preserved in the intelligence store.</p>
+        </div>
+        <div class="card-blue rounded-2xl p-6">
+          <div class="text-2xl mb-2">📈</div>
+          <h4 class="font-bold text-zinc-900 mb-2">Overage is capped and predictable</h4>
+          <p class="text-sm text-zinc-600">Once you exceed your plan quota, each additional qualified lead costs <span class="font-semibold text-zinc-800">€0.35</span>. No tier jumps, no surprise invoices. You see the meter in real time from the campaign dashboard.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal example -->
+    <div class="terminal rounded-2xl p-6 max-w-3xl mx-auto">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+        <span class="text-zinc-500 text-xs mono ml-2">qualification pipeline output</span>
+      </div>
+      <pre class="text-xs text-zinc-300 mono leading-relaxed overflow-x-auto"><span class="text-zinc-500">[qualify] Gate 1 Dedup         1,200 in → </span><span class="text-emerald-400">1,140 out</span><span class="text-zinc-500">   (60 dupes)</span>
+<span class="text-zinc-500">[qualify] Gate 2 Headline       1,140 in → </span><span class="text-emerald-400">  880 out</span><span class="text-zinc-500">   (260 off-ICP titles)</span>
+<span class="text-zinc-500">[qualify] Gate 3 Exclusion        880 in → </span><span class="text-emerald-400">  812 out</span><span class="text-zinc-500">   (68 competitors/blocked)</span>
+<span class="text-zinc-500">[qualify] Gate 4 Company          812 in → </span><span class="text-emerald-400">  694 out</span><span class="text-zinc-500">   (118 wrong company size)</span>
+<span class="text-zinc-500">[qualify] Gate 5 Enrichment       694 in → </span><span class="text-emerald-400">  680 out</span><span class="text-zinc-500">   (14 unenrichable)</span>
+<span class="text-zinc-500">[qualify] Gate 6 AI Score         680 in → </span><span class="text-emerald-400">  412 out</span><span class="text-zinc-500">   (268 score &lt; 65)</span>
+<span class="text-zinc-500">[qualify] Gate 7 Threshold        412 in → </span><span class="text-emerald-400">  412 out</span><span class="text-zinc-500">   ✓ all passed</span>
+<span class="text-orange-400">                               ────────────────────────────────</span>
+<span class="text-white font-bold">                               412 qualified leads added to campaign</span>
+<span class="text-zinc-500">                               788 contacts skipped — not billed</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURE COMPARISON TABLE ───────────────────────────── -->
+<section id="how-it-works" class="section-alt py-20 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-black tracking-tight mb-3">Full feature comparison</h2>
+      <p class="text-zinc-500">Everything across plans at a glance</p>
+    </div>
+    <div class="card rounded-2xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-zinc-100">
+            <th class="text-left p-5 font-semibold text-zinc-700 w-2/5">Feature</th>
+            <th class="text-center p-5 font-semibold text-zinc-700">Solo</th>
+            <th class="text-center p-5 font-semibold text-orange-700 bg-orange-50">Agency</th>
+            <th class="text-center p-5 font-semibold text-zinc-700">Scale</th>
+            <th class="text-center p-5 font-semibold text-zinc-700">Enterprise</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-50">
+          <tr class="bg-zinc-50">
+            <td colspan="5" class="px-5 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">Volume</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Qualified leads / month</td>
+            <td class="text-center p-5 text-zinc-800 font-medium">200</td>
+            <td class="text-center p-5 text-orange-700 font-medium bg-orange-50/30">600</td>
+            <td class="text-center p-5 text-zinc-800 font-medium">2,000</td>
+            <td class="text-center p-5 text-zinc-800 font-medium">Unlimited</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Active campaigns</td>
+            <td class="text-center p-5">1</td>
+            <td class="text-center p-5 bg-orange-50/30">5</td>
+            <td class="text-center p-5">Unlimited</td>
+            <td class="text-center p-5">Unlimited</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Overage rate (per lead)</td>
+            <td class="text-center p-5 mono text-xs">€0.35</td>
+            <td class="text-center p-5 mono text-xs bg-orange-50/30">€0.35</td>
+            <td class="text-center p-5 mono text-xs">€0.35</td>
+            <td class="text-center p-5 mono text-xs">Negotiated</td>
+          </tr>
+          <tr class="bg-zinc-50">
+            <td colspan="5" class="px-5 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">AI Qualification</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">7-gate pipeline</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Claude AI scoring (Gate 6)</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Custom gate configuration</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 cross-icon text-base bg-orange-50/30">✕</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr class="bg-zinc-50">
+            <td colspan="5" class="px-5 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">Outreach</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Claude-written messages</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">LinkedIn connect automation</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">A/B variant testing</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Slack reply alerts</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Notion shortlist sync</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr class="bg-zinc-50">
+            <td colspan="5" class="px-5 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">Intelligence &amp; Integrations</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Campaign intelligence report</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Dream cycle (AI memory)</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base bg-orange-50/30">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Multi-tenant</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 cross-icon text-base bg-orange-50/30">✕</td>
+            <td class="text-center p-5 text-zinc-800">3 tenants</td>
+            <td class="text-center p-5 text-zinc-800">Unlimited</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Trade fair badge import</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 cross-icon text-base bg-orange-50/30">✕</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">White-label deployment</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 cross-icon text-base bg-orange-50/30">✕</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+          <tr>
+            <td class="p-5 text-zinc-700">Dedicated onboarding engineer</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 cross-icon text-base bg-orange-50/30">✕</td>
+            <td class="text-center p-5 cross-icon text-base">✕</td>
+            <td class="text-center p-5 check-icon text-base">✓</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROI CONTEXT ─────────────────────────────────────────── -->
+<section class="section-white py-20 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <div class="inline-block pill-orange text-xs px-3 py-1 rounded-full mb-4">Return on investment</div>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4">
+        The numbers<br/><span class="gradient-text">work for you</span>
+      </h2>
+      <p class="text-zinc-500 text-lg max-w-xl mx-auto">One closed deal typically generates 40–80× the monthly plan cost. GTM-OS compounds this by learning what works and improving every campaign.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="card-orange rounded-2xl p-8 text-center">
+        <div class="text-5xl font-black number-accent mb-2">40×</div>
+        <div class="font-semibold text-zinc-800 mb-2">Minimum ROI target</div>
+        <div class="text-sm text-zinc-500">Based on one closed deal per month against Solo plan cost. Typical B2B deal value ≥ €15,000.</div>
+      </div>
+      <div class="card-teal rounded-2xl p-8 text-center">
+        <div class="text-5xl font-black number-accent mb-2">80×</div>
+        <div class="font-semibold text-zinc-800 mb-2">When the pipeline matures</div>
+        <div class="text-sm text-zinc-500">After 2–3 months of dream cycle learning, reply rates compound. Early adopters see 12–25% reply rates vs. industry average of 3–5%.</div>
+      </div>
+      <div class="card-blue rounded-2xl p-8 text-center">
+        <div class="text-5xl font-black number-accent mb-2">2wk</div>
+        <div class="font-semibold text-zinc-800 mb-2">Time to first results</div>
+        <div class="text-sm text-zinc-500">Campaign launch to first qualified replies in under 14 days. Winner variants declared automatically once statistical significance is reached.</div>
+      </div>
+    </div>
+
+    <!-- Overage explainer -->
+    <div class="mt-10 terminal rounded-2xl p-6 max-w-2xl mx-auto">
+      <div class="text-zinc-400 text-xs mono mb-3">Agency plan · 900 leads this month · quota = 600</div>
+      <div class="space-y-1 text-xs mono">
+        <div class="flex justify-between"><span class="text-zinc-400">Plan base (600 leads)</span><span class="text-white">€899.00</span></div>
+        <div class="flex justify-between"><span class="text-zinc-400">Overage: 300 × €0.35</span><span class="text-orange-400">€105.00</span></div>
+        <div class="border-t border-zinc-700 my-2"></div>
+        <div class="flex justify-between font-bold"><span class="text-zinc-200">Total this month</span><span class="text-white">€1,004.00</span></div>
+        <div class="flex justify-between text-zinc-500"><span>Cost per qualified lead</span><span>€1.12</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ─────────────────────────────────────────────────── -->
+<section id="faq" class="section-alt py-20 px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-black tracking-tight mb-3">Frequently asked questions</h2>
+      <p class="text-zinc-500">Anything not answered here — just email us.</p>
+    </div>
+
+    <div class="card rounded-2xl divide-y divide-zinc-100 overflow-hidden">
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">How exactly is a "qualified lead" counted?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          A lead is counted when it passes all 7 gates and receives an AI score of 65 or above (Gate 7). Contacts that are filtered out at any earlier gate — duplicate, wrong title, competitor, wrong company size, unenrichable, or low AI score — are never counted. The meter resets on your billing anniversary each month.
+        </div>
+      </div>
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">What happens when I hit my quota mid-month?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          Campaigns continue running without interruption. Each additional qualified lead is billed at €0.35 and shown on your next invoice. You can set a soft cap in the campaign settings to pause intake automatically if you prefer a hard budget.
+        </div>
+      </div>
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">Can I upgrade or downgrade at any time?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          Yes. Upgrades take effect immediately and you're prorated for the rest of the billing period. Downgrades take effect at the next renewal. Annual plan upgrades are also prorated.
+        </div>
+      </div>
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">Do I need a LinkedIn premium or Sales Navigator account?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          LinkedIn automation runs through Unipile — you provide your LinkedIn credentials and GTM-OS manages connect request pacing (max 30/day, within LinkedIn's safe limits). Sales Navigator is optional but improves search depth. You do not need a LinkedIn API key.
+        </div>
+      </div>
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">How does the trade fair module work?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          Available on Scale and Enterprise. After your exhibition, export your badge scanner CSV and run <span class="mono text-xs bg-zinc-100 px-1.5 py-0.5 rounded">import-badge-scans</span>. GTM-OS normalises 30+ column formats, deduplicates by email, and feeds each visitor into the 7-gate pipeline. Staff ratings (hot/warm/cold) and demo attendance feed into Gate 6 scoring to boost warm contacts. The fair-followup sequence fires day 0 (connect + personal note), day 1 (first DM), day 4 (follow-up), and day 10 (email). Intelligence is tagged to the fair and set to expire after 18 months.
+        </div>
+      </div>
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">Is my data stored on your servers?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          GTM-OS is open-source and self-hosted. Your leads database, intelligence store, and campaign data live in a SQLite file on your own machine or server. We never hold your contact data. The only external calls are to the AI providers (Anthropic) and enrichment services you configure.
+        </div>
+      </div>
+
+      <div class="faq-item p-6 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold text-zinc-900">What is the "dream cycle"?</h3>
+          <svg class="faq-chevron w-5 h-5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="faq-answer mt-4 text-zinc-500 text-sm leading-relaxed">
+          The dream cycle is GTM-OS's overnight learning loop. While you sleep, Claude reviews all recent replies and engagement signals, promotes hypotheses to validated insights, contradicts stale beliefs, archives expired intelligence, and rebuilds the vector index. The next day's outreach scores from a smarter baseline. It runs on a launchd schedule (macOS) or cron job — you can also trigger it manually.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ─────────────────────────────────────────────────── -->
+<section id="contact" class="section-alt py-24 px-6">
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="card-orange rounded-3xl p-12">
+      <div class="inline-flex items-center gap-2 bg-white border border-orange-200 px-4 py-2 rounded-full mb-6">
+        <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-500 block"></span>
+        <span class="text-xs text-orange-700 mono">Open-source stack · Deploy in 48h</span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-zinc-900">
+        Ready to automate<br/><span class="gradient-text">your outbound?</span>
+      </h2>
+      <p class="text-zinc-500 leading-relaxed mb-3">Book a 30-minute call. We audit your current GTM motion and show you which plan fits — then get you live within 48 hours.</p>
+      <p class="text-zinc-400 text-sm mb-8">No commitment. First qualified leads visible within 2 weeks.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="mailto:abdellah.ramli@gmail.com?subject=GTM-OS Pricing — Book a Demo" class="btn-primary px-8 py-4 rounded-xl font-semibold text-white text-base">
+          Book a call →
+        </a>
+        <a href="landing-energy-infra.html" class="btn-ghost px-8 py-4 rounded-xl text-zinc-700 text-base">
+          See GTM-OS in action
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="border-t border-zinc-100 py-10 px-6 bg-white">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-md btn-primary flex items-center justify-center">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 7L7 2L12 7L7 12L2 7Z" fill="white"/></svg>
+      </div>
+      <span class="font-bold text-sm text-zinc-800">GTM-OS · AI-Native GTM Operating System</span>
+    </div>
+    <div class="flex gap-6 text-sm text-zinc-400">
+      <a href="#plans" class="hover:text-zinc-700 transition-colors">Pricing</a>
+      <a href="#qualified-lead" class="hover:text-zinc-700 transition-colors">Qualified Lead</a>
+      <a href="#faq" class="hover:text-zinc-700 transition-colors">FAQ</a>
+      <a href="landing-energy-infra.html" class="hover:text-zinc-700 transition-colors">Energy &amp; Infra</a>
+      <a href="mailto:abdellah.ramli@gmail.com" class="hover:text-zinc-700 transition-colors">Contact</a>
+    </div>
+    <div class="mono text-xs text-zinc-400">GTM-OS · Open Source · 2026</div>
+  </div>
+</footer>
+
+<script>
+  // ── Billing toggle ──────────────────────────────────────
+  const prices = {
+    solo:     { monthly: '€399',   annual: '€319'   },
+    agency:   { monthly: '€899',   annual: '€719'   },
+    scale:    { monthly: '€1,799', annual: '€1,439' },
+  }
+
+  let isAnnual = false
+
+  function toggleBilling() {
+    isAnnual = !isAnnual
+    const btnMonthly = document.getElementById('btn-monthly')
+    const btnAnnual  = document.getElementById('btn-annual')
+
+    if (isAnnual) {
+      btnMonthly.classList.remove('active')
+      btnAnnual.classList.add('active')
+      btnMonthly.classList.add('text-zinc-500')
+      btnMonthly.classList.remove('text-zinc-900')
+      btnAnnual.classList.remove('text-zinc-500')
+      btnAnnual.classList.add('text-zinc-900')
+    } else {
+      btnAnnual.classList.remove('active')
+      btnMonthly.classList.add('active')
+      btnAnnual.classList.add('text-zinc-500')
+      btnAnnual.classList.remove('text-zinc-900')
+      btnMonthly.classList.remove('text-zinc-500')
+      btnMonthly.classList.add('text-zinc-900')
+    }
+
+    const mode = isAnnual ? 'annual' : 'monthly'
+    const billing = isAnnual ? 'billed annually (20% off)' : 'billed monthly'
+
+    for (const plan of ['solo', 'agency', 'scale']) {
+      const el = document.getElementById(`price-${plan}`)
+      if (!el) continue
+      el.innerHTML = `
+        <div class="text-4xl font-black text-zinc-900">${prices[plan][mode]}<span class="text-lg font-medium text-zinc-400">/mo</span></div>
+        <div class="text-xs text-zinc-400 mt-1 mono">${billing}</div>
+      `
+    }
+  }
+
+  // ── FAQ accordion ───────────────────────────────────────
+  function toggleFaq(el) {
+    el.classList.toggle('open')
+  }
+</script>
+
+</body>
+</html>
